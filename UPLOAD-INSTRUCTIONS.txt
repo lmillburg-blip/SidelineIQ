@@ -1,32 +1,49 @@
-SIDELINEIQ v0.13 — CORRECTED BRAND BUILD
+SIDELINEIQ v0.14 — CLEAN BRAND INTEGRATION BUILD
 
-Upload all files/folders in this package to the ROOT of the SidelineIQ GitHub repository.
-Preserve the /assets folder exactly.
+This is a clean v0.14 build using the two APPROVED images supplied by the user as the visual source of truth.
 
-This corrected build intentionally does NOT advance the feature version. It corrects the visual drift in the prior v0.13.
+IMPORTANT:
+- No substitute/generated logo art is used.
+- No guessed replacement brand image is used.
+- sidelineiq-primary-brand.png is the exact uploaded primary brand image.
+- sidelineiq-brand-board.png is the exact uploaded brand/style/UI board.
+- header logo, app icon, home feature image, and UI reference are crops derived directly from that approved brand board.
+- PWA icons are resized directly from the approved app-icon crop.
 
-Visual source of truth:
-- dark navy / teal-black sports-tech background
-- metallic silver/white SIQ emblem
-- integrated football motif
-- electric cyan/ice-blue motion accents
-- SIDELINEIQ wordmark with cyan IQ
-- FIND YOUR EDGE. tagline
-- dashboard structure modeled on the earlier SidelineIQ mockup:
-  score cards / game state / full field / recent plays / Offense-Defense-Penalty-Special Teams workbench
+UPLOAD
+Upload ALL files and folders in this ZIP to the ROOT of:
+lmillburg-blip/SidelineIQ
 
-Workflow preserved:
-- two-stage opening kickoff from OWN 40
-- stage 1 kicker + landing/catch spot
-- field flips for receiving-team return
-- returner + return end + tacklers
-- return end becomes offense starting field position
-- standalone Score pane removed
-- scoring embedded in Offense / Defense / Special Teams
-- Undo restores pre-play snapshot
-- migration attempts v0.13, then v0.12 local data
+Preserve:
+assets/
+icons/
 
-After upload:
-1. wait for GitHub Pages deployment to finish
-2. use Ctrl+Shift+R once
-3. if needed open an Incognito window to bypass old service-worker cache
+V0.14 FUNCTIONAL BASELINE
+- New local storage key: sidelineiq_v014.
+- Attempts migration from corrected v0.13, v0.13, then v0.12.
+- Team and game creation.
+- Live score/game-state header.
+- Field with 5-yard lines, 10-yard numbers and draggable football.
+- Recent Plays.
+- Four live-entry work areas: Offense / Defense / Special Teams / Penalty.
+- No standalone Score pane.
+- Scoring embedded into relevant workflows.
+- Run / Pass, pass result, interception, sack, fumble.
+- Defensive tackle / assist / missed / pressure / hurry, safety, defensive TD.
+- Penalty attachment with repeat-down and automatic-first-down options.
+- Two-stage kickoff from configured kickoff yard (default OWN 40).
+- Stage 1: kicker + landing/catch spot.
+- Stage 2: receiving-team field perspective + returner + return end + tacklers.
+- Touchback support.
+- Punt / Field Goal / PAT framework.
+- Full pre-play snapshot Undo.
+- Edit recent-play description.
+- TD/PAT/2-point/FG scoring workflow and automatic kickoff setup after PAT/FG/2-point.
+
+AFTER UPLOAD
+1. Wait for GitHub Pages deployment to turn green.
+2. Open the site.
+3. Press Ctrl+Shift+R once on Surface.
+4. If an installed PWA still shows an older build, close and reopen it.
+
+This version intentionally prioritizes faithful visual integration with the uploaded brand board over inventing new artwork.

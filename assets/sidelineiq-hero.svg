@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 480">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#04131a"/><stop offset=".5" stop-color="#092d39"/><stop offset="1" stop-color="#061820"/></linearGradient>
+  <radialGradient id="cg"><stop stop-color="#22d8ff" stop-opacity=".22"/><stop offset="1" stop-color="#22d8ff" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="1600" height="480" fill="url(#bg)"/>
+<circle cx="1210" cy="120" r="420" fill="url(#cg)"/>
+<g opacity=".12" fill="none" stroke="#7beaff" stroke-width="3">
+ <path d="M0 95h1600M0 240h1600M0 385h1600"/>
+ <path d="M130 0v480M350 0v480M570 0v480M790 0v480M1010 0v480M1230 0v480M1450 0v480"/>
+ <circle cx="1300" cy="95" r="38"/><path d="M1130 82l-26 26m0-26l26 26"/>
+ <path d="M1240 270c100-5 162-62 210-157" stroke-dasharray="15 12"/>
+</g>
+<g transform="translate(940 120) rotate(-12)">
+  <path d="M0 85C76-25 196-25 272 85 196 195 76 195 0 85z" fill="#5e341e" stroke="#dbe8ed" stroke-width="7"/>
+  <path d="M120 22v126m-38-63h76m-56-30h39m-39 60h39" stroke="#fff" stroke-width="6"/>
+</g>
+<text x="90" y="175" font-family="Arial,Helvetica,sans-serif" font-size="78" font-style="italic" font-weight="900" fill="#f5fafc">SIDELINE<tspan fill="#20d8ff">IQ</tspan></text>
+<text x="96" y="230" font-family="Arial,Helvetica,sans-serif" font-size="25" font-weight="700" letter-spacing="7" fill="#8ceeff">FIND YOUR EDGE.</text>
+<text x="96" y="320" font-family="Arial,Helvetica,sans-serif" font-size="28" fill="#b9cdd6">Football intelligence built for the sideline.</text>
+</svg>

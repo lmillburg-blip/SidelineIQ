@@ -1,0 +1,18 @@
+SidelineIQ v0.13
+
+Upload ALL contents of this ZIP to the ROOT of the GitHub repository, preserving the /assets folder.
+
+v0.13 highlights:
+• SidelineIQ dark teal/electric-cyan logo and Find Your Edge hero/banner integrated.
+• Existing v0.12 browser data migrates automatically to v0.13.
+• Standalone Score pane removed.
+• Live workbench = Offense / Defense / Penalty / Special Teams.
+• Scoring moved into Offense and Defense workflows.
+• Opening kickoff is two-stage and starts at OWN 40:
+  1) Kicker + draggable landing/catch spot.
+  2) Field flips to receiving-team perspective; returner + draggable return end + tacklers.
+• Return end becomes the receiving offense's starting field position.
+• Undo Last Play restores the pre-play game state.
+• Service worker cache bumped to v0.13.
+
+After GitHub Pages deploys, refresh the live app once. On an installed iPhone PWA, close/reopen it if the prior cached version remains visible.

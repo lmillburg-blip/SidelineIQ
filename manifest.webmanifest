@@ -4,8 +4,9 @@
   "start_url":"./",
   "scope":"./",
   "display":"standalone",
-  "background_color":"#071E27",
-  "theme_color":"#0B2E3A",
+  "orientation":"any",
+  "background_color":"#06171E",
+  "theme_color":"#071E27",
   "description":"Football play tracking and sideline analytics.",
   "icons":[
     {"src":"./icons/icon-192.png","sizes":"192x192","type":"image/png"},

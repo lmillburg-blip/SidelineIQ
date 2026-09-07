@@ -96,3 +96,5 @@ button{cursor:pointer}
 .penalty-list{max-height:82px;overflow:auto}
 .play-row{transition:filter .12s ease}
 .play-row:hover{filter:brightness(.98)}
+
+.build-badge{display:inline-flex;align-items:center;padding:4px 7px;border-radius:999px;border:1px solid #2E6273;background:#071F29;color:#7EEBFF;font-size:10px;font-weight:900;letter-spacing:.5px}

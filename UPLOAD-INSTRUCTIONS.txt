@@ -1,37 +1,21 @@
-SIDELINEIQ v0.15
+SIDELINEIQ v0.15.1 — VERIFICATION / MIGRATION FIX
 
-Built directly on the approved v0.14 brand assets. No new branding images were generated.
+This patch exists because v0.15 was confirmed in GitHub and GitHub Pages, but an existing v0.14 game could still behave as though the offense was driving in the old direction.
 
-CHANGES IN v0.15
+Fixes:
+- Existing game migration now infers drive direction from the most recent kickoff instead of defaulting migrated games to drive right.
+- New storage key sidelineiq_v0151 migrates from v0.15 first.
+- app.js and styles.css have explicit cache-busting query strings.
+- Service worker cache bumped again.
+- A small v0.15.1 badge appears in the top-right header. If you see that badge, you KNOW the new JavaScript is loaded.
+- All v0.15 penalty and Recent Plays changes remain intact.
 
-FIELD / POSSESSION DIRECTION
-- Fixed the post-kickoff drive direction.
-- Kick travels toward the opponent.
-- Return travels back the opposite direction.
-- The receiving offense now CONTINUES in the same direction as the return instead of flipping back to the kickoff direction.
-- First-down marker, yardage calculation, touchdowns, turnovers, punts, and possession changes now follow the active drive direction.
+Verification:
+1. Upload all files over the repository root.
+2. Wait for Pages green deployment.
+3. Open the app.
+4. Confirm the top-right badge says v0.15.1.
+5. Open the Penalty pane: it should show Side, Apply To, and Status toggle rows.
+6. Recent Plays should show 3-letter team abbreviations and light team-colored rows.
 
-RECENT PLAYS
-- Removed US / OPP.
-- Uses the first 3 letters of the actual team name (example: AUB, ROC).
-- Each play row is color-coded using a lightened version of that team's primary/secondary color scheme, with the primary color as an accent.
-
-PENALTIES
-- Offense / Defense is now a toggle instead of a dropdown.
-- New Apply To toggle: Current / Former.
-  - Current adds the flag to the play being entered.
-  - Former attaches the flag to the immediately previous saved play.
-- New Accepted / Declined toggle.
-- Multiple penalties can be added to the same current play.
-- Multiple penalties can also be attached to the former play.
-- Declined penalties are recorded but do not affect enforcement.
-- Multiple accepted penalties are enforced together, allowing offsetting/canceling yardage.
-- Repeat Down / No Play and Automatic First Down remain available.
-
-DATA
-- Uses sidelineiq_v015.
-- Migrates from v0.14 first, then earlier local stores.
-
-UPLOAD
-Upload ALL contents of this ZIP to the repository root, preserving assets/ and icons/.
-Wait for GitHub Pages deployment, then Ctrl+Shift+R once on the Surface.
+If the badge does not say v0.15.1, the browser is not serving this build.

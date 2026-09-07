@@ -91,3 +91,8 @@ button{cursor:pointer}
 #toastHost{position:fixed;right:14px;bottom:14px;z-index:99;display:grid;gap:6px}.toast{background:#0B3441;color:#fff;border:1px solid #2E6678;border-radius:7px;padding:9px 12px;box-shadow:var(--shadow)}
 @media(max-width:1150px){.game-top{grid-template-columns:220px 1fr 150px 1fr}.nav-strip{grid-column:1/-1}.main-grid{grid-template-columns:1fr}.recent-list{height:220px}.workbench{grid-template-columns:1fr 1fr}.home-grid{grid-template-columns:310px 1fr}.field{height:270px}}
 @media(max-width:760px){.topbar{padding:6px 9px}.brand-image{width:220px;max-width:65vw}.page{padding:10px}.home-grid{grid-template-columns:1fr}.feature-card{min-height:220px;max-height:260px}.game-page{padding:6px}.game-top{grid-template-columns:1fr 1fr}.game-brand{grid-column:1/-1}.game-state{grid-column:1/-1;order:-1}.score-card .team-label{font-size:13px}.score-card .score-value{font-size:29px}.nav-strip{grid-column:1/-1;overflow:auto}.main-grid{display:block}.field{height:215px}.recent-panel{margin-top:6px}.workbench{grid-template-columns:1fr}.field-controls{grid-template-columns:1fr 1fr}.savebar{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.play-row{grid-template-columns:24px 20px 36px 34px 1fr}.play-row .yds{display:none}}
+
+.pen-toggle button.active{background:#0D6178!important;color:#fff!important;border-color:#0D6178!important}
+.penalty-list{max-height:82px;overflow:auto}
+.play-row{transition:filter .12s ease}
+.play-row:hover{filter:brightness(.98)}

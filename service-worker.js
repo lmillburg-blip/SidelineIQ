@@ -1,4 +1,4 @@
-const CACHE='sidelineiq-v014-1';
+const CACHE='sidelineiq-v015-1';
 const ASSETS=['./','./index.html','./styles.css','./app.js','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./assets/sidelineiq-primary-brand.png','./assets/sidelineiq-brand-board.png','./assets/sidelineiq-header-logo.png','./assets/sidelineiq-home-feature.png','./assets/sidelineiq-ui-reference.png','./assets/sidelineiq-app-icon.png'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

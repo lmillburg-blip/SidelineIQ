@@ -1,49 +1,37 @@
-SIDELINEIQ v0.14 — CLEAN BRAND INTEGRATION BUILD
+SIDELINEIQ v0.15
 
-This is a clean v0.14 build using the two APPROVED images supplied by the user as the visual source of truth.
+Built directly on the approved v0.14 brand assets. No new branding images were generated.
 
-IMPORTANT:
-- No substitute/generated logo art is used.
-- No guessed replacement brand image is used.
-- sidelineiq-primary-brand.png is the exact uploaded primary brand image.
-- sidelineiq-brand-board.png is the exact uploaded brand/style/UI board.
-- header logo, app icon, home feature image, and UI reference are crops derived directly from that approved brand board.
-- PWA icons are resized directly from the approved app-icon crop.
+CHANGES IN v0.15
+
+FIELD / POSSESSION DIRECTION
+- Fixed the post-kickoff drive direction.
+- Kick travels toward the opponent.
+- Return travels back the opposite direction.
+- The receiving offense now CONTINUES in the same direction as the return instead of flipping back to the kickoff direction.
+- First-down marker, yardage calculation, touchdowns, turnovers, punts, and possession changes now follow the active drive direction.
+
+RECENT PLAYS
+- Removed US / OPP.
+- Uses the first 3 letters of the actual team name (example: AUB, ROC).
+- Each play row is color-coded using a lightened version of that team's primary/secondary color scheme, with the primary color as an accent.
+
+PENALTIES
+- Offense / Defense is now a toggle instead of a dropdown.
+- New Apply To toggle: Current / Former.
+  - Current adds the flag to the play being entered.
+  - Former attaches the flag to the immediately previous saved play.
+- New Accepted / Declined toggle.
+- Multiple penalties can be added to the same current play.
+- Multiple penalties can also be attached to the former play.
+- Declined penalties are recorded but do not affect enforcement.
+- Multiple accepted penalties are enforced together, allowing offsetting/canceling yardage.
+- Repeat Down / No Play and Automatic First Down remain available.
+
+DATA
+- Uses sidelineiq_v015.
+- Migrates from v0.14 first, then earlier local stores.
 
 UPLOAD
-Upload ALL files and folders in this ZIP to the ROOT of:
-lmillburg-blip/SidelineIQ
-
-Preserve:
-assets/
-icons/
-
-V0.14 FUNCTIONAL BASELINE
-- New local storage key: sidelineiq_v014.
-- Attempts migration from corrected v0.13, v0.13, then v0.12.
-- Team and game creation.
-- Live score/game-state header.
-- Field with 5-yard lines, 10-yard numbers and draggable football.
-- Recent Plays.
-- Four live-entry work areas: Offense / Defense / Special Teams / Penalty.
-- No standalone Score pane.
-- Scoring embedded into relevant workflows.
-- Run / Pass, pass result, interception, sack, fumble.
-- Defensive tackle / assist / missed / pressure / hurry, safety, defensive TD.
-- Penalty attachment with repeat-down and automatic-first-down options.
-- Two-stage kickoff from configured kickoff yard (default OWN 40).
-- Stage 1: kicker + landing/catch spot.
-- Stage 2: receiving-team field perspective + returner + return end + tacklers.
-- Touchback support.
-- Punt / Field Goal / PAT framework.
-- Full pre-play snapshot Undo.
-- Edit recent-play description.
-- TD/PAT/2-point/FG scoring workflow and automatic kickoff setup after PAT/FG/2-point.
-
-AFTER UPLOAD
-1. Wait for GitHub Pages deployment to turn green.
-2. Open the site.
-3. Press Ctrl+Shift+R once on Surface.
-4. If an installed PWA still shows an older build, close and reopen it.
-
-This version intentionally prioritizes faithful visual integration with the uploaded brand board over inventing new artwork.
+Upload ALL contents of this ZIP to the repository root, preserving assets/ and icons/.
+Wait for GitHub Pages deployment, then Ctrl+Shift+R once on the Surface.

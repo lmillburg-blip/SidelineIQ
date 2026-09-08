@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.15.1';
-const DBKEY='sidelineiq_v0151';
-const LEGACY_KEYS=['sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.15.3';
+const DBKEY='sidelineiq_v0153';
+const LEGACY_KEYS=['sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 
@@ -90,7 +90,7 @@ function renderGame(id){
  const homeTeam=g.location==='Away'?'opp':'team';const left=teamSide(g,t,homeTeam),right=teamSide(g,t,other(homeTeam));left.score=homeTeam==='team'?g.teamScore:g.oppScore;right.score=homeTeam==='team'?g.oppScore:g.teamScore;
  const off=teamSide(g,t,g.poss),def=teamSide(g,t,other(g.poss));
  const stateLabel=g.kickoffPending?'KICKOFF':g.awaitingTry?'TRY':`${ordinal(g.down)} & ${g.toGo}`;
- shell(`<main class="game-page"><section class="game-top"><div class="game-brand"><img src="./assets/sidelineiq-header-logo.png" alt="SidelineIQ"></div><div class="score-card" style="background:${left.color};color:${textColor(left.color)}"><span class="team-label">${esc(left.name)}</span><span class="score-value">${left.score}</span></div><div class="game-state"><div class="period">${g.format==='halves'?'H':'Q'}${g.period}</div><div class="downline">${stateLabel}</div><div class="pos">${g.kickoffPending?'Opening kickoff':fmtDrive(g.los,g.driveDir)}</div></div><div class="score-card" style="background:${right.color};color:${textColor(right.color)}"><span class="score-value">${right.score}</span><span class="team-label">${esc(right.name)}</span></div><div class="nav-strip"><button class="nav-button" onclick="location.hash='#team/${t.id}'"><span class="ico">▣</span>Games</button><button class="nav-button"><span class="ico">♟</span>Teams</button><button class="nav-button"><span class="ico">⚙</span>Settings</button><button class="nav-button"><span class="ico">⋮</span>More</button></div></section>
+ shell(`<main class="game-page"><section class="game-top"><div class="game-brand"><img src="./assets/sidelineiq-header-logo.png" alt="SidelineIQ"></div><div class="score-card" style="background:${left.color};color:${textColor(left.color)}"><span class="team-label">${esc(left.name)}</span><span class="score-value">${left.score}</span></div><div class="game-state"><div class="period">${g.format==='halves'?'H':'Q'}${g.period}</div><div class="downline">${stateLabel}</div><div class="pos">${g.kickoffPending?'Opening kickoff':fmtDrive(g.los,g.driveDir)}</div></div><div class="score-card" style="background:${right.color};color:${textColor(right.color)}"><span class="score-value">${right.score}</span><span class="team-label">${esc(right.name)}</span></div><div class="nav-strip"><button class="nav-button" onclick="location.hash='#team/${t.id}'"><span class="ico">▣</span>Games</button><button class="nav-button" id="resetGame"><span class="ico">↻</span>Reset</button><button class="nav-button danger-nav" id="deleteGame"><span class="ico">✕</span>Delete</button><button class="nav-button"><span class="ico">⚙</span>Settings</button></div></section>
  <div class="main-grid"><section class="field-panel"><div class="field" id="field"></div><div class="field-controls"><div class="mini"><small>Line of Scrimmage</small><div class="los-control"><select id="losSide"><option>OWN</option><option>OPP</option><option>50</option></select><input id="losYard" type="number" min="0" max="49"><button class="btn btn-light" id="setLos">Set</button></div></div><div class="mini"><small>Ball at</small><b id="ballText">${g.kickoffPending?'—':fmtDrive(g.los,g.driveDir)}</b></div><div class="mini"><small>Distance</small><b>${g.kickoffPending?'—':g.toGo}</b></div><div class="mini"><small>Down</small><b>${g.kickoffPending?'—':g.down}</b></div><div class="mini"><small>State</small><b>${g.kickoffPending?'KO':g.awaitingTry?'TRY':'LIVE'}</b></div></div></section>
  <aside class="recent-panel"><div class="recent-head"><span>Recent Plays</span><select><option>All Plays</option></select></div><div class="recent-list">${recentRows(g,t)}</div><div class="recent-actions"><button class="btn btn-light" id="editPlay">Edit Selected</button><button class="btn btn-light" id="undoPlay">Undo Last Play</button></div></aside></div>
  <section class="workbench"><div class="pane off"><div class="pane-title">OFFENSE</div><div class="pane-body">${offensePane(g)}</div></div><div class="pane def"><div class="pane-title">DEFENSE</div><div class="pane-body">${defensePane()}</div></div><div class="pane st"><div class="pane-title">SPECIAL TEAMS</div><div class="pane-body">${specialPane(g,t)}</div></div><div class="pane pen"><div class="pane-title">PENALTY</div><div class="pane-body">${penaltyPane()}</div></div></section>
@@ -119,7 +119,55 @@ function kickoffPane(g,t){
 }
 function recentRows(g,t){return [...g.plays].reverse().slice(0,25).map((p,i)=>{const n=g.plays.length-i,team=p.team||p.before?.poss||'team',tm=teamSide(g,t,team),abbr=teamAbbr(tm.name),bg1=lighten(tm.color,.84),bg2=lighten(tm.secondary||tm.color,.90);return `<div class="play-row" data-play="${p.id}" style="background:linear-gradient(90deg,${bg1},${bg2});border-left:4px solid ${tm.color};color:#132D36"><div>${n}</div><div>${g.period||1}</div><div>${esc(p.time||'')}</div><div><b>${abbr}</b></div><div class="desc">${esc(p.desc||'')}</div><div class="yds">${Number.isFinite(p.yds)?(p.yds>0?'+':'')+p.yds:''}</div></div>`}).join('')||'<div class="empty">No plays yet.</div>'}
 
+function resetGameState(g){
+ const openingKick=g.openingKick||'team';
+ const receiving=other(openingKick);
+ const kickoffYard=g.kickoffYard||40;
+ g.teamScore=0;
+ g.oppScore=0;
+ g.period=1;
+ g.down=1;
+ g.toGo=10;
+ g.los=20;
+ g.poss=receiving;
+ g.plays=[];
+ g.awaitingTry=false;
+ g.driveDir=1;
+ g.kickoffPending=true;
+ g.kickoff={
+   phase:'kick',
+   kickingTeam:openingKick,
+   receivingTeam:receiving,
+   startYard:kickoffYard,
+   kickDir:1,
+   startSpot:kickoffYard,
+   landing:null,
+   returnEnd:null,
+   kicker:'',
+   returner:'',
+   tacklers:[],
+   touchback:false
+ };
+ selectedPlayId=null;
+}
+
 function bindGame(g,t){
+ $('#resetGame').onclick=()=>{
+   const ok=confirm(`Are you sure you want to reset this game against ${g.opponent}?\n\nThis will permanently clear all plays, scores, penalties, and game progress. The game itself will remain on the schedule.`);
+   if(!ok)return;
+   resetGameState(g);
+   save();
+   toast('Game reset');
+   renderGame(g.id);
+ };
+ $('#deleteGame').onclick=()=>{
+   const ok=confirm(`Are you sure you want to DELETE this game against ${g.opponent}?\n\nThis will permanently delete the game and all recorded plays and statistics. This cannot be undone.`);
+   if(!ok)return;
+   const teamId=g.teamId;
+   state.games=state.games.filter(x=>x.id!==g.id);
+   save();
+   location.hash='#team/'+teamId;
+ };
  const sy=sideYard(relSpot(g.los,g.driveDir||1));$('#losSide').value=sy.side;$('#losYard').value=sy.yard;
  $('#setLos').onclick=()=>{if(g.kickoffPending)return toast('Finish the kickoff first.');const side=$('#losSide').value,y=+$('#losYard').value||0;const rel=side==='50'?50:side==='OWN'?y:100-y;g.los=screenSpot(rel,g.driveDir||1);g.los=clamp(g.los);currentPlay.end=g.los;save();renderGame(g.id)};
  $('#savePlay').onclick=()=>savePlay(g,t);$('#clearPlay').onclick=()=>renderGame(g.id);$('#undoPlay').onclick=()=>undoPlay(g);$('#editPlay').onclick=()=>editSelected(g);
@@ -161,9 +209,22 @@ function bindPenalty(g){
 function enforceFormerPenalty(g,former,p){
  if(p.status!=='accepted')return;
  const dir=former.before?.driveDir??g.driveDir??1;
- if(p.repeatDown){const keepPlays=g.plays;const keepScores={team:g.teamScore,opp:g.oppScore};Object.assign(g,structuredClone(former.before));g.plays=keepPlays;g.teamScore=keepScores.team;g.oppScore=keepScores.opp}
- const shift=(p.side==='Offense'?-p.yards:p.yards)*dir;g.los=clamp(g.los+shift);
- if(p.autoFirst){g.down=1;g.toGo=Math.min(10,Math.max(1,dir===1?100-g.los:g.los))}
+ const oldLineToGain=clamp(g.los+dir*g.toGo);
+ if(p.repeatDown){
+   const keepPlays=g.plays,keepScores={team:g.teamScore,opp:g.oppScore};
+   Object.assign(g,structuredClone(former.before));
+   g.plays=keepPlays;g.teamScore=keepScores.team;g.oppScore=keepScores.opp;
+ }
+ const shift=(p.side==='Offense'?-p.yards:p.yards)*dir;
+ g.los=clamp(g.los+shift);
+ if(p.autoFirst){
+   g.down=1;
+   g.toGo=Math.min(10,Math.max(1,dir===1?100-g.los:g.los));
+   return;
+ }
+ if(!p.repeatDown){
+   g.toGo=Math.max(1,Math.abs(oldLineToGain-g.los));
+ }
 }
 function bindSpecial(g){
  currentPlay.special='Kickoff';

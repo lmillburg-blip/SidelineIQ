@@ -1,21 +1,16 @@
-SIDELINEIQ v0.15.1 — VERIFICATION / MIGRATION FIX
+SIDELINEIQ v0.15.3 — GAME RESET / DELETE
 
-This patch exists because v0.15 was confirmed in GitHub and GitHub Pages, but an existing v0.14 game could still behave as though the offense was driving in the old direction.
+New:
+- Reset button on live game screen.
+- Reset requires confirmation.
+- Reset clears scores, plays, penalties, period/down/distance/LOS, and kickoff progress.
+- Reset preserves game metadata and returns the game to its original opening kickoff.
 
-Fixes:
-- Existing game migration now infers drive direction from the most recent kickoff instead of defaulting migrated games to drive right.
-- New storage key sidelineiq_v0151 migrates from v0.15 first.
-- app.js and styles.css have explicit cache-busting query strings.
-- Service worker cache bumped again.
-- A small v0.15.1 badge appears in the top-right header. If you see that badge, you KNOW the new JavaScript is loaded.
-- All v0.15 penalty and Recent Plays changes remain intact.
+- Delete button on live game screen.
+- Delete requires confirmation.
+- Delete permanently removes the game and all recorded data.
+- After deletion, the app returns to that team's Games page.
 
-Verification:
-1. Upload all files over the repository root.
-2. Wait for Pages green deployment.
-3. Open the app.
-4. Confirm the top-right badge says v0.15.1.
-5. Open the Penalty pane: it should show Side, Apply To, and Status toggle rows.
-6. Recent Plays should show 3-letter team abbreviations and light team-colored rows.
-
-If the badge does not say v0.15.1, the browser is not serving this build.
+Deployment verification:
+- Build badge should read v0.15.3.
+- JS/CSS and service-worker cache versions are bumped.

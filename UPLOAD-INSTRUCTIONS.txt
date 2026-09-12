@@ -1,36 +1,25 @@
-SIDELINEIQ v0.2.0 — IN-GAME ANALYTICS
+SIDELINEIQ v0.20.0 — IN-GAME ANALYTICS
 
-NEW
-- Stats button in the live-game top navigation.
-- Two-column comparison: one column per team.
-- Total yards with run vs pass breakdown.
-- Turnovers and offensive play count.
+IMPORTANT CORRECTION
+- The intended version is v0.20.0.
+- The previous v0.2.0 package contained the analytics code, but its internal BUILD/DB version values were stale.
+- v0.20.0 corrects those internal version values and cache keys.
 
-PLAYER TABLES
-QB: completions/attempts, yards, TD, INT, sacks.
-RB: carries, yards, average, TD, fumbles.
-WR: targets, receptions, yards, average, TD.
-Defense: tackles, assists, sacks, pressures, hurries, missed tackles.
+WHERE IS ANALYTICS?
+- Open a live game.
+- In the top navigation strip, Analytics is BETWEEN Games and Reset.
+- It has a cyan highlight to make it easy to see.
 
-PLAYER DETAIL
-- Click any player number in Stats.
-- Opens a combined player statistics view with all recorded offensive and defensive production.
-- Back returns to the game analytics screen.
-
-NOTES
-- Stats are calculated live from recorded plays for both teams.
-- Sack yardage remains in the passing/team yardage bucket because SidelineIQ records sacks as pass plays.
-
-PRESERVED
-- Game Over.
-- Bad Snap and fumble recovery.
-- Possession indicator.
-- Two-stage punt.
-- Second-half kickoff.
-- Return TDs.
-- Sack attribution.
+ANALYTICS
+- Two side-by-side team columns.
+- Total yards.
+- Rush yards + attempts.
+- Pass yards + completions/attempts.
+- Turnovers.
+- QB, RB/rushing, WR/receiving, and defense tables.
+- Click a player number to open individual game statistics.
 
 DEPLOYMENT
-- Build v0.2.0
-- Migrates from v0.15.15
-- Cache keys bumped to v020.
+- Upload ALL files/folders to the repository root.
+- After GitHub Pages finishes deploying, force refresh.
+- Visible build badge should read v0.20.0.

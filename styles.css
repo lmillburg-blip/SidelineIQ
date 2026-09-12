@@ -184,3 +184,11 @@ button{cursor:pointer}
  .analytics-kpis{grid-template-columns:repeat(2,1fr)}
  .player-stat-grid{grid-template-columns:1fr}
 }
+
+.nav-button.analytics-nav{
+  background:rgba(0,212,255,.12);
+  box-shadow:inset 0 -3px 0 #00D4FF;
+  min-width:86px;
+}
+.nav-button.analytics-nav .ico{color:#00D4FF}
+.nav-button.analytics-nav:hover{background:rgba(0,212,255,.20)}

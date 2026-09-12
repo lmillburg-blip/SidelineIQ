@@ -1,28 +1,20 @@
-SIDELINEIQ v0.15.4 — PENALTY ENFORCEMENT WORKFLOW FIX
+SIDELINEIQ v0.15.5 — PENALTY PLAYER + FOUL SPOT
 
-Key changes:
-- Penalties now move the football even when the underlying play has no yardage entered.
-- "Negate play stats" is clarified as:
-  "Ignore play yardage; enforce from previous LOS."
-- If that option is selected, enforcement starts from the pre-play line of scrimmage.
-- Repeat Down / No Play now also enforces from the previous LOS and keeps the same down.
-- The yellow first-down line stays at the original line-to-gain unless an automatic/new first down is awarded.
-- Accepted live-ball penalties without Repeat Down count the down.
-- Declined penalties are recorded but do not affect the ball.
-
-Smart defaults added:
-- Holding: 10 yards, Offense, previous-LOS enforcement selected.
-- False Start: 5 yards, Offense, previous LOS + repeat down/no play.
-- Delay of Game: 5 yards, Offense, previous LOS + repeat down/no play.
-- Offside: 5 yards, Defense, previous LOS + repeat down/no play.
-- Illegal Formation: 5 yards, Offense, previous-LOS enforcement selected.
-- Illegal Motion: 5 yards, Offense, previous-LOS enforcement selected.
+New penalty fields:
+- Player # field for the player the foul was called on.
+- When "Enforce from spot of foul" is checked, a Spot of Foul section appears:
+  * OWN / OPP / 50
+  * yard line
+- The entered foul spot is now the actual enforcement base for both:
+  * penalties on the current play
+  * penalties applied to the former play
+- Penalty summaries include the player number and foul spot.
 
 Examples:
-- Offensive holding with no play yardage entered: ball moves 10 yards backward from previous LOS.
-- Defensive offside: ball moves 5 yards forward from previous LOS and the down repeats.
-- A former-play penalty uses the same previous-LOS enforcement logic.
+- Holding on #72 at OWN 38, 10 yards: enforcement begins at OWN 38.
+- Defensive foul at OPP 42, 5 yards: enforcement begins at OPP 42.
+- If "Enforce from spot of foul" is not selected, the existing previous-LOS / normal enforcement rules still apply.
 
 Deployment verification:
-- Build badge should read v0.15.4.
-- JS/CSS and service-worker caches are bumped.
+- Build badge should read v0.15.5.
+- JS/CSS and service-worker cache versions are bumped.

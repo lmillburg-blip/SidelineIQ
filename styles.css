@@ -105,3 +105,8 @@ button{cursor:pointer}
 
 .pen-checks label{line-height:1.25}
 .penalty-list div+div{margin-top:4px}
+
+.foul-spot-fields{display:grid;grid-template-columns:auto 100px 90px;gap:8px;align-items:center;margin:4px 0 8px 24px}
+.foul-spot-fields.hidden{display:none}
+.foul-spot-fields .field-hint{font-size:12px;font-weight:800;color:#475569}
+.foul-spot-fields select,.foul-spot-fields input{min-width:0}

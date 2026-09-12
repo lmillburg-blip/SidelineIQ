@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.15.4';
-const DBKEY='sidelineiq_v0154';
-const LEGACY_KEYS=['sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.15.5';
+const DBKEY='sidelineiq_v0155';
+const LEGACY_KEYS=['sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 
@@ -104,7 +104,7 @@ function offensePane(g){
 function runFields(){return `<div class="form-row"><label>Ball Carrier #</label><input id="player" inputmode="numeric" placeholder="#"></div>`}
 function passFields(){return `<div class="form-row"><label>QB #</label><input id="qb" inputmode="numeric"><label>Receiver #</label><input id="receiver" inputmode="numeric"></div><div class="seg" id="passResult"><button class="active">Complete</button><button>Incomplete</button><button>Interception</button><button>Sack</button></div>`}
 function defensePane(){return `<div class="form-row"><label>Player #</label><input id="defNum" inputmode="numeric"></div><div class="section-label">Action</div><div class="action-grid"><button data-def="Tackle">Tackle</button><button data-def="Assist">Assist</button><button class="alt" data-def="Missed">Missed</button><button class="alt" data-def="Pressure">Pressure</button><button class="alt" data-def="Hurry">Hurry</button><button class="score" data-dscore="Safety">Safety +2</button><button class="score" data-dscore="Def TD">Def. TD +6</button></div><div class="summary" id="defList">No defensive actions yet.</div>`}
-function penaltyPane(){return `<div class="section-label">Side</div><div class="seg pen-toggle" id="penSideToggle"><button class="active" data-pen-side="Offense">Offense</button><button data-pen-side="Defense">Defense</button></div><div class="section-label">Apply To</div><div class="seg pen-toggle" id="penApplyToggle"><button class="active" data-apply="current">Current</button><button data-apply="former">Former</button></div><div class="section-label">Status</div><div class="seg pen-toggle" id="penStatusToggle"><button class="active" data-status="accepted">Accepted</button><button data-status="declined">Declined</button></div><div class="form-row"><select id="penType"><option>Holding</option><option>False Start</option><option>Delay of Game</option><option>Offside</option><option>Pass Interference</option><option>Personal Foul</option><option>Illegal Formation</option><option>Illegal Motion</option><option>Facemask</option><option>Unsportsmanlike Conduct</option><option>Other</option></select><input id="penYards" type="number" value="10" aria-label="Penalty yards"></div><div class="pen-checks"><label><input type="checkbox" id="spotFoul"> Enforce from spot of foul / ball spot</label><label><input type="checkbox" id="negate"> Ignore play yardage; enforce from previous LOS</label><label><input type="checkbox" id="repeatDown"> Repeat down / no play</label><label><input type="checkbox" id="autoFirst"> Automatic first down</label></div><div class="form-row"><button class="btn btn-light" id="attachPenalty">Apply Penalty</button><button class="btn btn-light" id="clearPenalty">Clear Current</button></div><div class="summary penalty-list" id="penSummary">No penalties applied.</div>`}
+function penaltyPane(){return `<div class="section-label">Side</div><div class="seg pen-toggle" id="penSideToggle"><button class="active" data-pen-side="Offense">Offense</button><button data-pen-side="Defense">Defense</button></div><div class="section-label">Apply To</div><div class="seg pen-toggle" id="penApplyToggle"><button class="active" data-apply="current">Current</button><button data-apply="former">Former</button></div><div class="section-label">Status</div><div class="seg pen-toggle" id="penStatusToggle"><button class="active" data-status="accepted">Accepted</button><button data-status="declined">Declined</button></div><div class="form-row"><select id="penType"><option>Holding</option><option>False Start</option><option>Delay of Game</option><option>Offside</option><option>Pass Interference</option><option>Personal Foul</option><option>Illegal Formation</option><option>Illegal Motion</option><option>Facemask</option><option>Unsportsmanlike Conduct</option><option>Other</option></select><input id="penYards" type="number" value="10" aria-label="Penalty yards" placeholder="Yards"></div><div class="form-row"><input id="penPlayer" inputmode="numeric" placeholder="Player #" aria-label="Player number"></div><div class="pen-checks"><label><input type="checkbox" id="spotFoul"> Enforce from spot of foul</label><div id="foulSpotFields" class="foul-spot-fields hidden"><span class="field-hint">Spot of foul</span><select id="foulSpotSide" aria-label="Spot of foul side"><option>OWN</option><option>OPP</option><option>50</option></select><input id="foulSpotYard" type="number" min="0" max="49" placeholder="Yard" aria-label="Spot of foul yard line"></div><label><input type="checkbox" id="negate"> Ignore play yardage; enforce from previous LOS</label><label><input type="checkbox" id="repeatDown"> Repeat down / no play</label><label><input type="checkbox" id="autoFirst"> Automatic first down</label></div><div class="form-row"><button class="btn btn-light" id="attachPenalty">Apply Penalty</button><button class="btn btn-light" id="clearPenalty">Clear Current</button></div><div class="summary penalty-list" id="penSummary">No penalties applied.</div>`}
 function specialPane(g,t){
  if(g.kickoffPending)return kickoffPane(g,t);
  return `<div class="seg" id="stTypes"><button class="active" data-st="Kickoff">Kickoff</button><button data-st="Punt">Punt</button><button data-st="Field Goal">Field Goal</button><button data-st="PAT">PAT</button></div><div id="stDynamic">${manualKickoffFields()}</div>`
@@ -206,21 +206,47 @@ function bindPenalty(g){
  const setSide=side=>{$$('#penSideToggle button').forEach(b=>b.classList.toggle('active',b.dataset.penSide===side))};
  const applyDefaults=()=>{
    const d=defaults[$('#penType')?.value];if(!d)return;
-   $('#penYards').value=d.yards;setSide(d.side);$('#negate').checked=d.negate;$('#repeatDown').checked=d.repeat;$('#autoFirst').checked=d.auto;$('#spotFoul').checked=false;
+   $('#penYards').value=d.yards;setSide(d.side);$('#negate').checked=d.negate;$('#repeatDown').checked=d.repeat;$('#autoFirst').checked=d.auto;$('#spotFoul').checked=false;toggleFoulSpot();
  };
+ const toggleFoulSpot=()=>$('#foulSpotFields')?.classList.toggle('hidden',!$('#spotFoul')?.checked);
+ $('#spotFoul').onchange=toggleFoulSpot;
  if($('#penType')){$('#penType').onchange=applyDefaults;applyDefaults()}
+ toggleFoulSpot();
 
+ const getFoulSpot=()=>{
+   if(!$('#spotFoul').checked)return null;
+   const side=$('#foulSpotSide').value;
+   const yard=Math.max(0,Math.min(49,+$('#foulSpotYard').value||0));
+   if(side==='50')return screenSpot(50,g.driveDir||1);
+   const relative=side==='OWN'?yard:100-yard;
+   return screenSpot(relative,g.driveDir||1);
+ };
  const render=()=>{
    if(!$('#penSummary'))return;
    $('#penSummary').innerHTML=currentPlay.penalties.length
-     ?currentPlay.penalties.map((p,i)=>`<div>${i+1}. ${p.side} ${p.type} ${p.yards} yd · ${p.status.toUpperCase()}${p.negate?' · PREVIOUS LOS':''}${p.repeatDown?' · REPEAT DOWN':''}</div>`).join('')
+     ?currentPlay.penalties.map((p,i)=>`<div>${i+1}. ${p.side} ${p.type}${p.player?` #${esc(p.player)}`:''} ${p.yards} yd · ${p.status.toUpperCase()}${p.spotFoul&&p.foulSpot!=null?` · FOUL @ ${fmtDrive(p.foulSpot,g.driveDir||1)}`:''}${p.negate?' · PREVIOUS LOS':''}${p.repeatDown?' · REPEAT DOWN':''}</div>`).join('')
      :'No penalties applied.';
  };
  $('#attachPenalty').onclick=()=>{
-   const p={side:$('#penSideToggle .active')?.dataset.penSide||'Offense',applyTo:$('#penApplyToggle .active')?.dataset.apply||'current',status:$('#penStatusToggle .active')?.dataset.status||'accepted',type:$('#penType').value,yards:+$('#penYards').value||0,spotFoul:$('#spotFoul').checked,negate:$('#negate').checked,repeatDown:$('#repeatDown').checked,autoFirst:$('#autoFirst').checked};
+   const spotChecked=$('#spotFoul').checked;
+   if(spotChecked&&$('#foulSpotSide').value!=='50'&&$('#foulSpotYard').value==='')return toast('Enter the spot of the foul.');
+   const p={
+     side:$('#penSideToggle .active')?.dataset.penSide||'Offense',
+     applyTo:$('#penApplyToggle .active')?.dataset.apply||'current',
+     status:$('#penStatusToggle .active')?.dataset.status||'accepted',
+     type:$('#penType').value,
+     yards:+$('#penYards').value||0,
+     player:$('#penPlayer').value.trim(),
+     spotFoul:spotChecked,
+     foulSpot:getFoulSpot(),
+     negate:$('#negate').checked,
+     repeatDown:$('#repeatDown').checked,
+     autoFirst:$('#autoFirst').checked
+   };
    if(p.applyTo==='former'){
      const former=g.plays[g.plays.length-1];if(!former)return toast('There is no former play to apply the penalty to.');
-     former.penalties??=[];former.penalties.push(structuredClone(p));former.desc+=` · PEN ${p.side} ${p.type} ${p.yards}yd ${p.status.toUpperCase()}`;
+     former.penalties??=[];former.penalties.push(structuredClone(p));
+     former.desc+=` · PEN ${p.side} ${p.type}${p.player?` #${p.player}`:''} ${p.yards}yd ${p.status.toUpperCase()}`;
      if(p.status==='accepted')enforceFormerPenalty(g,former,p);save();toast('Penalty applied to former play');renderGame(g.id);return;
    }
    currentPlay.penalties.push(p);render();toast('Penalty attached to current play');
@@ -237,7 +263,7 @@ function enforceFormerPenalty(g,former,p){
 
  // No-play / negated-yardage penalties enforce from the previous line of scrimmage.
  // Spot-foul penalties use the recorded end/ball spot. Otherwise use the current post-play spot.
- let base=p.negate?previousLos:(p.spotFoul?(former.end??currentSpot):currentSpot);
+ let base=p.spotFoul&&p.foulSpot!=null?p.foulSpot:(p.negate?previousLos:currentSpot);
  const shift=(p.side==='Offense'?-p.yards:p.yards)*dir;
  const enforced=clamp(base+shift);
 
@@ -334,8 +360,9 @@ function applyAfterPlay(g,p,start,end){
  // Determine enforcement base. If play yardage is ignored/no-play, start at previous LOS.
  // If spot-of-foul is selected, the dragged ball/end spot is the enforcement spot.
  let base=end;
- if(accepted.some(x=>x.negate||x.repeatDown))base=start;
- else if(accepted.some(x=>x.spotFoul))base=end;
+ const spotPenalty=accepted.find(x=>x.spotFoul&&x.foulSpot!=null);
+ if(spotPenalty)base=spotPenalty.foulSpot;
+ else if(accepted.some(x=>x.negate||x.repeatDown))base=start;
 
  const net=accepted.reduce((sum,x)=>sum+(x.side==='Offense'?-x.yards:x.yards),0);
  const actual=clamp(base+net*dir);

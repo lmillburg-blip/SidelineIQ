@@ -135,7 +135,7 @@ function renderGame(id){
  const homeTeam=g.location==='Away'?'opp':'team';const left=teamSide(g,t,homeTeam),right=teamSide(g,t,other(homeTeam));left.score=homeTeam==='team'?g.teamScore:g.oppScore;right.score=homeTeam==='team'?g.oppScore:g.teamScore;
  const off=teamSide(g,t,g.poss),def=teamSide(g,t,other(g.poss));
  const stateLabel=g.kickoffPending?'KICKOFF':g.awaitingTry?'TRY':`${ordinal(g.down)} & ${g.toGo}`;
- shell(`<main class="game-page"><section class="game-top"><div class="game-brand"><img src="./assets/sidelineiq-header-logo.png" alt="SidelineIQ"></div><div class="score-card" style="background:${left.color};color:${textColor(left.color)}"><span class="team-label">${esc(left.name)}</span><span class="score-value">${left.score}</span></div><div class="game-state"><div class="period period-control"><span>${g.format==='halves'?'H':'Q'}${g.period}</span><button type="button" id="nextPeriod" class="period-next" ${g.period>=(g.format==='halves'?2:4)?'disabled':''} title="Advance to next ${g.format==='halves'?'half':'quarter'}">›</button></div><div class="downline">${stateLabel}</div><div class="pos">${g.kickoffPending?'Opening kickoff':fmtDrive(g.los,g.driveDir)}</div></div><div class="score-card" style="background:${right.color};color:${textColor(right.color)}"><span class="score-value">${right.score}</span><span class="team-label">${esc(right.name)}</span></div><div class="nav-strip"><button class="nav-button" onclick="location.hash='#team/${t.id}'"><span class="ico">▣</span>Games</button><button class="nav-button" id="resetGame"><span class="ico">↻</span>Reset</button><button class="nav-button danger-nav" id="deleteGame"><span class="ico">✕</span>Delete</button><button class="nav-button"><span class="ico">⚙</span>Settings</button></div></section>
+ shell(`<main class="game-page"><section class="game-top"><div class="game-brand"><img src="./assets/sidelineiq-header-logo.png" alt="SidelineIQ"></div><div class="score-card" style="background:${left.color};color:${textColor(left.color)}"><span class="team-label">${esc(left.name)}</span><span class="score-value">${left.score}</span></div><div class="game-state"><div class="period period-control"><span>${g.format==='halves'?'H':'Q'}${g.period}</span><button type="button" id="nextPeriod" class="period-next" ${g.period>=(g.format==='halves'?2:4)?'disabled':''} title="Advance to next ${g.format==='halves'?'half':'quarter'}">›</button></div><div class="downline">${stateLabel}</div><div class="pos">${g.kickoffPending?(g.kickoff?.halftime?'Second-half kickoff':'Opening kickoff'):fmtDrive(g.los,g.driveDir)}</div></div><div class="score-card" style="background:${right.color};color:${textColor(right.color)}"><span class="score-value">${right.score}</span><span class="team-label">${esc(right.name)}</span></div><div class="nav-strip"><button class="nav-button" onclick="location.hash='#team/${t.id}'"><span class="ico">▣</span>Games</button><button class="nav-button" id="resetGame"><span class="ico">↻</span>Reset</button><button class="nav-button danger-nav" id="deleteGame"><span class="ico">✕</span>Delete</button><button class="nav-button"><span class="ico">⚙</span>Settings</button></div></section>
  <div class="main-grid"><section class="field-panel"><div class="field" id="field"></div><div class="field-controls"><div class="mini"><small>Line of Scrimmage</small><div class="los-control"><select id="losSide"><option>OWN</option><option>OPP</option><option>50</option></select><input id="losYard" type="number" min="0" max="49"><button class="btn btn-light" id="setLos">Set</button></div></div><div class="mini"><small>Ball at</small><b id="ballText">${g.kickoffPending?'—':fmtDrive(g.los,g.driveDir)}</b></div><div class="mini"><small>Distance</small><b>${g.kickoffPending?'—':g.toGo}</b></div><div class="mini"><small>Down</small><b>${g.kickoffPending?'—':g.down}</b></div><div class="mini"><small>State</small><b>${g.kickoffPending?'KO':g.awaitingTry?'TRY':'LIVE'}</b></div></div></section>
  <aside class="recent-panel"><div class="recent-head"><span>Recent Plays</span><select><option>All Plays</option></select></div><div class="recent-list">${recentRows(g,t)}</div><div class="recent-actions"><button class="btn btn-light" id="editPlay">Edit Selected</button><button class="btn btn-light" id="undoPlay">Undo Last Play</button></div></aside></div>
  <section class="workbench"><div class="pane off"><div class="pane-title">OFFENSE</div><div class="pane-body">${offensePane(g)}</div></div><div class="pane def"><div class="pane-title">DEFENSE</div><div class="pane-body">${defensePane(g)}</div></div><div class="pane st"><div class="pane-title">SPECIAL TEAMS</div><div class="pane-body">${specialPane(g,t)}</div></div><div class="pane pen"><div class="pane-title">PENALTY</div><div class="pane-body">${penaltyPane()}</div></div></section>
@@ -171,7 +171,7 @@ function puntFields(){return `<div class="form-row"><label>Punter #</label><inpu
 function kickFields(type){return `<div class="form-row"><label>Kicker #</label><input id="stKicker"><label>${type==='PAT'?'Try':'Distance'}</label><input id="stDistance" type="number" value="${type==='PAT'?1:35}"></div><div class="seg" id="kickGood"><button data-good="true">Good</button><button data-good="false">No Good</button></div>`}
 function kickoffPane(g,t){
  const k=g.kickoff,kick=teamSide(g,t,k.kickingTeam),rec=teamSide(g,t,k.receivingTeam);
- if(k.phase==='kick')return `<div class="kick-steps"><div class="step active">1 · KICK</div><span>›</span><div class="step">2 · RETURN</div></div><div class="notice"><b>${esc(kick.name)}</b> kicks from OWN ${k.startYard}. Enter kicker, then drag the football to the landing/catch spot.</div><div class="form-row"><label>Kicker #</label><input id="koKicker" value="${esc(k.kicker||'')}"></div><div class="summary">Landing: <b>${k.landing==null?'drag football':fmtDrive(k.landing,k.kickDir||1)}</b>${k.landing==null?'':` · ${Math.abs(k.landing-(k.startSpot??k.startYard))} yd kick`}</div><div class="form-row"><button class="btn btn-light" id="touchbackKick">Touchback</button><button class="btn btn-primary" id="lockKick" ${k.landing==null?'disabled':''}>Lock Landing →</button></div>`;
+ if(k.phase==='kick')return `<div class="kick-steps"><div class="step active">1 · KICK</div><span>›</span><div class="step">2 · RETURN</div></div><div class="notice">${k.halftime?'<b>SECOND-HALF KICKOFF</b><br>':''}<b>${esc(kick.name)}</b> kicks from OWN ${k.startYard}. Enter kicker, then drag the football to the landing/catch spot.</div><div class="form-row"><label>Kicker #</label><input id="koKicker" value="${esc(k.kicker||'')}"></div><div class="summary">Landing: <b>${k.landing==null?'drag football':fmtDrive(k.landing,k.kickDir||1)}</b>${k.landing==null?'':` · ${Math.abs(k.landing-(k.startSpot??k.startYard))} yd kick`}</div><div class="form-row"><button class="btn btn-light" id="touchbackKick">Touchback</button><button class="btn btn-primary" id="lockKick" ${k.landing==null?'disabled':''}>Lock Landing →</button></div>`;
  return `<div class="kick-steps"><div class="step done">✓ KICK</div><span>›</span><div class="step active">2 · RETURN</div></div><div class="notice"><b>${esc(rec.name)}</b> return. Field perspective has flipped to the receiving team.</div><div class="form-row"><label>Returner #</label><input id="koReturner" value="${esc(k.returner||'')}"><label>Tackler #</label><input id="koTackler"><button class="btn btn-light" id="addKoTackler">Add</button></div><div class="summary">Catch: <b>${fmtDrive(k.landing,-(k.kickDir||1))}</b> · End: <b>${k.returnEnd==null?'drag football':fmtDrive(k.returnEnd,-(k.kickDir||1))}</b><br>Tacklers: ${k.tacklers.length?k.tacklers.map(x=>'#'+esc(x)).join(', '):'—'}</div><div class="form-row"><button class="btn btn-light" id="touchbackReturn">Touchback</button><button class="btn btn-primary" id="finishKickoff" ${k.returnEnd==null?'disabled':''}>Finish Kickoff</button></div>`
 }
 function recentRows(g,t){return [...g.plays].reverse().slice(0,25).map((p,i)=>{const n=g.plays.length-i,team=p.team||p.before?.poss||'team',tm=teamSide(g,t,team),abbr=teamAbbr(tm.name),bg1=lighten(tm.color,.84),bg2=lighten(tm.secondary||tm.color,.90);return `<div class="play-row" data-play="${p.id}" style="background:linear-gradient(90deg,${bg1},${bg2});border-left:4px solid ${tm.color};color:#132D36"><div>${n}</div><div>${p.period||p.before?.period||1}</div><div>${esc(p.time||'')}</div><div><b>${abbr}</b></div><div class="desc">${esc(p.desc||'')}</div><div class="yds">${Number.isFinite(p.yds)?(p.yds>0?'+':'')+p.yds:''}</div></div>`}).join('')||'<div class="empty">No plays yet.</div>'}
@@ -209,6 +209,41 @@ function resetGameState(g){
  selectedPlayId=null;
 }
 
+
+function beginHalftimeKickoff(g){
+ const openingKicker=g.openingKick||'team';
+ const secondHalfKicker=other(openingKicker);
+ const secondHalfReceiver=openingKicker;
+ const from=g.kickoffYard||40;
+ const kickDir=1;
+
+ g.awaitingTry=false;
+ g.tryType=null;
+ g.kickoffPending=true;
+ g.poss=secondHalfReceiver;
+ g.down=1;
+ g.toGo=10;
+ g.driveDir=-1;
+ g.kickoff={
+   phase:'kick',
+   kickingTeam:secondHalfKicker,
+   receivingTeam:secondHalfReceiver,
+   startYard:from,
+   kickDir,
+   startSpot:screenSpot(from,kickDir),
+   landing:null,
+   returnEnd:null,
+   kicker:'',
+   returner:'',
+   tacklers:[],
+   touchback:false,
+   halftime:true
+ };
+ g.los=g.kickoff.startSpot;
+ currentPlay=defaultPlay(g);
+ selectedSt='Kickoff';
+}
+
 function bindGame(g,t){
  $('#resetGame').onclick=()=>{
    const ok=confirm(`Are you sure you want to reset this game against ${g.opponent}?\n\nThis will permanently clear all plays, scores, penalties, and game progress. The game itself will remain on the schedule.`);
@@ -232,9 +267,31 @@ function bindGame(g,t){
  if($('#nextPeriod'))$('#nextPeriod').onclick=()=>{
    const max=g.format==='halves'?2:4;
    if(g.period>=max)return toast(`Already in the final ${g.format==='halves'?'half':'quarter'}.`);
+
+   const fromPeriod=g.period;
+   const toPeriod=fromPeriod+1;
+   const startsSecondHalf=
+     (g.format==='quarters'&&fromPeriod===2&&toPeriod===3)||
+     (g.format==='halves'&&fromPeriod===1&&toPeriod===2);
+
+   if(startsSecondHalf){
+     const openingKicker=g.openingKick||'team';
+     const secondHalfKicker=other(openingKicker);
+     const kickerName=teamSide(g,t,secondHalfKicker).name;
+     const receiverName=teamSide(g,t,openingKicker).name;
+     const target=g.format==='halves'?'H2':'Q3';
+     if(!confirm(`Advance to ${target}?\n\n${kickerName} will kick off to ${receiverName} to start the second half.`))return;
+     g.period=toPeriod;
+     beginHalftimeKickoff(g);
+     save();
+     toast(`${target} — ${kickerName} kickoff`);
+     renderGame(g.id);
+     return;
+   }
+
    const label=g.format==='halves'?'half':'quarter';
    if(!confirm(`Advance to the next ${label}?`))return;
-   g.period++;
+   g.period=toPeriod;
    save();
    toast(`${g.format==='halves'?'Half':'Quarter'} ${g.period}`);
    renderGame(g.id);
@@ -458,7 +515,8 @@ function bindKickoff(g,t){
 }
 function finishKickoff(g){
  const k=g.kickoff;if(k.returnEnd==null)return;const before=snapshot(g),end=clamp(k.returnEnd),kickDir=k.kickDir||1,returnDir=-kickDir,kickDistance=Math.abs(k.landing-(k.startSpot??k.startYard)),returnYards=k.touchback?0:Math.abs(end-k.landing);
- const desc=k.touchback?`Kickoff #${k.kicker||'—'} ${kickDistance} yd · TOUCHBACK`:`Kickoff #${k.kicker||'—'} ${kickDistance} yd; return #${k.returner||'—'} ${returnYards} yd to ${fmtDrive(end,returnDir)}${k.tacklers.length?`; tackle ${k.tacklers.map(x=>'#'+x).join(', ')}`:''}`;
+ const koLabel=k.halftime?'2H Kickoff':'Kickoff';
+ const desc=k.touchback?`${koLabel} #${k.kicker||'—'} ${kickDistance} yd · TOUCHBACK`:`${koLabel} #${k.kicker||'—'} ${kickDistance} yd; return #${k.returner||'—'} ${returnYards} yd to ${fmtDrive(end,returnDir)}${k.tacklers.length?`; tackle ${k.tacklers.map(x=>'#'+x).join(', ')}`:''}`;
  g.plays.push({id:uid(),kind:'Kickoff',team:k.kickingTeam,period:before.period,start:k.startSpot??k.startYard,end,yds:kickDistance,desc,before});g.poss=k.receivingTeam;g.driveDir=returnDir;g.los=end;g.down=1;g.toGo=Math.min(10,Math.max(1,returnDir===1?100-end:end));g.kickoffPending=false;g.kickoff=null;g.awaitingTry=false;g.tryType=null;save();renderGame(g.id)
 }
 function score(g,side,pts){if(side==='team')g.teamScore+=pts;else g.oppScore+=pts}

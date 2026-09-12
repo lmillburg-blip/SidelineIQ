@@ -1,24 +1,21 @@
-SIDELINEIQ v0.15.9 — KICK/PUNT RETURN TOUCHDOWNS
+SIDELINEIQ v0.15.10 — SECOND-HALF KICKOFF FIX
 
-NEW
-- Kickoff return workflow now includes Return TD.
-- Punt workflow now includes Return TD.
+This fixes the actual Q2 -> Q3 handler.
 
-KICKOFF RETURN TD
-- Mark Return TD during the receiving-team return stage.
-- Receiving team is awarded 6 points.
-- Recent Plays records RETURN TD.
-- Ball/possession transitions to touchdown state.
-- App enters the post-touchdown try workflow.
-- Return TD and Touchback are mutually exclusive.
+Behavior:
+- Q1 -> Q2: normal period advance.
+- Q2 -> Q3: launches the full two-stage kickoff workflow.
+- The team that kicked off to start the game RECEIVES the second-half kickoff.
+- The team that received to start the game KICKS to start the second half.
+- Uses the configured kickoff yard.
+- Header and kickoff card explicitly show SECOND-HALF KICKOFF.
+- After the return, the receiving team keeps possession and continues in the same direction as the return.
+- Q3 -> Q4: normal period advance.
 
-PUNT RETURN TD
-- Mark Return TD in the punt workflow.
-- Receiving team is awarded 6 points.
-- Recent Plays records RETURN TD.
-- App enters the post-touchdown try workflow.
+Two-half games:
+- H1 -> H2 triggers the same second-half kickoff logic.
 
-DEPLOYMENT
-- Build badge: v0.15.9
-- Migrates from v0.15.8
-- Cache versions bumped.
+Deployment:
+- Build badge: v0.15.10
+- Migrates from v0.15.9
+- Cache-busted JS/CSS and new service-worker cache.

@@ -1,8 +1,36 @@
-SIDELINEIQ v0.15.15 — GAME OVER
+SIDELINEIQ v0.2.0 — IN-GAME ANALYTICS
 
-- In Q4, the period advance arrow becomes GAME OVER.
-- In Half 2, it also becomes GAME OVER.
-- Tapping GAME OVER confirms the final score and marks the game final.
-- Header state displays FINAL and the button changes to FINAL.
-- Reset Game clears final status.
-- All v0.15.14 workflows are preserved.
+NEW
+- Stats button in the live-game top navigation.
+- Two-column comparison: one column per team.
+- Total yards with run vs pass breakdown.
+- Turnovers and offensive play count.
+
+PLAYER TABLES
+QB: completions/attempts, yards, TD, INT, sacks.
+RB: carries, yards, average, TD, fumbles.
+WR: targets, receptions, yards, average, TD.
+Defense: tackles, assists, sacks, pressures, hurries, missed tackles.
+
+PLAYER DETAIL
+- Click any player number in Stats.
+- Opens a combined player statistics view with all recorded offensive and defensive production.
+- Back returns to the game analytics screen.
+
+NOTES
+- Stats are calculated live from recorded plays for both teams.
+- Sack yardage remains in the passing/team yardage bucket because SidelineIQ records sacks as pass plays.
+
+PRESERVED
+- Game Over.
+- Bad Snap and fumble recovery.
+- Possession indicator.
+- Two-stage punt.
+- Second-half kickoff.
+- Return TDs.
+- Sack attribution.
+
+DEPLOYMENT
+- Build v0.2.0
+- Migrates from v0.15.15
+- Cache keys bumped to v020.

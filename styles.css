@@ -137,3 +137,50 @@ button{cursor:pointer}
 .poss-indicator{display:inline-block;margin-left:6px;font-size:.85em;filter:drop-shadow(0 1px 1px rgba(0,0,0,.2));vertical-align:middle}
 
 .period-next.game-over-btn{width:auto;min-width:82px;padding:0 12px;font-size:12px;font-weight:900;letter-spacing:.04em;text-transform:uppercase}
+
+/* v0.2.0 In-game analytics */
+.analytics-modal{width:min(1180px,94vw);max-height:88vh;overflow:auto;padding:2px}
+.analytics-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:18px;padding:4px 2px 12px;border-bottom:1px solid rgba(100,116,139,.18)}
+.analytics-modal-head h2{margin:2px 0 4px;font-size:25px}
+.analytics-modal-head p{margin:0;color:#64748b}
+.eyebrow{font-size:11px;font-weight:900;letter-spacing:.14em;color:#1e6bff}
+.analytics-compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+.analytics-team-card{border:1px solid rgba(100,116,139,.2);border-top:4px solid var(--team-color);border-radius:16px;background:rgba(255,255,255,.82);padding:16px;box-shadow:0 8px 25px rgba(15,23,42,.06)}
+.analytics-team-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.analytics-team-head h3{margin:0;font-size:20px}
+.analytics-team-head small{color:#64748b}
+.analytics-swatch{width:12px;height:36px;border-radius:8px}
+.analytics-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.analytics-kpi{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:9px;text-align:center}
+.analytics-kpi.primary{box-shadow:inset 0 3px 0 var(--team-color)}
+.analytics-kpi span,.analytics-kpi small{display:block;color:#64748b;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.analytics-kpi b{display:block;font-size:22px;line-height:1.05;margin:3px 0}
+.yard-mix{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.yard-mix div{display:flex;justify-content:space-between;align-items:center;background:rgba(11,46,58,.05);border-radius:9px;padding:8px 10px}
+.yard-mix span{font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase}
+.stat-section{margin-top:14px}
+.stat-section h4{margin:0 0 6px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#334155}
+.stat-table-wrap{overflow-x:auto;border:1px solid #e2e8f0;border-radius:10px}
+.stat-table{width:100%;border-collapse:collapse;font-size:12px}
+.stat-table th{padding:7px 6px;background:#f8fafc;text-align:right;color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.stat-table th:first-child,.stat-table td:first-child{text-align:left}
+.stat-table td{padding:8px 6px;border-top:1px solid #eef2f7;text-align:right;white-space:nowrap}
+.stat-player-link{border:0;background:none;padding:0;color:#1e6bff;font-weight:900;cursor:pointer}
+.stat-player-link:hover{text-decoration:underline}
+.stat-empty{text-align:center!important;color:#94a3b8;padding:13px!important}
+.player-stat-modal{width:min(760px,92vw)}
+.player-stat-hero{display:flex;align-items:center;gap:14px;padding:15px;border-radius:14px;border-left:5px solid var(--team-color);background:#f8fafc;margin-bottom:14px}
+.player-stat-hero h2{margin:1px 0}
+.player-number{font-size:34px;font-weight:950}
+.player-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.player-stat-card{border:1px solid #e2e8f0;border-radius:12px;padding:12px;background:#fff}
+.player-stat-card h4{margin:0 0 10px;text-transform:uppercase;font-size:11px;letter-spacing:.07em;color:#64748b}
+.player-stat-numbers{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.player-stat-numbers div{background:#f8fafc;border-radius:8px;padding:8px;text-align:center}
+.player-stat-numbers b{display:block;font-size:18px}
+.player-stat-numbers span{display:block;font-size:9px;text-transform:uppercase;color:#64748b;font-weight:800}
+@media(max-width:900px){
+ .analytics-compare{grid-template-columns:1fr}
+ .analytics-kpis{grid-template-columns:repeat(2,1fr)}
+ .player-stat-grid{grid-template-columns:1fr}
+}

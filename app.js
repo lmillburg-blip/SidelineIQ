@@ -146,13 +146,152 @@ function defenseMemory(g){
  return `<div class="player-memory defense-memory"><div class="memory-title">DEFENDERS</div><div class="memory-chip-row">${memoryButtons(m.def,'def')}</div></div>`;
 }
 
+
+function statYards(p){
+ const dir=p.before?.driveDir??1;
+ return Math.round(((p.end??p.start??0)-(p.start??0))*dir);
+}
+function isOffensivePlay(p){return p.kind==='Run'||p.kind==='Pass'}
+function playHasTd(p){
+ const d=(p.desc||'').toUpperCase();
+ return d.includes('TOUCHDOWN')&&!d.includes('DEFENSIVE TD')&&!d.includes('RETURN TD');
+}
+function ensurePlayer(map,n){
+ if(!n)return null;
+ const k=String(n);
+ if(!map[k])map[k]={number:k,pass:{att:0,comp:0,yds:0,td:0,int:0,sacks:0},rush:{car:0,yds:0,td:0},rec:{tar:0,rec:0,yds:0,td:0},def:{tkl:0,ast:0,sack:0,pressure:0,hurry:0,missed:0},fum:0};
+ return map[k]
+}
+function computeTeamStats(g,side){
+ const team={side,totalYards:0,rushYards:0,passYards:0,rushAtt:0,passAtt:0,completions:0,turnovers:0,plays:0,players:{}};
+ for(const p of (g.plays||[])){
+   if(p.team===side&&isOffensivePlay(p)){
+     const y=statYards(p);
+     team.plays++;
+     if(p.kind==='Run'){
+       team.rushAtt++;
+       team.rushYards+=y;
+       const rb=ensurePlayer(team.players,p.player);
+       if(rb){
+         rb.rush.car++;
+         rb.rush.yds+=y;
+         if(playHasTd(p))rb.rush.td++;
+         if(p.fumble)rb.fum++;
+       }
+     }else{
+       team.passAtt++;
+       const qb=ensurePlayer(team.players,p.qb);
+       const wr=ensurePlayer(team.players,p.receiver);
+       const result=p.passResult||'Complete';
+       const complete=result==='Complete';
+       const sack=result==='Sack';
+       const interception=result==='Interception';
+       if(complete){team.completions++;team.passYards+=y}
+       else if(sack){team.passYards+=y}
+       if(qb){
+         if(!sack)qb.pass.att++;
+         if(complete){qb.pass.comp++;qb.pass.yds+=y}
+         if(sack){qb.pass.sacks++;qb.pass.yds+=y}
+         if(interception){qb.pass.int++;team.turnovers++}
+         if(playHasTd(p))qb.pass.td++;
+       }
+       if(wr){
+         if(!sack)wr.rec.tar++;
+         if(complete){wr.rec.rec++;wr.rec.yds+=y;if(playHasTd(p))wr.rec.td++}
+       }
+     }
+     if(p.fumble&&p.fumbleRecovery==='Defense')team.turnovers++;
+     if(p.badSnap?.active&&p.badSnap.notCaught&&p.badSnap.recoveredBy==='Defense')team.turnovers++;
+   }
+
+   const defenderSide=other(p.team);
+   if(defenderSide===side){
+     for(const d of (p.defenders||[])){
+       const pl=ensurePlayer(team.players,d.n);
+       if(!pl)continue;
+       if(d.action==='Tackle')pl.def.tkl++;
+       else if(d.action==='Assist')pl.def.ast++;
+       else if(d.action==='Sack')pl.def.sack++;
+       else if(d.action==='Pressure')pl.def.pressure++;
+       else if(d.action==='Hurry')pl.def.hurry++;
+       else if(d.action==='Missed')pl.def.missed++;
+     }
+   }
+ }
+ team.totalYards=team.rushYards+team.passYards;
+ return team
+}
+function gameAnalytics(g,t){return {team:computeTeamStats(g,'team'),opp:computeTeamStats(g,'opp')}}
+function fmtAvg(y,n){return n?(y/n).toFixed(1):'0.0'}
+function playerButton(side,n){return `<button class="stat-player-link" data-stat-side="${side}" data-stat-player="${esc(n)}">#${esc(n)}</button>`}
+function offenseTables(stats){
+ const players=Object.values(stats.players).sort((a,b)=>Number(a.number)-Number(b.number));
+ const qbs=players.filter(p=>p.pass.att||p.pass.comp||p.pass.yds||p.pass.sacks||p.pass.int||p.pass.td);
+ const rbs=players.filter(p=>p.rush.car);
+ const wrs=players.filter(p=>p.rec.tar||p.rec.rec);
+ const qbRows=qbs.length?qbs.map(p=>`<tr><td>${playerButton(stats.side,p.number)}</td><td>${p.pass.comp}/${p.pass.att}</td><td>${p.pass.yds}</td><td>${p.pass.td}</td><td>${p.pass.int}</td><td>${p.pass.sacks}</td></tr>`).join(''):`<tr><td colspan="6" class="stat-empty">No QB stats yet</td></tr>`;
+ const rbRows=rbs.length?rbs.map(p=>`<tr><td>${playerButton(stats.side,p.number)}</td><td>${p.rush.car}</td><td>${p.rush.yds}</td><td>${fmtAvg(p.rush.yds,p.rush.car)}</td><td>${p.rush.td}</td><td>${p.fum}</td></tr>`).join(''):`<tr><td colspan="6" class="stat-empty">No rushing stats yet</td></tr>`;
+ const wrRows=wrs.length?wrs.map(p=>`<tr><td>${playerButton(stats.side,p.number)}</td><td>${p.rec.tar}</td><td>${p.rec.rec}</td><td>${p.rec.yds}</td><td>${fmtAvg(p.rec.yds,p.rec.rec)}</td><td>${p.rec.td}</td></tr>`).join(''):`<tr><td colspan="6" class="stat-empty">No receiving stats yet</td></tr>`;
+ return `<div class="stat-section"><h4>Quarterbacks</h4><div class="stat-table-wrap"><table class="stat-table"><thead><tr><th>Player</th><th>C/A</th><th>Yds</th><th>TD</th><th>INT</th><th>Sk</th></tr></thead><tbody>${qbRows}</tbody></table></div></div>
+ <div class="stat-section"><h4>Rushing</h4><div class="stat-table-wrap"><table class="stat-table"><thead><tr><th>Player</th><th>Car</th><th>Yds</th><th>Avg</th><th>TD</th><th>Fum</th></tr></thead><tbody>${rbRows}</tbody></table></div></div>
+ <div class="stat-section"><h4>Receiving</h4><div class="stat-table-wrap"><table class="stat-table"><thead><tr><th>Player</th><th>Tgt</th><th>Rec</th><th>Yds</th><th>Avg</th><th>TD</th></tr></thead><tbody>${wrRows}</tbody></table></div></div>`
+}
+function defenseTable(stats){
+ const players=Object.values(stats.players).filter(p=>p.def.tkl||p.def.ast||p.def.sack||p.def.pressure||p.def.hurry||p.def.missed).sort((a,b)=>(b.def.tkl+b.def.ast+b.def.sack)-(a.def.tkl+a.def.ast+a.def.sack));
+ const rows=players.length?players.map(p=>`<tr><td>${playerButton(stats.side,p.number)}</td><td>${p.def.tkl}</td><td>${p.def.ast}</td><td>${p.def.sack}</td><td>${p.def.pressure}</td><td>${p.def.hurry}</td><td>${p.def.missed}</td></tr>`).join(''):`<tr><td colspan="7" class="stat-empty">No defensive stats yet</td></tr>`;
+ return `<div class="stat-section"><h4>Defense</h4><div class="stat-table-wrap"><table class="stat-table"><thead><tr><th>Player</th><th>Tkl</th><th>Ast</th><th>Sk</th><th>Pressure</th><th>Hurry</th><th>Miss</th></tr></thead><tbody>${rows}</tbody></table></div></div>`
+}
+function teamAnalyticsColumn(g,t,side,stats){
+ const ts=teamSide(g,t,side);
+ return `<section class="analytics-team-card" style="--team-color:${ts.color}">
+   <div class="analytics-team-head"><span class="analytics-swatch" style="background:${ts.color}"></span><div><h3>${esc(ts.name)}</h3><small>${stats.plays} offensive plays</small></div></div>
+   <div class="analytics-kpis">
+     <div class="analytics-kpi primary"><span>Total Yards</span><b>${stats.totalYards}</b></div>
+     <div class="analytics-kpi"><span>Rush</span><b>${stats.rushYards}</b><small>${stats.rushAtt} att</small></div>
+     <div class="analytics-kpi"><span>Pass</span><b>${stats.passYards}</b><small>${stats.completions}/${stats.passAtt}</small></div>
+     <div class="analytics-kpi"><span>Turnovers</span><b>${stats.turnovers}</b></div>
+   </div>
+   <div class="yard-mix"><div><span>Run Yards</span><b>${stats.rushYards}</b></div><div><span>Pass Yards</span><b>${stats.passYards}</b></div></div>
+   ${offenseTables(stats)}
+   ${defenseTable(stats)}
+ </section>`
+}
+function showGameAnalytics(g,t){
+ const a=gameAnalytics(g,t);
+ showModal(`<div class="analytics-modal">
+   <div class="analytics-modal-head"><div><div class="eyebrow">IN-GAME ANALYTICS</div><h2>${esc(t.name)} vs ${esc(g.opponent)}</h2><p>Live statistics calculated from recorded plays.</p></div><button class="btn btn-light" id="closeAnalytics">Close</button></div>
+   <div class="analytics-compare">${teamAnalyticsColumn(g,t,'team',a.team)}${teamAnalyticsColumn(g,t,'opp',a.opp)}</div>
+ </div>`);
+ $('#closeAnalytics').onclick=closeModal;
+ $$('[data-stat-player]').forEach(b=>b.onclick=()=>showPlayerStats(g,t,b.dataset.statSide,b.dataset.statPlayer))
+}
+function showPlayerStats(g,t,side,number){
+ const a=computeTeamStats(g,side),p=a.players[String(number)]||ensurePlayer(a.players,String(number)),ts=teamSide(g,t,side);
+ const hasPass=p.pass.att||p.pass.comp||p.pass.yds||p.pass.td||p.pass.int||p.pass.sacks;
+ const hasRush=p.rush.car||p.rush.yds||p.rush.td;
+ const hasRec=p.rec.tar||p.rec.rec||p.rec.yds||p.rec.td;
+ const hasDef=p.def.tkl||p.def.ast||p.def.sack||p.def.pressure||p.def.hurry||p.def.missed;
+ showModal(`<div class="player-stat-modal">
+   <div class="player-stat-hero" style="--team-color:${ts.color}"><div class="player-number">#${esc(number)}</div><div><div class="eyebrow">${esc(ts.name)}</div><h2>Player Statistics</h2></div></div>
+   <div class="player-stat-grid">
+     ${hasPass?`<div class="player-stat-card"><h4>Passing</h4><div class="player-stat-numbers"><div><b>${p.pass.comp}/${p.pass.att}</b><span>Comp/Att</span></div><div><b>${p.pass.yds}</b><span>Yards</span></div><div><b>${p.pass.td}</b><span>TD</span></div><div><b>${p.pass.int}</b><span>INT</span></div><div><b>${p.pass.sacks}</b><span>Sacked</span></div></div></div>`:''}
+     ${hasRush?`<div class="player-stat-card"><h4>Rushing</h4><div class="player-stat-numbers"><div><b>${p.rush.car}</b><span>Carries</span></div><div><b>${p.rush.yds}</b><span>Yards</span></div><div><b>${fmtAvg(p.rush.yds,p.rush.car)}</b><span>Avg</span></div><div><b>${p.rush.td}</b><span>TD</span></div><div><b>${p.fum}</b><span>Fumbles</span></div></div></div>`:''}
+     ${hasRec?`<div class="player-stat-card"><h4>Receiving</h4><div class="player-stat-numbers"><div><b>${p.rec.tar}</b><span>Targets</span></div><div><b>${p.rec.rec}</b><span>Rec</span></div><div><b>${p.rec.yds}</b><span>Yards</span></div><div><b>${fmtAvg(p.rec.yds,p.rec.rec)}</b><span>Avg</span></div><div><b>${p.rec.td}</b><span>TD</span></div></div></div>`:''}
+     ${hasDef?`<div class="player-stat-card"><h4>Defense</h4><div class="player-stat-numbers"><div><b>${p.def.tkl}</b><span>Tackles</span></div><div><b>${p.def.ast}</b><span>Assists</span></div><div><b>${p.def.sack}</b><span>Sacks</span></div><div><b>${p.def.pressure}</b><span>Pressure</span></div><div><b>${p.def.hurry}</b><span>Hurry</span></div><div><b>${p.def.missed}</b><span>Missed</span></div></div></div>`:''}
+     ${!hasPass&&!hasRush&&!hasRec&&!hasDef?`<div class="stat-empty">No recorded statistics for this player yet.</div>`:''}
+   </div>
+   <div class="modal-actions"><button class="btn btn-light" id="backAnalytics">Back to Game Analytics</button><button class="btn btn-primary" id="closePlayerStats">Close</button></div>
+ </div>`);
+ $('#backAnalytics').onclick=()=>showGameAnalytics(g,t);
+ $('#closePlayerStats').onclick=closeModal
+}
 function renderGame(id){
  const g=state.games.find(x=>x.id===id);if(!g)return location.hash='#teams';normalizeGame(g);
  const t=state.teams.find(x=>x.id===g.teamId);if(!t)return location.hash='#teams';currentPlay=defaultPlay(g);
  const homeTeam=g.location==='Away'?'opp':'team';const left=teamSide(g,t,homeTeam),right=teamSide(g,t,other(homeTeam));left.score=homeTeam==='team'?g.teamScore:g.oppScore;right.score=homeTeam==='team'?g.oppScore:g.teamScore;
  const off=teamSide(g,t,g.poss),def=teamSide(g,t,other(g.poss));
  const stateLabel=g.gameOver?'FINAL':g.kickoffPending?'KICKOFF':g.puntPending?'PUNT':g.awaitingTry?'TRY':`${ordinal(g.down)} & ${g.toGo}`;
- shell(`<main class="game-page"><section class="game-top"><div class="game-brand"><img src="./assets/sidelineiq-header-logo.png" alt="SidelineIQ"></div><div class="score-card" style="background:${left.color};color:${textColor(left.color)}"><span class="team-label">${esc(left.name)}${homeTeam===g.poss?' <span class="poss-indicator" title="Possession">🏈</span>':''}</span><span class="score-value">${left.score}</span></div><div class="game-state"><div class="period period-control"><span>${g.format==='halves'?'H':'Q'}${g.period}</span><button class="period-next ${g.period>=(g.format==='halves'?2:4)?'game-over-btn':''}" id="nextPeriod" title="${g.gameOver?'Game is final':g.period>=(g.format==='halves'?2:4)?'End game':'Advance period'}">${g.gameOver?'FINAL':g.period>=(g.format==='halves'?2:4)?'Game Over':'›'}</button></div><div class="downline">${stateLabel}</div><div class="pos">${g.kickoffPending?(g.kickoff?.halftime?'Second-half kickoff':'Opening kickoff'):g.puntPending?(g.punt?.phase==='kick'?'Punt':'Punt return'):fmtDrive(g.los,g.driveDir)}</div></div><div class="score-card" style="background:${right.color};color:${textColor(right.color)}"><span class="score-value">${right.score}</span><span class="team-label">${other(homeTeam)===g.poss?'<span class="poss-indicator" title="Possession">🏈</span> ':''}${esc(right.name)}</span></div><div class="nav-strip"><button class="nav-button" onclick="location.hash='#team/${t.id}'"><span class="ico">▣</span>Games</button><button class="nav-button" id="resetGame"><span class="ico">↻</span>Reset</button><button class="nav-button danger-nav" id="deleteGame"><span class="ico">✕</span>Delete</button><button class="nav-button"><span class="ico">⚙</span>Settings</button></div></section>
+ shell(`<main class="game-page"><section class="game-top"><div class="game-brand"><img src="./assets/sidelineiq-header-logo.png" alt="SidelineIQ"></div><div class="score-card" style="background:${left.color};color:${textColor(left.color)}"><span class="team-label">${esc(left.name)}${homeTeam===g.poss?' <span class="poss-indicator" title="Possession">🏈</span>':''}</span><span class="score-value">${left.score}</span></div><div class="game-state"><div class="period period-control"><span>${g.format==='halves'?'H':'Q'}${g.period}</span><button class="period-next ${g.period>=(g.format==='halves'?2:4)?'game-over-btn':''}" id="nextPeriod" title="${g.gameOver?'Game is final':g.period>=(g.format==='halves'?2:4)?'End game':'Advance period'}">${g.gameOver?'FINAL':g.period>=(g.format==='halves'?2:4)?'Game Over':'›'}</button></div><div class="downline">${stateLabel}</div><div class="pos">${g.kickoffPending?(g.kickoff?.halftime?'Second-half kickoff':'Opening kickoff'):g.puntPending?(g.punt?.phase==='kick'?'Punt':'Punt return'):fmtDrive(g.los,g.driveDir)}</div></div><div class="score-card" style="background:${right.color};color:${textColor(right.color)}"><span class="score-value">${right.score}</span><span class="team-label">${other(homeTeam)===g.poss?'<span class="poss-indicator" title="Possession">🏈</span> ':''}${esc(right.name)}</span></div><div class="nav-strip"><button class="nav-button" onclick="location.hash='#team/${t.id}'"><span class="ico">▣</span>Games</button><button class="nav-button" id="gameAnalytics"><span class="ico">▥</span>Stats</button><button class="nav-button" id="resetGame"><span class="ico">↻</span>Reset</button><button class="nav-button danger-nav" id="deleteGame"><span class="ico">✕</span>Delete</button><button class="nav-button"><span class="ico">⚙</span>Settings</button></div></section>
  <div class="main-grid"><section class="field-panel"><div class="field" id="field"></div><div class="field-controls"><div class="mini"><small>Line of Scrimmage</small><div class="los-control"><select id="losSide"><option>OWN</option><option>OPP</option><option>50</option></select><input id="losYard" type="number" min="0" max="49"><button class="btn btn-light" id="setLos">Set</button></div></div><div class="mini"><small>Ball at</small><b id="ballText">${g.kickoffPending?'—':fmtDrive(g.los,g.driveDir)}</b></div><div class="mini"><small>Distance</small><b>${g.kickoffPending?'—':g.toGo}</b></div><div class="mini"><small>Down</small><b>${g.kickoffPending?'—':g.down}</b></div><div class="mini"><small>State</small><b>${g.kickoffPending?'KO':g.awaitingTry?'TRY':'LIVE'}</b></div></div></section>
  <aside class="recent-panel"><div class="recent-head"><span>Recent Plays</span><select><option>All Plays</option></select></div><div class="recent-list">${recentRows(g,t)}</div><div class="recent-actions"><button class="btn btn-light" id="editPlay">Edit Selected</button><button class="btn btn-light" id="undoPlay">Undo Last Play</button></div></aside></div>
  <section class="workbench"><div class="pane off"><div class="pane-title">OFFENSE</div><div class="pane-body">${offensePane(g)}</div></div><div class="pane def"><div class="pane-title">DEFENSE</div><div class="pane-body">${defensePane(g)}</div></div><div class="pane st"><div class="pane-title">SPECIAL TEAMS</div><div class="pane-body">${specialPane(g,t)}</div></div><div class="pane pen"><div class="pane-title">PENALTY</div><div class="pane-body">${penaltyPane()}</div></div></section>
@@ -268,6 +407,7 @@ function beginHalftimeKickoff(g){
 }
 
 function bindGame(g,t){
+ if($('#gameAnalytics'))$('#gameAnalytics').onclick=()=>showGameAnalytics(g,t);
  $('#resetGame').onclick=()=>{
    const ok=confirm(`Are you sure you want to reset this game against ${g.opponent}?\n\nThis will permanently clear all plays, scores, penalties, and game progress. The game itself will remain on the schedule.`);
    if(!ok)return;

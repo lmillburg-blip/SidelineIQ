@@ -102,3 +102,6 @@ button{cursor:pointer}
 .nav-button.danger-nav{color:#FFD9DD}
 .nav-button.danger-nav .ico{color:#FF7F8B}
 .nav-button.danger-nav:hover{background:rgba(198,56,67,.18)}
+
+.pen-checks label{line-height:1.25}
+.penalty-list div+div{margin-top:4px}

@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.15.3';
-const DBKEY='sidelineiq_v0153';
-const LEGACY_KEYS=['sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.15.4';
+const DBKEY='sidelineiq_v0154';
+const LEGACY_KEYS=['sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 
@@ -104,7 +104,7 @@ function offensePane(g){
 function runFields(){return `<div class="form-row"><label>Ball Carrier #</label><input id="player" inputmode="numeric" placeholder="#"></div>`}
 function passFields(){return `<div class="form-row"><label>QB #</label><input id="qb" inputmode="numeric"><label>Receiver #</label><input id="receiver" inputmode="numeric"></div><div class="seg" id="passResult"><button class="active">Complete</button><button>Incomplete</button><button>Interception</button><button>Sack</button></div>`}
 function defensePane(){return `<div class="form-row"><label>Player #</label><input id="defNum" inputmode="numeric"></div><div class="section-label">Action</div><div class="action-grid"><button data-def="Tackle">Tackle</button><button data-def="Assist">Assist</button><button class="alt" data-def="Missed">Missed</button><button class="alt" data-def="Pressure">Pressure</button><button class="alt" data-def="Hurry">Hurry</button><button class="score" data-dscore="Safety">Safety +2</button><button class="score" data-dscore="Def TD">Def. TD +6</button></div><div class="summary" id="defList">No defensive actions yet.</div>`}
-function penaltyPane(){return `<div class="section-label">Side</div><div class="seg pen-toggle" id="penSideToggle"><button class="active" data-pen-side="Offense">Offense</button><button data-pen-side="Defense">Defense</button></div><div class="section-label">Apply To</div><div class="seg pen-toggle" id="penApplyToggle"><button class="active" data-apply="current">Current</button><button data-apply="former">Former</button></div><div class="section-label">Status</div><div class="seg pen-toggle" id="penStatusToggle"><button class="active" data-status="accepted">Accepted</button><button data-status="declined">Declined</button></div><div class="form-row"><select id="penType"><option>Holding</option><option>False Start</option><option>Delay of Game</option><option>Offside</option><option>Pass Interference</option><option>Personal Foul</option><option>Illegal Formation</option><option>Illegal Motion</option><option>Facemask</option><option>Unsportsmanlike Conduct</option><option>Other</option></select><input id="penYards" type="number" value="10"></div><div class="pen-checks"><label><input type="checkbox" id="spotFoul"> Enforce from spot of foul</label><label><input type="checkbox" id="negate"> Negate play stats</label><label><input type="checkbox" id="repeatDown"> Repeat down / no play</label><label><input type="checkbox" id="autoFirst"> Automatic first down</label></div><div class="form-row"><button class="btn btn-light" id="attachPenalty">Apply Penalty</button><button class="btn btn-light" id="clearPenalty">Clear Current</button></div><div class="summary penalty-list" id="penSummary">No penalties applied.</div>`}
+function penaltyPane(){return `<div class="section-label">Side</div><div class="seg pen-toggle" id="penSideToggle"><button class="active" data-pen-side="Offense">Offense</button><button data-pen-side="Defense">Defense</button></div><div class="section-label">Apply To</div><div class="seg pen-toggle" id="penApplyToggle"><button class="active" data-apply="current">Current</button><button data-apply="former">Former</button></div><div class="section-label">Status</div><div class="seg pen-toggle" id="penStatusToggle"><button class="active" data-status="accepted">Accepted</button><button data-status="declined">Declined</button></div><div class="form-row"><select id="penType"><option>Holding</option><option>False Start</option><option>Delay of Game</option><option>Offside</option><option>Pass Interference</option><option>Personal Foul</option><option>Illegal Formation</option><option>Illegal Motion</option><option>Facemask</option><option>Unsportsmanlike Conduct</option><option>Other</option></select><input id="penYards" type="number" value="10" aria-label="Penalty yards"></div><div class="pen-checks"><label><input type="checkbox" id="spotFoul"> Enforce from spot of foul / ball spot</label><label><input type="checkbox" id="negate"> Ignore play yardage; enforce from previous LOS</label><label><input type="checkbox" id="repeatDown"> Repeat down / no play</label><label><input type="checkbox" id="autoFirst"> Automatic first down</label></div><div class="form-row"><button class="btn btn-light" id="attachPenalty">Apply Penalty</button><button class="btn btn-light" id="clearPenalty">Clear Current</button></div><div class="summary penalty-list" id="penSummary">No penalties applied.</div>`}
 function specialPane(g,t){
  if(g.kickoffPending)return kickoffPane(g,t);
  return `<div class="seg" id="stTypes"><button class="active" data-st="Kickoff">Kickoff</button><button data-st="Punt">Punt</button><button data-st="Field Goal">Field Goal</button><button data-st="PAT">PAT</button></div><div id="stDynamic">${manualKickoffFields()}</div>`
@@ -192,9 +192,30 @@ function bindDefense(){
 }
 function renderDefenders(){if(!$('#defList'))return;$('#defList').innerHTML=currentPlay.defenders.length?currentPlay.defenders.map((d,i)=>`#${esc(d.n)} ${d.action}${i<currentPlay.defenders.length-1?' · ':''}`).join(''):'No defensive actions yet.'}
 function bindPenalty(g){
- const activate=(root,attr)=>{$$(root+' button').forEach(b=>b.onclick=()=>{$$(root+' button').forEach(x=>x.classList.remove('active'));b.classList.add('active')})};
- activate('#penSideToggle','pen-side');activate('#penApplyToggle','apply');activate('#penStatusToggle','status');
- const render=()=>{if(!$('#penSummary'))return;$('#penSummary').innerHTML=currentPlay.penalties.length?currentPlay.penalties.map((p,i)=>`<div>${i+1}. ${p.side} ${p.type} ${p.yards} yd · ${p.status.toUpperCase()}</div>`).join(''):'No penalties applied.'};
+ const activate=root=>{$$(root+' button').forEach(b=>b.onclick=()=>{$$(root+' button').forEach(x=>x.classList.remove('active'));b.classList.add('active')})};
+ activate('#penSideToggle');activate('#penApplyToggle');activate('#penStatusToggle');
+
+ const defaults={
+   'Holding':{yards:10,side:'Offense',negate:true,repeat:false,auto:false},
+   'False Start':{yards:5,side:'Offense',negate:true,repeat:true,auto:false},
+   'Delay of Game':{yards:5,side:'Offense',negate:true,repeat:true,auto:false},
+   'Offside':{yards:5,side:'Defense',negate:true,repeat:true,auto:false},
+   'Illegal Formation':{yards:5,side:'Offense',negate:true,repeat:false,auto:false},
+   'Illegal Motion':{yards:5,side:'Offense',negate:true,repeat:false,auto:false}
+ };
+ const setSide=side=>{$$('#penSideToggle button').forEach(b=>b.classList.toggle('active',b.dataset.penSide===side))};
+ const applyDefaults=()=>{
+   const d=defaults[$('#penType')?.value];if(!d)return;
+   $('#penYards').value=d.yards;setSide(d.side);$('#negate').checked=d.negate;$('#repeatDown').checked=d.repeat;$('#autoFirst').checked=d.auto;$('#spotFoul').checked=false;
+ };
+ if($('#penType')){$('#penType').onchange=applyDefaults;applyDefaults()}
+
+ const render=()=>{
+   if(!$('#penSummary'))return;
+   $('#penSummary').innerHTML=currentPlay.penalties.length
+     ?currentPlay.penalties.map((p,i)=>`<div>${i+1}. ${p.side} ${p.type} ${p.yards} yd · ${p.status.toUpperCase()}${p.negate?' · PREVIOUS LOS':''}${p.repeatDown?' · REPEAT DOWN':''}</div>`).join('')
+     :'No penalties applied.';
+ };
  $('#attachPenalty').onclick=()=>{
    const p={side:$('#penSideToggle .active')?.dataset.penSide||'Offense',applyTo:$('#penApplyToggle .active')?.dataset.apply||'current',status:$('#penStatusToggle .active')?.dataset.status||'accepted',type:$('#penType').value,yards:+$('#penYards').value||0,spotFoul:$('#spotFoul').checked,negate:$('#negate').checked,repeatDown:$('#repeatDown').checked,autoFirst:$('#autoFirst').checked};
    if(p.applyTo==='former'){
@@ -202,29 +223,40 @@ function bindPenalty(g){
      former.penalties??=[];former.penalties.push(structuredClone(p));former.desc+=` · PEN ${p.side} ${p.type} ${p.yards}yd ${p.status.toUpperCase()}`;
      if(p.status==='accepted')enforceFormerPenalty(g,former,p);save();toast('Penalty applied to former play');renderGame(g.id);return;
    }
-   currentPlay.penalties.push(p);render();
+   currentPlay.penalties.push(p);render();toast('Penalty attached to current play');
  };
  $('#clearPenalty').onclick=()=>{currentPlay.penalties=[];render()}
 }
 function enforceFormerPenalty(g,former,p){
  if(p.status!=='accepted')return;
  const dir=former.before?.driveDir??g.driveDir??1;
- const oldLineToGain=clamp(g.los+dir*g.toGo);
+ const before=former.before||snapshot(g);
+ const originalTarget=clamp((before.los??g.los)+dir*(before.toGo??g.toGo));
+ const previousLos=before.los??g.los;
+ const currentSpot=g.los;
+
+ // No-play / negated-yardage penalties enforce from the previous line of scrimmage.
+ // Spot-foul penalties use the recorded end/ball spot. Otherwise use the current post-play spot.
+ let base=p.negate?previousLos:(p.spotFoul?(former.end??currentSpot):currentSpot);
+ const shift=(p.side==='Offense'?-p.yards:p.yards)*dir;
+ const enforced=clamp(base+shift);
+
  if(p.repeatDown){
    const keepPlays=g.plays,keepScores={team:g.teamScore,opp:g.oppScore};
-   Object.assign(g,structuredClone(former.before));
+   Object.assign(g,structuredClone(before));
    g.plays=keepPlays;g.teamScore=keepScores.team;g.oppScore=keepScores.opp;
+   g.los=enforced;
+   g.toGo=Math.max(1,Math.abs(originalTarget-g.los));
+   return;
  }
- const shift=(p.side==='Offense'?-p.yards:p.yards)*dir;
- g.los=clamp(g.los+shift);
+
+ g.los=enforced;
  if(p.autoFirst){
    g.down=1;
    g.toGo=Math.min(10,Math.max(1,dir===1?100-g.los:g.los));
    return;
  }
- if(!p.repeatDown){
-   g.toGo=Math.max(1,Math.abs(oldLineToGain-g.los));
- }
+ g.toGo=Math.max(1,Math.abs(originalTarget-g.los));
 }
 function bindSpecial(g){
  currentPlay.special='Kickoff';
@@ -288,14 +320,49 @@ function savePlay(g,t){
 }
 function applyAfterPlay(g,p,start,end){
  const dir=g.driveDir||1;
- if(p.turnover){g.poss=other(g.poss);g.driveDir=-dir;g.los=end;g.down=1;g.toGo=Math.min(10,Math.max(1,g.driveDir===1?100-end:end));return}
- if(p.type==='Pass'&&p.passResult==='Incomplete'){g.down++;if(g.down>4)turnoverDowns(g,start);return}
- let actual=end;const accepted=(p.penalties||[]).filter(x=>x.status==='accepted');
- const net=accepted.reduce((sum,x)=>sum+(x.side==='Offense'?-x.yards:x.yards),0);actual=clamp(actual+net*dir);
- const repeat=accepted.some(x=>x.repeatDown),auto=accepted.some(x=>x.autoFirst);
- if(repeat){g.los=actual;return}
- if(auto){g.los=actual;g.down=1;g.toGo=Math.min(10,Math.max(1,dir===1?100-actual:actual));return}
- const gain=(actual-start)*dir;if(gain>=g.toGo){g.los=actual;g.down=1;g.toGo=Math.min(10,Math.max(1,dir===1?100-actual:actual))}else{g.los=actual;g.toGo=Math.max(1,g.toGo-gain);g.down++;if(g.down>4)turnoverDowns(g,actual)}
+ const accepted=(p.penalties||[]).filter(x=>x.status==='accepted');
+ const hasAccepted=accepted.length>0;
+ const originalTarget=clamp(start+dir*g.toGo);
+
+ // A turnover only takes effect if the play itself stands.
+ const negatePlay=accepted.some(x=>x.negate||x.repeatDown);
+ if(p.turnover&&!negatePlay){g.poss=other(g.poss);g.driveDir=-dir;g.los=end;g.down=1;g.toGo=Math.min(10,Math.max(1,g.driveDir===1?100-end:end));return}
+
+ // Incomplete pass with no accepted penalty behaves normally.
+ if(p.type==='Pass'&&p.passResult==='Incomplete'&&!hasAccepted){g.down++;if(g.down>4)turnoverDowns(g,start);return}
+
+ // Determine enforcement base. If play yardage is ignored/no-play, start at previous LOS.
+ // If spot-of-foul is selected, the dragged ball/end spot is the enforcement spot.
+ let base=end;
+ if(accepted.some(x=>x.negate||x.repeatDown))base=start;
+ else if(accepted.some(x=>x.spotFoul))base=end;
+
+ const net=accepted.reduce((sum,x)=>sum+(x.side==='Offense'?-x.yards:x.yards),0);
+ const actual=clamp(base+net*dir);
+ const repeat=accepted.some(x=>x.repeatDown);
+ const auto=accepted.some(x=>x.autoFirst);
+
+ if(repeat){
+   g.los=actual;
+   g.toGo=Math.max(1,Math.abs(originalTarget-g.los));
+   return;
+ }
+ if(auto){
+   g.los=actual;g.down=1;g.toGo=Math.min(10,Math.max(1,dir===1?100-actual:actual));return;
+ }
+
+ // Down counts on accepted live-ball penalties unless Repeat Down / No Play is checked.
+ // Keep the original first-down target fixed and recalculate distance from the enforced spot.
+ g.los=actual;
+ const reachedTarget=dir===1?actual>=originalTarget:actual<=originalTarget;
+ if(reachedTarget){
+   g.down=1;
+   g.toGo=Math.min(10,Math.max(1,dir===1?100-actual:actual));
+ }else{
+   g.toGo=Math.max(1,Math.abs(originalTarget-actual));
+   g.down++;
+   if(g.down>4)turnoverDowns(g,actual);
+ }
 }
 function turnoverDowns(g,spot){g.poss=other(g.poss);g.driveDir=-(g.driveDir||1);g.los=clamp(spot);g.down=1;g.toGo=Math.min(10,Math.max(1,g.driveDir===1?100-g.los:g.los))}
 function undoPlay(g){const p=g.plays.pop();if(!p)return toast('No play to undo.');Object.assign(g,structuredClone(p.before));save();renderGame(g.id)}

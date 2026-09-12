@@ -1,16 +1,28 @@
-SIDELINEIQ v0.15.3 — GAME RESET / DELETE
+SIDELINEIQ v0.15.4 — PENALTY ENFORCEMENT WORKFLOW FIX
 
-New:
-- Reset button on live game screen.
-- Reset requires confirmation.
-- Reset clears scores, plays, penalties, period/down/distance/LOS, and kickoff progress.
-- Reset preserves game metadata and returns the game to its original opening kickoff.
+Key changes:
+- Penalties now move the football even when the underlying play has no yardage entered.
+- "Negate play stats" is clarified as:
+  "Ignore play yardage; enforce from previous LOS."
+- If that option is selected, enforcement starts from the pre-play line of scrimmage.
+- Repeat Down / No Play now also enforces from the previous LOS and keeps the same down.
+- The yellow first-down line stays at the original line-to-gain unless an automatic/new first down is awarded.
+- Accepted live-ball penalties without Repeat Down count the down.
+- Declined penalties are recorded but do not affect the ball.
 
-- Delete button on live game screen.
-- Delete requires confirmation.
-- Delete permanently removes the game and all recorded data.
-- After deletion, the app returns to that team's Games page.
+Smart defaults added:
+- Holding: 10 yards, Offense, previous-LOS enforcement selected.
+- False Start: 5 yards, Offense, previous LOS + repeat down/no play.
+- Delay of Game: 5 yards, Offense, previous LOS + repeat down/no play.
+- Offside: 5 yards, Defense, previous LOS + repeat down/no play.
+- Illegal Formation: 5 yards, Offense, previous-LOS enforcement selected.
+- Illegal Motion: 5 yards, Offense, previous-LOS enforcement selected.
+
+Examples:
+- Offensive holding with no play yardage entered: ball moves 10 yards backward from previous LOS.
+- Defensive offside: ball moves 5 yards forward from previous LOS and the down repeats.
+- A former-play penalty uses the same previous-LOS enforcement logic.
 
 Deployment verification:
-- Build badge should read v0.15.3.
-- JS/CSS and service-worker cache versions are bumped.
+- Build badge should read v0.15.4.
+- JS/CSS and service-worker caches are bumped.

@@ -1,19 +1,24 @@
-SIDELINEIQ v0.15.7 — 2-POINT CONVERSION WORKFLOW
+SIDELINEIQ v0.15.9 — KICK/PUNT RETURN TOUCHDOWNS
 
-Changes:
-- "2-Point" is now "2-Point Try."
-- Selecting it starts a dedicated conversion workflow.
-- Ball automatically moves to OPP 5.
-- Run / Pass entry remains available, including remembered QB/RB/WR buttons.
-- Try result is REQUIRED:
-  * Successful
-  * Failed
-- Successful adds 2 points.
-- Failed adds 0 points.
-- The result is saved as its own 2PT play in Recent Plays.
-- After either result, the game moves into the kickoff workflow.
+NEW
+- Kickoff return workflow now includes Return TD.
+- Punt workflow now includes Return TD.
 
-Deployment:
-- Build badge should read v0.15.7.
-- Migrates from v0.15.6.
-- JS/CSS and service-worker caches are bumped.
+KICKOFF RETURN TD
+- Mark Return TD during the receiving-team return stage.
+- Receiving team is awarded 6 points.
+- Recent Plays records RETURN TD.
+- Ball/possession transitions to touchdown state.
+- App enters the post-touchdown try workflow.
+- Return TD and Touchback are mutually exclusive.
+
+PUNT RETURN TD
+- Mark Return TD in the punt workflow.
+- Receiving team is awarded 6 points.
+- Recent Plays records RETURN TD.
+- App enters the post-touchdown try workflow.
+
+DEPLOYMENT
+- Build badge: v0.15.9
+- Migrates from v0.15.8
+- Cache versions bumped.

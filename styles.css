@@ -127,3 +127,5 @@ button{cursor:pointer}
 
 .two-point-notice{border-left:4px solid #00D4FF;padding-left:12px}
 #tryResult button.active{font-weight:900}
+
+.inline-check{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800}

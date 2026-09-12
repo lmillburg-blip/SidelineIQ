@@ -1,20 +1,19 @@
-SIDELINEIQ v0.15.5 — PENALTY PLAYER + FOUL SPOT
+SIDELINEIQ v0.15.7 — 2-POINT CONVERSION WORKFLOW
 
-New penalty fields:
-- Player # field for the player the foul was called on.
-- When "Enforce from spot of foul" is checked, a Spot of Foul section appears:
-  * OWN / OPP / 50
-  * yard line
-- The entered foul spot is now the actual enforcement base for both:
-  * penalties on the current play
-  * penalties applied to the former play
-- Penalty summaries include the player number and foul spot.
+Changes:
+- "2-Point" is now "2-Point Try."
+- Selecting it starts a dedicated conversion workflow.
+- Ball automatically moves to OPP 5.
+- Run / Pass entry remains available, including remembered QB/RB/WR buttons.
+- Try result is REQUIRED:
+  * Successful
+  * Failed
+- Successful adds 2 points.
+- Failed adds 0 points.
+- The result is saved as its own 2PT play in Recent Plays.
+- After either result, the game moves into the kickoff workflow.
 
-Examples:
-- Holding on #72 at OWN 38, 10 yards: enforcement begins at OWN 38.
-- Defensive foul at OPP 42, 5 yards: enforcement begins at OPP 42.
-- If "Enforce from spot of foul" is not selected, the existing previous-LOS / normal enforcement rules still apply.
-
-Deployment verification:
-- Build badge should read v0.15.5.
-- JS/CSS and service-worker cache versions are bumped.
+Deployment:
+- Build badge should read v0.15.7.
+- Migrates from v0.15.6.
+- JS/CSS and service-worker caches are bumped.

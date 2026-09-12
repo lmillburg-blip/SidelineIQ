@@ -110,3 +110,20 @@ button{cursor:pointer}
 .foul-spot-fields.hidden{display:none}
 .foul-spot-fields .field-hint{font-size:12px;font-weight:800;color:#475569}
 .foul-spot-fields select,.foul-spot-fields input{min-width:0}
+
+.period-control{display:flex;align-items:center;justify-content:center;gap:6px}
+.period-next{width:25px;height:25px;border-radius:7px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.12);color:inherit;font-size:20px;line-height:1;cursor:pointer}
+.period-next:disabled{opacity:.28;cursor:default}
+.player-memory{margin-top:12px;padding-top:10px;border-top:1px solid rgba(15,48,59,.14)}
+.memory-title{font-size:10px;font-weight:900;letter-spacing:.13em;color:#64748B;margin-bottom:7px}
+.memory-columns{display:grid;grid-template-columns:1fr 1fr 1.35fr;gap:8px}
+.memory-col{min-width:0}
+.memory-col small{display:block;font-size:10px;font-weight:900;color:#475569;margin-bottom:5px}
+.memory-col>div,.memory-chip-row{display:flex;flex-wrap:wrap;gap:5px}
+.memory-chip{min-width:36px;height:30px;padding:0 9px;border-radius:8px;border:1px solid rgba(11,46,58,.20);background:#fff;color:#0B2E3A;font-weight:900;cursor:pointer}
+.memory-chip:hover{border-color:#00A7C8;background:#EFFBFD}
+.memory-empty{font-size:12px;color:#94A3B8}
+@media(max-width:760px){.memory-columns{grid-template-columns:1fr}.period-next{width:32px;height:32px}}
+
+.two-point-notice{border-left:4px solid #00D4FF;padding-left:12px}
+#tryResult button.active{font-weight:900}

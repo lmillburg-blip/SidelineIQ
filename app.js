@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.15.5';
-const DBKEY='sidelineiq_v0155';
-const LEGACY_KEYS=['sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.15.7';
+const DBKEY='sidelineiq_v0157';
+const LEGACY_KEYS=['sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 
@@ -67,7 +67,7 @@ function showAddGame(t){
 
 let currentPlay=null;
 function normalizeGame(g){
- g.teamScore??=0;g.oppScore??=0;g.period??=1;g.down??=1;g.toGo??=10;g.los??=20;g.poss??='team';g.plays??=[];g.kickoffYard??=40;g.awaitingTry??=false;
+ g.teamScore??=0;g.oppScore??=0;g.period??=1;g.down??=1;g.toGo??=10;g.los??=20;g.poss??='team';g.plays??=[];g.kickoffYard??=40;g.awaitingTry??=false;g.tryType??=null;
  if(g.driveDir==null){
    const lastKick=[...g.plays].reverse().find(p=>p.kind==='Kickoff');
    if(lastKick){
@@ -81,8 +81,53 @@ function normalizeGame(g){
  if(g.kickoffPending&&!g.kickoff){const receiving=other(g.openingKick||'team');g.kickoff={phase:'kick',kickingTeam:g.openingKick||'team',receivingTeam:receiving,startYard:g.kickoffYard,kickDir:1,startSpot:g.kickoffYard,landing:null,returnEnd:null,kicker:'',returner:'',tacklers:[],touchback:false}}
 }
 function teamSide(g,t,side){return side==='team'?{name:t.name,color:t.primary,secondary:t.secondary}:{name:g.opponent,color:g.oppColor||'#B8860B',secondary:'#111'}}
-function snapshot(g){return {teamScore:g.teamScore,oppScore:g.oppScore,period:g.period,down:g.down,toGo:g.toGo,los:g.los,poss:g.poss,driveDir:g.driveDir,awaitingTry:g.awaitingTry,kickoffPending:!!g.kickoffPending,kickoff:g.kickoff?structuredClone(g.kickoff):null}}
-function defaultPlay(g){return {type:'Run',end:g.los,player:'',qb:'',receiver:'',passResult:'Complete',defenders:[],penalties:[],score:null,fumble:false,turnover:false,special:null,kicker:'',returner:'',kickGood:null,note:''}}
+function snapshot(g){return {teamScore:g.teamScore,oppScore:g.oppScore,period:g.period,down:g.down,toGo:g.toGo,los:g.los,poss:g.poss,driveDir:g.driveDir,awaitingTry:g.awaitingTry,tryType:g.tryType||null,kickoffPending:!!g.kickoffPending,kickoff:g.kickoff?structuredClone(g.kickoff):null}}
+function defaultPlay(g){return {type:'Run',end:g.los,player:'',qb:'',receiver:'',passResult:'Complete',defenders:[],penalties:[],score:null,tryResult:null,fumble:false,turnover:false,special:null,kicker:'',returner:'',kickGood:null,note:''}}
+
+
+function addRemembered(arr,n){
+ n=(n??'').toString().trim();
+ if(!n||n==='—'||arr.includes(n))return;
+ arr.push(n);
+}
+function rememberedPlayers(g,side){
+ const m={qb:[],rb:[],wr:[],def:[]};
+ [...(g.plays||[])].reverse().forEach(p=>{
+   const team=p.team||p.before?.poss;
+   if(team===side){
+     if(p.kind==='Run'){
+       let n=p.player;
+       if(!n){const x=(p.desc||'').match(/^Run #(\d+)/);n=x?.[1]}
+       addRemembered(m.rb,n);
+     }
+     if(p.kind==='Pass'){
+       let qb=p.qb,wr=p.receiver;
+       if(!qb){
+         let x=(p.desc||'').match(/^Pass #(\d+)/);
+         if(!x)x=(p.desc||'').match(/^Sack of QB #(\d+)/);
+         qb=x?.[1];
+       }
+       if(!wr){const x=(p.desc||'').match(/→ #(\d+)/);wr=x?.[1]}
+       addRemembered(m.qb,qb);addRemembered(m.wr,wr);
+     }
+   }
+   if(team&&other(team)===side){
+     (p.defenders||[]).slice().reverse().forEach(d=>addRemembered(m.def,d.n));
+   }
+ });
+ return m;
+}
+function memoryButtons(nums,role){
+ return nums.length?nums.map(n=>`<button type="button" class="memory-chip" data-memory-role="${role}" data-memory-player="${esc(n)}">#${esc(n)}</button>`).join(''):'<span class="memory-empty">—</span>';
+}
+function offenseMemory(g){
+ const m=rememberedPlayers(g,g.poss);
+ return `<div class="player-memory"><div class="memory-title">PLAYERS</div><div class="memory-columns"><div class="memory-col"><small>QB</small><div>${memoryButtons(m.qb,'qb')}</div></div><div class="memory-col"><small>RB</small><div>${memoryButtons(m.rb,'rb')}</div></div><div class="memory-col"><small>WR / TARGETS</small><div>${memoryButtons(m.wr,'wr')}</div></div></div></div>`;
+}
+function defenseMemory(g){
+ const m=rememberedPlayers(g,other(g.poss));
+ return `<div class="player-memory defense-memory"><div class="memory-title">DEFENDERS</div><div class="memory-chip-row">${memoryButtons(m.def,'def')}</div></div>`;
+}
 
 function renderGame(id){
  const g=state.games.find(x=>x.id===id);if(!g)return location.hash='#teams';normalizeGame(g);
@@ -90,20 +135,32 @@ function renderGame(id){
  const homeTeam=g.location==='Away'?'opp':'team';const left=teamSide(g,t,homeTeam),right=teamSide(g,t,other(homeTeam));left.score=homeTeam==='team'?g.teamScore:g.oppScore;right.score=homeTeam==='team'?g.oppScore:g.teamScore;
  const off=teamSide(g,t,g.poss),def=teamSide(g,t,other(g.poss));
  const stateLabel=g.kickoffPending?'KICKOFF':g.awaitingTry?'TRY':`${ordinal(g.down)} & ${g.toGo}`;
- shell(`<main class="game-page"><section class="game-top"><div class="game-brand"><img src="./assets/sidelineiq-header-logo.png" alt="SidelineIQ"></div><div class="score-card" style="background:${left.color};color:${textColor(left.color)}"><span class="team-label">${esc(left.name)}</span><span class="score-value">${left.score}</span></div><div class="game-state"><div class="period">${g.format==='halves'?'H':'Q'}${g.period}</div><div class="downline">${stateLabel}</div><div class="pos">${g.kickoffPending?'Opening kickoff':fmtDrive(g.los,g.driveDir)}</div></div><div class="score-card" style="background:${right.color};color:${textColor(right.color)}"><span class="score-value">${right.score}</span><span class="team-label">${esc(right.name)}</span></div><div class="nav-strip"><button class="nav-button" onclick="location.hash='#team/${t.id}'"><span class="ico">▣</span>Games</button><button class="nav-button" id="resetGame"><span class="ico">↻</span>Reset</button><button class="nav-button danger-nav" id="deleteGame"><span class="ico">✕</span>Delete</button><button class="nav-button"><span class="ico">⚙</span>Settings</button></div></section>
+ shell(`<main class="game-page"><section class="game-top"><div class="game-brand"><img src="./assets/sidelineiq-header-logo.png" alt="SidelineIQ"></div><div class="score-card" style="background:${left.color};color:${textColor(left.color)}"><span class="team-label">${esc(left.name)}</span><span class="score-value">${left.score}</span></div><div class="game-state"><div class="period period-control"><span>${g.format==='halves'?'H':'Q'}${g.period}</span><button type="button" id="nextPeriod" class="period-next" ${g.period>=(g.format==='halves'?2:4)?'disabled':''} title="Advance to next ${g.format==='halves'?'half':'quarter'}">›</button></div><div class="downline">${stateLabel}</div><div class="pos">${g.kickoffPending?'Opening kickoff':fmtDrive(g.los,g.driveDir)}</div></div><div class="score-card" style="background:${right.color};color:${textColor(right.color)}"><span class="score-value">${right.score}</span><span class="team-label">${esc(right.name)}</span></div><div class="nav-strip"><button class="nav-button" onclick="location.hash='#team/${t.id}'"><span class="ico">▣</span>Games</button><button class="nav-button" id="resetGame"><span class="ico">↻</span>Reset</button><button class="nav-button danger-nav" id="deleteGame"><span class="ico">✕</span>Delete</button><button class="nav-button"><span class="ico">⚙</span>Settings</button></div></section>
  <div class="main-grid"><section class="field-panel"><div class="field" id="field"></div><div class="field-controls"><div class="mini"><small>Line of Scrimmage</small><div class="los-control"><select id="losSide"><option>OWN</option><option>OPP</option><option>50</option></select><input id="losYard" type="number" min="0" max="49"><button class="btn btn-light" id="setLos">Set</button></div></div><div class="mini"><small>Ball at</small><b id="ballText">${g.kickoffPending?'—':fmtDrive(g.los,g.driveDir)}</b></div><div class="mini"><small>Distance</small><b>${g.kickoffPending?'—':g.toGo}</b></div><div class="mini"><small>Down</small><b>${g.kickoffPending?'—':g.down}</b></div><div class="mini"><small>State</small><b>${g.kickoffPending?'KO':g.awaitingTry?'TRY':'LIVE'}</b></div></div></section>
  <aside class="recent-panel"><div class="recent-head"><span>Recent Plays</span><select><option>All Plays</option></select></div><div class="recent-list">${recentRows(g,t)}</div><div class="recent-actions"><button class="btn btn-light" id="editPlay">Edit Selected</button><button class="btn btn-light" id="undoPlay">Undo Last Play</button></div></aside></div>
- <section class="workbench"><div class="pane off"><div class="pane-title">OFFENSE</div><div class="pane-body">${offensePane(g)}</div></div><div class="pane def"><div class="pane-title">DEFENSE</div><div class="pane-body">${defensePane()}</div></div><div class="pane st"><div class="pane-title">SPECIAL TEAMS</div><div class="pane-body">${specialPane(g,t)}</div></div><div class="pane pen"><div class="pane-title">PENALTY</div><div class="pane-body">${penaltyPane()}</div></div></section>
+ <section class="workbench"><div class="pane off"><div class="pane-title">OFFENSE</div><div class="pane-body">${offensePane(g)}</div></div><div class="pane def"><div class="pane-title">DEFENSE</div><div class="pane-body">${defensePane(g)}</div></div><div class="pane st"><div class="pane-title">SPECIAL TEAMS</div><div class="pane-body">${specialPane(g,t)}</div></div><div class="pane pen"><div class="pane-title">PENALTY</div><div class="pane-body">${penaltyPane()}</div></div></section>
  <section class="savebar"><input class="play-note" id="playNote" placeholder="Play notes (optional) — e.g. screen right, blitz, alignment..."><div class="save-actions"><button class="btn btn-primary" id="savePlay">✓ Save Play</button><button class="btn btn-light" id="clearPlay">Clear</button></div></section></main>`);
  bindGame(g,t);drawField(g,t)
 }
+
 function offensePane(g){
  if(g.kickoffPending)return `<div class="notice">Finish the kickoff in Special Teams before recording an offensive play.</div>`;
- return `<div class="section-label">Play Type</div><div class="seg" id="playTypes"><button class="active" data-type="Run">Run</button><button data-type="Pass">Pass</button></div><div id="offDynamic">${runFields()}</div><div class="section-label">Result</div><div class="seg" id="offScore"><button class="active" data-score="">Normal</button><button data-score="TD">Touchdown</button><button data-score="2PT">2-Point</button><button id="fumbleBtn">Fumble</button></div><div class="summary" id="offSummary">Drag the football to the end of the play.</div>`
+ if(g.awaitingTry&&g.tryType==='2PT'){
+   return `<div class="notice two-point-notice"><b>2-Point Conversion</b><br>Ball placed at OPP 5. Record the run/pass, then mark the try Successful or Failed.</div><div class="section-label">Play Type</div><div class="seg" id="playTypes"><button class="active" data-type="Run">Run</button><button data-type="Pass">Pass</button></div><div id="offDynamic">${runFields(g)}</div><div class="section-label">Try Result</div><div class="seg" id="tryResult"><button data-try="successful">Successful</button><button data-try="failed">Failed</button></div><div class="summary" id="offSummary">Drag the football to the end of the conversion attempt.</div>${offenseMemory(g)}`
+ }
+ return `<div class="section-label">Play Type</div><div class="seg" id="playTypes"><button class="active" data-type="Run">Run</button><button data-type="Pass">Pass</button></div><div id="offDynamic">${runFields(g)}</div><div class="section-label">Result</div><div class="seg" id="offScore"><button class="active" data-score="">Normal</button><button data-score="TD">Touchdown</button><button data-score="2PT">2-Point Try</button><button id="fumbleBtn">Fumble</button></div><div class="summary" id="offSummary">Drag the football to the end of the play.</div>${offenseMemory(g)}`
 }
-function runFields(){return `<div class="form-row"><label>Ball Carrier #</label><input id="player" inputmode="numeric" placeholder="#"></div>`}
-function passFields(){return `<div class="form-row"><label>QB #</label><input id="qb" inputmode="numeric"><label>Receiver #</label><input id="receiver" inputmode="numeric"></div><div class="seg" id="passResult"><button class="active">Complete</button><button>Incomplete</button><button>Interception</button><button>Sack</button></div>`}
-function defensePane(){return `<div class="form-row"><label>Player #</label><input id="defNum" inputmode="numeric"></div><div class="section-label">Action</div><div class="action-grid"><button data-def="Tackle">Tackle</button><button data-def="Assist">Assist</button><button class="alt" data-def="Missed">Missed</button><button class="alt" data-def="Pressure">Pressure</button><button class="alt" data-def="Hurry">Hurry</button><button class="score" data-dscore="Safety">Safety +2</button><button class="score" data-dscore="Def TD">Def. TD +6</button></div><div class="summary" id="defList">No defensive actions yet.</div>`}
+function runFields(g){
+ const m=rememberedPlayers(g,g.poss),last=m.rb[0]||'';
+ return `<div class="form-row"><label>Ball Carrier #</label><input id="player" inputmode="numeric" placeholder="#" value="${esc(last)}"></div>`
+}
+function passFields(g){
+ const m=rememberedPlayers(g,g.poss),last=m.qb[0]||'';
+ return `<div class="form-row"><label>QB #</label><input id="qb" inputmode="numeric" value="${esc(last)}"><label>Receiver #</label><input id="receiver" inputmode="numeric"></div><div class="seg" id="passResult"><button class="active">Complete</button><button>Incomplete</button><button>Interception</button><button>Sack</button></div>`
+}
+function defensePane(g){
+ return `<div class="form-row"><label>Player #</label><input id="defNum" inputmode="numeric"></div><div class="section-label">Action</div><div class="action-grid"><button data-def="Tackle">Tackle</button><button data-def="Assist">Assist</button><button class="alt" data-def="Missed">Missed</button><button class="alt" data-def="Pressure">Pressure</button><button class="alt" data-def="Hurry">Hurry</button><button class="score" data-dscore="Safety">Safety +2</button><button class="score" data-dscore="Def TD">Def. TD +6</button></div><div class="summary" id="defList">No defensive actions yet.</div>${defenseMemory(g)}`
+}
 function penaltyPane(){return `<div class="section-label">Side</div><div class="seg pen-toggle" id="penSideToggle"><button class="active" data-pen-side="Offense">Offense</button><button data-pen-side="Defense">Defense</button></div><div class="section-label">Apply To</div><div class="seg pen-toggle" id="penApplyToggle"><button class="active" data-apply="current">Current</button><button data-apply="former">Former</button></div><div class="section-label">Status</div><div class="seg pen-toggle" id="penStatusToggle"><button class="active" data-status="accepted">Accepted</button><button data-status="declined">Declined</button></div><div class="form-row"><select id="penType"><option>Holding</option><option>False Start</option><option>Delay of Game</option><option>Offside</option><option>Pass Interference</option><option>Personal Foul</option><option>Illegal Formation</option><option>Illegal Motion</option><option>Facemask</option><option>Unsportsmanlike Conduct</option><option>Other</option></select><input id="penYards" type="number" value="10" aria-label="Penalty yards" placeholder="Yards"></div><div class="form-row"><input id="penPlayer" inputmode="numeric" placeholder="Player #" aria-label="Player number"></div><div class="pen-checks"><label><input type="checkbox" id="spotFoul"> Enforce from spot of foul</label><div id="foulSpotFields" class="foul-spot-fields hidden"><span class="field-hint">Spot of foul</span><select id="foulSpotSide" aria-label="Spot of foul side"><option>OWN</option><option>OPP</option><option>50</option></select><input id="foulSpotYard" type="number" min="0" max="49" placeholder="Yard" aria-label="Spot of foul yard line"></div><label><input type="checkbox" id="negate"> Ignore play yardage; enforce from previous LOS</label><label><input type="checkbox" id="repeatDown"> Repeat down / no play</label><label><input type="checkbox" id="autoFirst"> Automatic first down</label></div><div class="form-row"><button class="btn btn-light" id="attachPenalty">Apply Penalty</button><button class="btn btn-light" id="clearPenalty">Clear Current</button></div><div class="summary penalty-list" id="penSummary">No penalties applied.</div>`}
 function specialPane(g,t){
  if(g.kickoffPending)return kickoffPane(g,t);
@@ -117,7 +174,7 @@ function kickoffPane(g,t){
  if(k.phase==='kick')return `<div class="kick-steps"><div class="step active">1 · KICK</div><span>›</span><div class="step">2 · RETURN</div></div><div class="notice"><b>${esc(kick.name)}</b> kicks from OWN ${k.startYard}. Enter kicker, then drag the football to the landing/catch spot.</div><div class="form-row"><label>Kicker #</label><input id="koKicker" value="${esc(k.kicker||'')}"></div><div class="summary">Landing: <b>${k.landing==null?'drag football':fmtDrive(k.landing,k.kickDir||1)}</b>${k.landing==null?'':` · ${Math.abs(k.landing-(k.startSpot??k.startYard))} yd kick`}</div><div class="form-row"><button class="btn btn-light" id="touchbackKick">Touchback</button><button class="btn btn-primary" id="lockKick" ${k.landing==null?'disabled':''}>Lock Landing →</button></div>`;
  return `<div class="kick-steps"><div class="step done">✓ KICK</div><span>›</span><div class="step active">2 · RETURN</div></div><div class="notice"><b>${esc(rec.name)}</b> return. Field perspective has flipped to the receiving team.</div><div class="form-row"><label>Returner #</label><input id="koReturner" value="${esc(k.returner||'')}"><label>Tackler #</label><input id="koTackler"><button class="btn btn-light" id="addKoTackler">Add</button></div><div class="summary">Catch: <b>${fmtDrive(k.landing,-(k.kickDir||1))}</b> · End: <b>${k.returnEnd==null?'drag football':fmtDrive(k.returnEnd,-(k.kickDir||1))}</b><br>Tacklers: ${k.tacklers.length?k.tacklers.map(x=>'#'+esc(x)).join(', '):'—'}</div><div class="form-row"><button class="btn btn-light" id="touchbackReturn">Touchback</button><button class="btn btn-primary" id="finishKickoff" ${k.returnEnd==null?'disabled':''}>Finish Kickoff</button></div>`
 }
-function recentRows(g,t){return [...g.plays].reverse().slice(0,25).map((p,i)=>{const n=g.plays.length-i,team=p.team||p.before?.poss||'team',tm=teamSide(g,t,team),abbr=teamAbbr(tm.name),bg1=lighten(tm.color,.84),bg2=lighten(tm.secondary||tm.color,.90);return `<div class="play-row" data-play="${p.id}" style="background:linear-gradient(90deg,${bg1},${bg2});border-left:4px solid ${tm.color};color:#132D36"><div>${n}</div><div>${g.period||1}</div><div>${esc(p.time||'')}</div><div><b>${abbr}</b></div><div class="desc">${esc(p.desc||'')}</div><div class="yds">${Number.isFinite(p.yds)?(p.yds>0?'+':'')+p.yds:''}</div></div>`}).join('')||'<div class="empty">No plays yet.</div>'}
+function recentRows(g,t){return [...g.plays].reverse().slice(0,25).map((p,i)=>{const n=g.plays.length-i,team=p.team||p.before?.poss||'team',tm=teamSide(g,t,team),abbr=teamAbbr(tm.name),bg1=lighten(tm.color,.84),bg2=lighten(tm.secondary||tm.color,.90);return `<div class="play-row" data-play="${p.id}" style="background:linear-gradient(90deg,${bg1},${bg2});border-left:4px solid ${tm.color};color:#132D36"><div>${n}</div><div>${p.period||p.before?.period||1}</div><div>${esc(p.time||'')}</div><div><b>${abbr}</b></div><div class="desc">${esc(p.desc||'')}</div><div class="yds">${Number.isFinite(p.yds)?(p.yds>0?'+':'')+p.yds:''}</div></div>`}).join('')||'<div class="empty">No plays yet.</div>'}
 
 function resetGameState(g){
  const openingKick=g.openingKick||'team';
@@ -132,6 +189,7 @@ function resetGameState(g){
  g.poss=receiving;
  g.plays=[];
  g.awaitingTry=false;
+ g.tryType=null;
  g.driveDir=1;
  g.kickoffPending=true;
  g.kickoff={
@@ -171,26 +229,119 @@ function bindGame(g,t){
  const sy=sideYard(relSpot(g.los,g.driveDir||1));$('#losSide').value=sy.side;$('#losYard').value=sy.yard;
  $('#setLos').onclick=()=>{if(g.kickoffPending)return toast('Finish the kickoff first.');const side=$('#losSide').value,y=+$('#losYard').value||0;const rel=side==='50'?50:side==='OWN'?y:100-y;g.los=screenSpot(rel,g.driveDir||1);g.los=clamp(g.los);currentPlay.end=g.los;save();renderGame(g.id)};
  $('#savePlay').onclick=()=>savePlay(g,t);$('#clearPlay').onclick=()=>renderGame(g.id);$('#undoPlay').onclick=()=>undoPlay(g);$('#editPlay').onclick=()=>editSelected(g);
+ if($('#nextPeriod'))$('#nextPeriod').onclick=()=>{
+   const max=g.format==='halves'?2:4;
+   if(g.period>=max)return toast(`Already in the final ${g.format==='halves'?'half':'quarter'}.`);
+   const label=g.format==='halves'?'half':'quarter';
+   if(!confirm(`Advance to the next ${label}?`))return;
+   g.period++;
+   save();
+   toast(`${g.format==='halves'?'Half':'Quarter'} ${g.period}`);
+   renderGame(g.id);
+ };
  $$('.play-row').forEach(r=>r.onclick=()=>{selectedPlayId=r.dataset.play;$$('.play-row').forEach(x=>x.style.outline=x.dataset.play===selectedPlayId?'2px solid #00D4FF':'none')});
- if(!g.kickoffPending){bindOffense();bindDefense();bindPenalty(g);bindSpecial(g)}
+ if(!g.kickoffPending){bindOffense(g);bindDefense(g);bindPenalty(g);bindSpecial(g)}
  bindKickoff(g,t);
 }
-function bindOffense(){
- $$('#playTypes button').forEach(b=>b.onclick=()=>{$$('#playTypes button').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentPlay.type=b.dataset.type;$('#offDynamic').innerHTML=currentPlay.type==='Pass'?passFields():runFields();bindOffDynamic()});bindOffDynamic();
- $$('#offScore [data-score]').forEach(b=>b.onclick=()=>{$$('#offScore [data-score]').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentPlay.score=b.dataset.score||null});
- $('#fumbleBtn').onclick=()=>{currentPlay.fumble=!currentPlay.fumble;$('#fumbleBtn').classList.toggle('active',currentPlay.fumble);if(currentPlay.fumble)currentPlay.turnover=confirm('Was the fumble recovered by the defense?')}
+
+function bindOffense(g){
+ $$('#playTypes button').forEach(b=>b.onclick=()=>{
+   $$('#playTypes button').forEach(x=>x.classList.remove('active'));
+   b.classList.add('active');
+   currentPlay.type=b.dataset.type;
+   $('#offDynamic').innerHTML=currentPlay.type==='Pass'?passFields(g):runFields(g);
+   bindOffDynamic(g)
+ });
+ bindOffDynamic(g);
+ if($('#offScore')){
+   $$('#offScore [data-score]').forEach(b=>b.onclick=()=>{
+     $$('#offScore [data-score]').forEach(x=>x.classList.remove('active'));
+     b.classList.add('active');
+     const score=b.dataset.score||null;
+     if(score==='2PT'){
+       g.awaitingTry=true;
+       g.tryType='2PT';
+       g.los=screenSpot(95,g.driveDir||1);
+       g.down=1;
+       g.toGo=5;
+       save();
+       renderGame(g.id);
+       return;
+     }
+     currentPlay.score=score
+   });
+ }
+ if($('#tryResult')){
+   $$('#tryResult [data-try]').forEach(b=>b.onclick=()=>{
+     $$('#tryResult [data-try]').forEach(x=>x.classList.remove('active'));
+     b.classList.add('active');
+     currentPlay.tryResult=b.dataset.try
+   });
+ }
+ if($('#fumbleBtn'))$('#fumbleBtn').onclick=()=>{
+   currentPlay.fumble=!currentPlay.fumble;
+   $('#fumbleBtn').classList.toggle('active',currentPlay.fumble);
+   if(currentPlay.fumble)currentPlay.turnover=confirm('Was the fumble recovered by the defense?')
+ };
+ $$('[data-memory-role]').forEach(b=>b.onclick=()=>{
+   const role=b.dataset.memoryRole,n=b.dataset.memoryPlayer;
+   if(role==='rb'){
+     const run=$('#playTypes [data-type="Run"]');
+     if(run&&!run.classList.contains('active'))run.click();
+     if($('#player')){$('#player').value=n;currentPlay.player=n}
+   }else if(role==='qb'){
+     const pass=$('#playTypes [data-type="Pass"]');
+     if(pass&&!pass.classList.contains('active'))pass.click();
+     if($('#qb')){$('#qb').value=n;currentPlay.qb=n}
+   }else if(role==='wr'){
+     const pass=$('#playTypes [data-type="Pass"]');
+     if(pass&&!pass.classList.contains('active'))pass.click();
+     if($('#receiver')){$('#receiver').value=n;currentPlay.receiver=n}
+   }
+ });
 }
-function bindOffDynamic(){
- if($('#player'))$('#player').oninput=e=>currentPlay.player=e.target.value.trim();
- if($('#qb'))$('#qb').oninput=e=>currentPlay.qb=e.target.value.trim();
+function bindOffDynamic(g){
+ if($('#player')){
+   currentPlay.player=$('#player').value.trim();
+   $('#player').oninput=e=>currentPlay.player=e.target.value.trim()
+ }
+ if($('#qb')){
+   currentPlay.qb=$('#qb').value.trim();
+   $('#qb').oninput=e=>currentPlay.qb=e.target.value.trim()
+ }
  if($('#receiver'))$('#receiver').oninput=e=>currentPlay.receiver=e.target.value.trim();
- $$('#passResult button').forEach(b=>b.onclick=()=>{$$('#passResult button').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentPlay.passResult=b.textContent;currentPlay.turnover=b.textContent==='Interception'})
+ $$('#passResult button').forEach(b=>b.onclick=()=>{
+   $$('#passResult button').forEach(x=>x.classList.remove('active'));
+   b.classList.add('active');
+   currentPlay.passResult=b.textContent;
+   currentPlay.turnover=b.textContent==='Interception'
+ })
 }
-function bindDefense(){
- $$('[data-def]').forEach(b=>b.onclick=()=>{const n=$('#defNum').value.trim();if(!n)return toast('Enter defender number.');currentPlay.defenders.push({n,action:b.dataset.def});$('#defNum').value='';renderDefenders()});
- $$('[data-dscore]').forEach(b=>b.onclick=()=>{currentPlay.score=b.dataset.dscore;toast(`${b.textContent} selected`)})
+function bindDefense(g){
+ $$('[data-def]').forEach(b=>b.onclick=()=>{
+   const n=$('#defNum').value.trim();
+   if(!n)return toast('Enter defender number.');
+   currentPlay.defenders.push({n,action:b.dataset.def});
+   $('#defNum').value='';
+   renderDefenders()
+ });
+ $$('[data-dscore]').forEach(b=>b.onclick=()=>{
+   currentPlay.score=b.dataset.dscore;
+   toast(`${b.textContent} selected`)
+ });
+ $$('[data-memory-role="def"]').forEach(b=>b.onclick=()=>{
+   if($('#defNum')){
+     $('#defNum').value=b.dataset.memoryPlayer;
+     $('#defNum').focus()
+   }
+ });
 }
-function renderDefenders(){if(!$('#defList'))return;$('#defList').innerHTML=currentPlay.defenders.length?currentPlay.defenders.map((d,i)=>`#${esc(d.n)} ${d.action}${i<currentPlay.defenders.length-1?' · ':''}`).join(''):'No defensive actions yet.'}
+function renderDefenders(){
+ if(!$('#defList'))return;
+ $('#defList').innerHTML=currentPlay.defenders.length
+   ?currentPlay.defenders.map((d,i)=>`#${esc(d.n)} ${d.action}${i<currentPlay.defenders.length-1?' · ':''}`).join('')
+   :'No defensive actions yet.'
+}
 function bindPenalty(g){
  const activate=root=>{$$(root+' button').forEach(b=>b.onclick=()=>{$$(root+' button').forEach(x=>x.classList.remove('active'));b.classList.add('active')})};
  activate('#penSideToggle');activate('#penApplyToggle');activate('#penStatusToggle');
@@ -308,41 +459,77 @@ function bindKickoff(g,t){
 function finishKickoff(g){
  const k=g.kickoff;if(k.returnEnd==null)return;const before=snapshot(g),end=clamp(k.returnEnd),kickDir=k.kickDir||1,returnDir=-kickDir,kickDistance=Math.abs(k.landing-(k.startSpot??k.startYard)),returnYards=k.touchback?0:Math.abs(end-k.landing);
  const desc=k.touchback?`Kickoff #${k.kicker||'—'} ${kickDistance} yd · TOUCHBACK`:`Kickoff #${k.kicker||'—'} ${kickDistance} yd; return #${k.returner||'—'} ${returnYards} yd to ${fmtDrive(end,returnDir)}${k.tacklers.length?`; tackle ${k.tacklers.map(x=>'#'+x).join(', ')}`:''}`;
- g.plays.push({id:uid(),kind:'Kickoff',team:k.kickingTeam,start:k.startSpot??k.startYard,end,yds:kickDistance,desc,before});g.poss=k.receivingTeam;g.driveDir=returnDir;g.los=end;g.down=1;g.toGo=Math.min(10,Math.max(1,returnDir===1?100-end:end));g.kickoffPending=false;g.kickoff=null;g.awaitingTry=false;save();renderGame(g.id)
+ g.plays.push({id:uid(),kind:'Kickoff',team:k.kickingTeam,period:before.period,start:k.startSpot??k.startYard,end,yds:kickDistance,desc,before});g.poss=k.receivingTeam;g.driveDir=returnDir;g.los=end;g.down=1;g.toGo=Math.min(10,Math.max(1,returnDir===1?100-end:end));g.kickoffPending=false;g.kickoff=null;g.awaitingTry=false;g.tryType=null;save();renderGame(g.id)
 }
 function score(g,side,pts){if(side==='team')g.teamScore+=pts;else g.oppScore+=pts}
-function beginKickoffAfterScore(g,scoringSide){const dir=g.driveDir||1,from=g.kickoffYard||40;g.kickoffPending=true;g.kickoff={phase:'kick',kickingTeam:scoringSide,receivingTeam:other(scoringSide),startYard:from,kickDir:dir,startSpot:screenSpot(from,dir),landing:null,returnEnd:null,kicker:'',returner:'',tacklers:[],touchback:false};g.awaitingTry=false}
+function beginKickoffAfterScore(g,scoringSide){const dir=g.driveDir||1,from=g.kickoffYard||40;g.tryType=null;g.kickoffPending=true;g.kickoff={phase:'kick',kickingTeam:scoringSide,receivingTeam:other(scoringSide),startYard:from,kickDir:dir,startSpot:screenSpot(from,dir),landing:null,returnEnd:null,kicker:'',returner:'',tacklers:[],touchback:false};g.awaitingTry=false}
 function savePlay(g,t){
- if(g.kickoffPending)return toast('Finish the kickoff workflow first.');currentPlay.note=$('#playNote').value.trim();const before=snapshot(g),start=g.los;let end=currentPlay.end==null?start:clamp(currentPlay.end),yds=(end-start)*(g.driveDir||1),desc='';
+ if(g.kickoffPending)return toast('Finish the kickoff workflow first.');
+ currentPlay.note=$('#playNote').value.trim();
+ const before=snapshot(g),start=g.los;
+ let end=currentPlay.end==null?start:clamp(currentPlay.end),yds=(end-start)*(g.driveDir||1),desc='';
  const selectedSt=$('#stTypes .active')?.dataset.st;
+
  if(selectedSt==='Field Goal'||selectedSt==='PAT'){
-   const kicker=$('#stKicker')?.value.trim()||'',dist=+$('#stDistance')?.value||0;if(currentPlay.kickGood==null)return toast('Choose Good or No Good.');
-   const pts=selectedSt==='PAT'?1:3;if(currentPlay.kickGood)score(g,g.poss,pts);desc=`${selectedSt} #${kicker||'—'} ${selectedSt==='Field Goal'?dist+' yd ':''}${currentPlay.kickGood?'GOOD':'NO GOOD'}`;
-   if(currentPlay.kickGood){if(selectedSt==='PAT'||selectedSt==='Field Goal')beginKickoffAfterScore(g,g.poss)}
-   g.plays.push({id:uid(),kind:selectedSt,team:before.poss,start,end:start,yds:0,desc,before});save();renderGame(g.id);return
+   const kicker=$('#stKicker')?.value.trim()||'',dist=+$('#stDistance')?.value||0;
+   if(currentPlay.kickGood==null)return toast('Choose Good or No Good.');
+   const pts=selectedSt==='PAT'?1:3;
+   if(currentPlay.kickGood)score(g,g.poss,pts);
+   desc=`${selectedSt} #${kicker||'—'} ${selectedSt==='Field Goal'?dist+' yd ':''}${currentPlay.kickGood?'GOOD':'NO GOOD'}`;
+   if(selectedSt==='PAT'||selectedSt==='Field Goal')beginKickoffAfterScore(g,g.poss);
+   g.plays.push({id:uid(),kind:selectedSt,team:before.poss,period:before.period,start,end:start,yds:0,desc,before});
+   save();renderGame(g.id);return
  }
+
  if(selectedSt==='Punt'){
-   const punter=$('#stKicker')?.value.trim()||'',ret=$('#stReturner')?.value.trim()||'';desc=`Punt #${punter||'—'} to ${fmtDrive(end,g.driveDir)}${ret?`; returner #${ret}`:''}`;g.plays.push({id:uid(),kind:'Punt',team:before.poss,start,end,yds,desc,before});g.poss=other(g.poss);g.driveDir=-(g.driveDir||1);g.los=end;g.down=1;g.toGo=Math.min(10,Math.max(1,g.driveDir===1?100-g.los:g.los));save();renderGame(g.id);return
+   const punter=$('#stKicker')?.value.trim()||'',ret=$('#stReturner')?.value.trim()||'';
+   desc=`Punt #${punter||'—'} to ${fmtDrive(end,g.driveDir)}${ret?`; returner #${ret}`:''}`;
+   g.plays.push({id:uid(),kind:'Punt',team:before.poss,period:before.period,start,end,yds,desc,before});
+   g.poss=other(g.poss);g.driveDir=-(g.driveDir||1);g.los=end;g.down=1;g.toGo=Math.min(10,Math.max(1,g.driveDir===1?100-g.los:g.los));
+   save();renderGame(g.id);return
  }
- if(currentPlay.type==='Run'){currentPlay.player=$('#player')?.value.trim()||currentPlay.player;desc=`Run #${currentPlay.player||'—'} ${yds>=0?'+':''}${yds} yd`}
- else{
-   currentPlay.qb=$('#qb')?.value.trim()||currentPlay.qb;currentPlay.receiver=$('#receiver')?.value.trim()||currentPlay.receiver;currentPlay.passResult=$('#passResult .active')?.textContent||currentPlay.passResult;
+
+ if(currentPlay.type==='Run'){
+   currentPlay.player=$('#player')?.value.trim()||currentPlay.player;
+   desc=`Run #${currentPlay.player||'—'} ${yds>=0?'+':''}${yds} yd`
+ }else{
+   currentPlay.qb=$('#qb')?.value.trim()||currentPlay.qb;
+   currentPlay.receiver=$('#receiver')?.value.trim()||currentPlay.receiver;
+   currentPlay.passResult=$('#passResult .active')?.textContent||currentPlay.passResult;
    if(currentPlay.passResult==='Incomplete'){end=start;yds=0;desc=`Pass #${currentPlay.qb||'—'} → #${currentPlay.receiver||'—'} incomplete`}
    else if(currentPlay.passResult==='Interception'){desc=`Pass #${currentPlay.qb||'—'} intercepted at ${fmtDrive(end,g.driveDir)}`;currentPlay.turnover=true}
    else if(currentPlay.passResult==='Sack')desc=`Sack of QB #${currentPlay.qb||'—'} ${yds} yd`;
    else desc=`Pass #${currentPlay.qb||'—'} → #${currentPlay.receiver||'—'} ${yds>=0?'+':''}${yds} yd`
  }
+
+ // Dedicated 2-point try workflow.
+ if(g.awaitingTry&&g.tryType==='2PT'){
+   if(!currentPlay.tryResult)return toast('Mark the 2-point conversion Successful or Failed.');
+   const success=currentPlay.tryResult==='successful';
+   if(success)score(g,g.poss,2);
+   desc=`2PT ${currentPlay.type==='Run'?`Run #${currentPlay.player||'—'}`:`Pass #${currentPlay.qb||'—'} → #${currentPlay.receiver||'—'}`} · ${success?'SUCCESSFUL':'FAILED'}`;
+   if(currentPlay.defenders.length)desc+=` · ${currentPlay.defenders.map(d=>`#${d.n} ${d.action}`).join(', ')}`;
+   if(currentPlay.penalties.length)desc+=currentPlay.penalties.map(p=>` · PEN ${p.side} ${p.type}${p.player?' #'+p.player:''} ${p.yards}yd ${p.status.toUpperCase()}`).join('');
+   if(currentPlay.note)desc+=` · ${currentPlay.note}`;
+   g.plays.push({id:uid(),kind:'2PT',team:before.poss,period:before.period,start,end,yds:end-start,desc,before,player:currentPlay.player,qb:currentPlay.qb,receiver:currentPlay.receiver,passResult:currentPlay.passResult,tryResult:currentPlay.tryResult,penalties:structuredClone(currentPlay.penalties),defenders:structuredClone(currentPlay.defenders)});
+   g.tryType=null;
+   beginKickoffAfterScore(g,before.poss);
+   save();renderGame(g.id);return
+ }
+
  if(currentPlay.fumble)desc+=` · FUMBLE${currentPlay.turnover?' LOST':''}`;
- if(currentPlay.score==='TD'){score(g,g.poss,6);desc+=' · TOUCHDOWN';end=touchdownSpot(g.driveDir);g.awaitingTry=true}
- else if(currentPlay.score==='2PT'){score(g,g.poss,2);desc+=' · 2-POINT GOOD';beginKickoffAfterScore(g,g.poss)}
+ if(currentPlay.score==='TD'){score(g,g.poss,6);desc+=' · TOUCHDOWN';end=touchdownSpot(g.driveDir);g.awaitingTry=true;g.tryType=null}
  else if(currentPlay.score==='Safety'){score(g,other(g.poss),2);desc+=' · SAFETY'}
- else if(currentPlay.score==='Def TD'){score(g,other(g.poss),6);desc+=' · DEFENSIVE TD';g.poss=other(g.poss);g.awaitingTry=true}
- else if((g.driveDir||1)===1?end>=100:end<=0){score(g,g.poss,6);desc+=' · TOUCHDOWN';end=touchdownSpot(g.driveDir);g.awaitingTry=true}
+ else if(currentPlay.score==='Def TD'){score(g,other(g.poss),6);desc+=' · DEFENSIVE TD';g.poss=other(g.poss);g.awaitingTry=true;g.tryType=null}
+ else if((g.driveDir||1)===1?end>=100:end<=0){score(g,g.poss,6);desc+=' · TOUCHDOWN';end=touchdownSpot(g.driveDir);g.awaitingTry=true;g.tryType=null}
+
  if(currentPlay.defenders.length)desc+=` · ${currentPlay.defenders.map(d=>`#${d.n} ${d.action}`).join(', ')}`;
- if(currentPlay.penalties.length)desc+=currentPlay.penalties.map(p=>` · PEN ${p.side} ${p.type} ${p.yards}yd ${p.status.toUpperCase()}`).join('');
+ if(currentPlay.penalties.length)desc+=currentPlay.penalties.map(p=>` · PEN ${p.side} ${p.type}${p.player?' #'+p.player:''} ${p.yards}yd ${p.status.toUpperCase()}`).join('');
  if(currentPlay.note)desc+=` · ${currentPlay.note}`;
- g.plays.push({id:uid(),kind:currentPlay.type,team:before.poss,start,end,yds:end-start,desc,before,penalties:structuredClone(currentPlay.penalties),defenders:structuredClone(currentPlay.defenders)});
- if(!g.awaitingTry&&!g.kickoffPending)applyAfterPlay(g,currentPlay,start,end);save();renderGame(g.id)
+
+ g.plays.push({id:uid(),kind:currentPlay.type,team:before.poss,period:before.period,start,end,yds:end-start,desc,before,player:currentPlay.player,qb:currentPlay.qb,receiver:currentPlay.receiver,passResult:currentPlay.passResult,penalties:structuredClone(currentPlay.penalties),defenders:structuredClone(currentPlay.defenders)});
+ if(!g.awaitingTry&&!g.kickoffPending)applyAfterPlay(g,currentPlay,start,end);
+ save();renderGame(g.id)
 }
 function applyAfterPlay(g,p,start,end){
  const dir=g.driveDir||1;

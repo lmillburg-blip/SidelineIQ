@@ -1,25 +1,33 @@
-SIDELINEIQ v0.15.11 — RESTORE RETURN TOUCHDOWNS
+SIDELINEIQ v0.15.14 — BAD SNAP + FUMBLE RECOVERY + POSSESSION
 
-This version keeps the working v0.15.10 halftime kickoff logic and restores return TD handling.
+BAD SNAP
+- Available under BOTH Run and Pass.
+- Tap Bad Snap to open the snap details.
+- Enter Center #.
+- Choose Caught or Not Caught.
+- Not Caught is treated as a center fumble.
+- If Not Caught, choose Who Recovered: Offense or Defense.
+- Defensive recovery produces a turnover.
+- Saved play data stores the center, caught/not-caught status, and recovery team.
+- Recent Plays describes BAD SNAP / CENTER FUMBLE / recovery.
 
-Kickoff Return TD
-- Return stage now has Return TD beside Touchback.
-- Return TD and Touchback are mutually exclusive.
-- Receiving team gets 6 points.
-- Recent Plays records RETURN TD.
-- App enters post-touchdown try state.
+FUMBLE WORKFLOW
+- Removed the browser OK / Cancel confirmation.
+- Clicking Fumble now asks Who recovered the loose ball?
+- Buttons are Offense and Defense.
+- The selected recovery team drives turnover logic and is stored with the play.
 
-Punt Return TD
-- Punt entry now includes Return TD.
-- Receiving team gets 6 points.
-- Recent Plays records RETURN TD.
-- App enters post-touchdown try state.
+POSSESSION
+- A football icon now appears beside the team name at the top for the team currently in possession.
 
-Preserved
-- Q2 -> Q3 launches the correct second-half kickoff workflow.
-- H1 -> H2 does the same for two-half games.
+PRESERVED
+- Two-stage Punt: kick -> lock landing -> return.
+- Q2 -> Q3 second-half kickoff.
+- Kickoff and punt return TDs.
+- Sack attribution (#NN Sack).
+- 2-point conversion, player memory, and penalty workflows.
 
-Deployment
-- Build badge: v0.15.11
-- Migrates from v0.15.10
-- Cache versions bumped.
+DEPLOYMENT
+- Build badge: v0.15.14
+- Migrates from v0.15.13
+- JS/CSS/service-worker caches bumped.

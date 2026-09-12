@@ -129,3 +129,9 @@ button{cursor:pointer}
 #tryResult button.active{font-weight:900}
 
 .inline-check{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800}
+
+.bad-snap-block{margin-top:10px;padding-top:10px;border-top:1px solid rgba(100,116,139,.18)}
+.bad-snap-toggle.active{border-color:#00D4FF;box-shadow:0 0 0 1px rgba(0,212,255,.18) inset}
+.bad-snap-details{margin-top:10px;padding:10px;border-radius:10px;background:rgba(11,46,58,.05)}
+.recovery-actions{justify-content:center;gap:12px}
+.poss-indicator{display:inline-block;margin-left:6px;font-size:.85em;filter:drop-shadow(0 1px 1px rgba(0,0,0,.2));vertical-align:middle}

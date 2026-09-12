@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.20.0';
-const DBKEY='sidelineiq_v0200';
-const LEGACY_KEYS=['sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.20.1';
+const DBKEY='sidelineiq_v0201';
+const LEGACY_KEYS=['sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 
@@ -147,6 +147,7 @@ function defenseMemory(g){
 }
 
 
+
 function statYards(p){
  const dir=p.before?.driveDir??1;
  return Math.round(((p.end??p.start??0)-(p.start??0))*dir);
@@ -154,24 +155,65 @@ function statYards(p){
 function isOffensivePlay(p){return p.kind==='Run'||p.kind==='Pass'}
 function playHasTd(p){
  const d=(p.desc||'').toUpperCase();
- return d.includes('TOUCHDOWN')&&!d.includes('DEFENSIVE TD')&&!d.includes('RETURN TD');
+ return (d.includes('TOUCHDOWN')||d.includes(' TD'))&&!d.includes('DEFENSIVE TD')&&!d.includes('RETURN TD');
 }
 function ensurePlayer(map,n){
- if(!n)return null;
- const k=String(n);
- if(!map[k])map[k]={number:k,pass:{att:0,comp:0,yds:0,td:0,int:0,sacks:0},rush:{car:0,yds:0,td:0},rec:{tar:0,rec:0,yds:0,td:0},def:{tkl:0,ast:0,sack:0,pressure:0,hurry:0,missed:0},fum:0};
- return map[k]
+ n=(n??'').toString().trim();
+ if(!n||n==='—')return null;
+ if(!map[n])map[n]={
+   number:n,
+   pass:{att:0,comp:0,yds:0,td:0,int:0,sacks:0},
+   rush:{car:0,yds:0,td:0},
+   rec:{tar:0,rec:0,yds:0,td:0},
+   def:{solo:0,ast:0,sack:0,pressure:0,hurry:0,missed:0},
+   fum:0
+ };
+ return map[n]
+}
+function parsedPlayPlayers(p){
+ const d=p.desc||'';
+ let player=p.player||'',qb=p.qb||'',receiver=p.receiver||'',result=p.passResult||'';
+ if(p.kind==='Run'&&!player){
+   const m=d.match(/^Run #(\d+)/i);if(m)player=m[1]
+ }
+ if(p.kind==='Pass'){
+   if(!qb){
+     let m=d.match(/^Pass #(\d+)/i);
+     if(!m)m=d.match(/^Sack of QB #(\d+)/i);
+     if(m)qb=m[1]
+   }
+   if(!receiver){
+     const m=d.match(/→ #(\d+)/);if(m)receiver=m[1]
+   }
+   if(!result){
+     if(/incomplete/i.test(d))result='Incomplete';
+     else if(/intercept/i.test(d))result='Interception';
+     else if(/^Sack of QB/i.test(d))result='Sack';
+     else result='Complete';
+   }
+ }
+ return {player,qb,receiver,result}
 }
 function computeTeamStats(g,side){
- const team={side,totalYards:0,rushYards:0,passYards:0,rushAtt:0,passAtt:0,completions:0,turnovers:0,plays:0,players:{}};
+ const team={
+   side,totalYards:0,rushYards:0,passYards:0,
+   rushAtt:0,passAtt:0,completions:0,plays:0,
+   firstDowns:0,thirdAtt:0,thirdMade:0,fourthAtt:0,fourthMade:0,
+   turnovers:0,sacksAllowed:0,players:{}
+ };
+
  for(const p of (g.plays||[])){
-   if(p.team===side&&isOffensivePlay(p)){
+   const offense=p.team||p.before?.poss;
+
+   if(offense===side&&isOffensivePlay(p)){
      const y=statYards(p);
+     const f=parsedPlayPlayers(p);
      team.plays++;
+
      if(p.kind==='Run'){
        team.rushAtt++;
        team.rushYards+=y;
-       const rb=ensurePlayer(team.players,p.player);
+       const rb=ensurePlayer(team.players,f.player);
        if(rb){
          rb.rush.car++;
          rb.rush.yds+=y;
@@ -179,37 +221,55 @@ function computeTeamStats(g,side){
          if(p.fumble)rb.fum++;
        }
      }else{
-       team.passAtt++;
-       const qb=ensurePlayer(team.players,p.qb);
-       const wr=ensurePlayer(team.players,p.receiver);
-       const result=p.passResult||'Complete';
+       const result=f.result||'Complete';
        const complete=result==='Complete';
        const sack=result==='Sack';
        const interception=result==='Interception';
+
+       if(!sack)team.passAtt++;
        if(complete){team.completions++;team.passYards+=y}
-       else if(sack){team.passYards+=y}
+       if(sack)team.sacksAllowed++;
+
+       const qb=ensurePlayer(team.players,f.qb);
        if(qb){
          if(!sack)qb.pass.att++;
          if(complete){qb.pass.comp++;qb.pass.yds+=y}
-         if(sack){qb.pass.sacks++;qb.pass.yds+=y}
-         if(interception){qb.pass.int++;team.turnovers++}
-         if(playHasTd(p))qb.pass.td++;
+         if(sack)qb.pass.sacks++;
+         if(interception)qb.pass.int++;
+         if(playHasTd(p)&&complete)qb.pass.td++;
        }
+
+       const wr=ensurePlayer(team.players,f.receiver);
        if(wr){
          if(!sack)wr.rec.tar++;
-         if(complete){wr.rec.rec++;wr.rec.yds+=y;if(playHasTd(p))wr.rec.td++}
+         if(complete){
+           wr.rec.rec++;
+           wr.rec.yds+=y;
+           if(playHasTd(p))wr.rec.td++;
+         }
        }
+
+       if(interception)team.turnovers++;
      }
+
      if(p.fumble&&p.fumbleRecovery==='Defense')team.turnovers++;
      if(p.badSnap?.active&&p.badSnap.notCaught&&p.badSnap.recoveredBy==='Defense')team.turnovers++;
+
+     const down=Number(p.before?.down||0);
+     const toGo=Number(p.before?.toGo||0);
+     const gained=Math.max(0,y);
+     const converted=toGo>0&&gained>=toGo;
+     if(down===3){team.thirdAtt++;if(converted)team.thirdMade++}
+     if(down===4){team.fourthAtt++;if(converted)team.fourthMade++}
+     if(converted||playHasTd(p))team.firstDowns++;
    }
 
-   const defenderSide=other(p.team);
-   if(defenderSide===side){
+   // Defensive actions are stored on the offensive play.
+   if(offense&&other(offense)===side){
      for(const d of (p.defenders||[])){
        const pl=ensurePlayer(team.players,d.n);
        if(!pl)continue;
-       if(d.action==='Tackle')pl.def.tkl++;
+       if(d.action==='Tackle')pl.def.solo++;
        else if(d.action==='Assist')pl.def.ast++;
        else if(d.action==='Sack')pl.def.sack++;
        else if(d.action==='Pressure')pl.def.pressure++;
@@ -218,40 +278,70 @@ function computeTeamStats(g,side){
      }
    }
  }
+
  team.totalYards=team.rushYards+team.passYards;
+ team.yardsPerPlay=team.plays?team.totalYards/team.plays:0;
+ team.rushAvg=team.rushAtt?team.rushYards/team.rushAtt:0;
+ team.passAvg=team.passAtt?team.passYards/team.passAtt:0;
  return team
 }
 function gameAnalytics(g,t){return {team:computeTeamStats(g,'team'),opp:computeTeamStats(g,'opp')}}
 function fmtAvg(y,n){return n?(y/n).toFixed(1):'0.0'}
+function pct(n,d){return d?Math.round(n/d*100):0}
 function playerButton(side,n){return `<button class="stat-player-link" data-stat-side="${side}" data-stat-player="${esc(n)}">#${esc(n)}</button>`}
+function metric(label,value,sub='',cls=''){
+ return `<div class="analytics-kpi ${cls}"><span>${label}</span><b>${value}</b>${sub?`<small>${sub}</small>`:''}</div>`
+}
 function offenseTables(stats){
  const players=Object.values(stats.players).sort((a,b)=>Number(a.number)-Number(b.number));
  const qbs=players.filter(p=>p.pass.att||p.pass.comp||p.pass.yds||p.pass.sacks||p.pass.int||p.pass.td);
  const rbs=players.filter(p=>p.rush.car);
  const wrs=players.filter(p=>p.rec.tar||p.rec.rec);
- const qbRows=qbs.length?qbs.map(p=>`<tr><td>${playerButton(stats.side,p.number)}</td><td>${p.pass.comp}/${p.pass.att}</td><td>${p.pass.yds}</td><td>${p.pass.td}</td><td>${p.pass.int}</td><td>${p.pass.sacks}</td></tr>`).join(''):`<tr><td colspan="6" class="stat-empty">No QB stats yet</td></tr>`;
- const rbRows=rbs.length?rbs.map(p=>`<tr><td>${playerButton(stats.side,p.number)}</td><td>${p.rush.car}</td><td>${p.rush.yds}</td><td>${fmtAvg(p.rush.yds,p.rush.car)}</td><td>${p.rush.td}</td><td>${p.fum}</td></tr>`).join(''):`<tr><td colspan="6" class="stat-empty">No rushing stats yet</td></tr>`;
- const wrRows=wrs.length?wrs.map(p=>`<tr><td>${playerButton(stats.side,p.number)}</td><td>${p.rec.tar}</td><td>${p.rec.rec}</td><td>${p.rec.yds}</td><td>${fmtAvg(p.rec.yds,p.rec.rec)}</td><td>${p.rec.td}</td></tr>`).join(''):`<tr><td colspan="6" class="stat-empty">No receiving stats yet</td></tr>`;
- return `<div class="stat-section"><h4>Quarterbacks</h4><div class="stat-table-wrap"><table class="stat-table"><thead><tr><th>Player</th><th>C/A</th><th>Yds</th><th>TD</th><th>INT</th><th>Sk</th></tr></thead><tbody>${qbRows}</tbody></table></div></div>
+
+ const qbRows=qbs.length?qbs.map(p=>`<tr><td>${playerButton(stats.side,p.number)}</td><td>${p.pass.comp}/${p.pass.att}</td><td>${pct(p.pass.comp,p.pass.att)}%</td><td>${p.pass.yds}</td><td>${p.pass.td}</td><td>${p.pass.int}</td><td>${p.pass.sacks}</td></tr>`).join(''):`<tr><td colspan="7" class="stat-empty">No QB stats recorded yet</td></tr>`;
+ const rbRows=rbs.length?rbs.map(p=>`<tr><td>${playerButton(stats.side,p.number)}</td><td>${p.rush.car}</td><td>${p.rush.yds}</td><td>${fmtAvg(p.rush.yds,p.rush.car)}</td><td>${p.rush.td}</td><td>${p.fum}</td></tr>`).join(''):`<tr><td colspan="6" class="stat-empty">No rushing player stats recorded yet</td></tr>`;
+ const wrRows=wrs.length?wrs.map(p=>`<tr><td>${playerButton(stats.side,p.number)}</td><td>${p.rec.tar}</td><td>${p.rec.rec}</td><td>${p.rec.yds}</td><td>${fmtAvg(p.rec.yds,p.rec.rec)}</td><td>${p.rec.td}</td></tr>`).join(''):`<tr><td colspan="6" class="stat-empty">No receiving player stats recorded yet</td></tr>`;
+
+ return `
+ <div class="stat-section"><h4>Quarterbacks</h4><div class="stat-table-wrap"><table class="stat-table"><thead><tr><th>Player</th><th>C/A</th><th>Cmp%</th><th>Yds</th><th>TD</th><th>INT</th><th>Sk</th></tr></thead><tbody>${qbRows}</tbody></table></div></div>
  <div class="stat-section"><h4>Rushing</h4><div class="stat-table-wrap"><table class="stat-table"><thead><tr><th>Player</th><th>Car</th><th>Yds</th><th>Avg</th><th>TD</th><th>Fum</th></tr></thead><tbody>${rbRows}</tbody></table></div></div>
  <div class="stat-section"><h4>Receiving</h4><div class="stat-table-wrap"><table class="stat-table"><thead><tr><th>Player</th><th>Tgt</th><th>Rec</th><th>Yds</th><th>Avg</th><th>TD</th></tr></thead><tbody>${wrRows}</tbody></table></div></div>`
 }
 function defenseTable(stats){
- const players=Object.values(stats.players).filter(p=>p.def.tkl||p.def.ast||p.def.sack||p.def.pressure||p.def.hurry||p.def.missed).sort((a,b)=>(b.def.tkl+b.def.ast+b.def.sack)-(a.def.tkl+a.def.ast+a.def.sack));
- const rows=players.length?players.map(p=>`<tr><td>${playerButton(stats.side,p.number)}</td><td>${p.def.tkl}</td><td>${p.def.ast}</td><td>${p.def.sack}</td><td>${p.def.pressure}</td><td>${p.def.hurry}</td><td>${p.def.missed}</td></tr>`).join(''):`<tr><td colspan="7" class="stat-empty">No defensive stats yet</td></tr>`;
- return `<div class="stat-section"><h4>Defense</h4><div class="stat-table-wrap"><table class="stat-table"><thead><tr><th>Player</th><th>Tkl</th><th>Ast</th><th>Sk</th><th>Pressure</th><th>Hurry</th><th>Miss</th></tr></thead><tbody>${rows}</tbody></table></div></div>`
+ const players=Object.values(stats.players)
+   .filter(p=>p.def.solo||p.def.ast||p.def.sack||p.def.pressure||p.def.hurry||p.def.missed)
+   .sort((a,b)=>((b.def.solo+b.def.ast+b.def.sack)-(a.def.solo+a.def.ast+a.def.sack)));
+ const rows=players.length?players.map(p=>{
+   const total=p.def.solo+p.def.ast;
+   return `<tr><td>${playerButton(stats.side,p.number)}</td><td>${p.def.solo}</td><td>${p.def.ast}</td><td>${total}</td><td>${p.def.sack}</td><td>${p.def.pressure}</td><td>${p.def.hurry}</td><td>${p.def.missed}</td></tr>`
+ }).join(''):`<tr><td colspan="8" class="stat-empty">No defensive player stats recorded yet</td></tr>`;
+ return `<div class="stat-section"><h4>Defense</h4><div class="stat-table-wrap"><table class="stat-table"><thead><tr><th>Player</th><th>Solo</th><th>Ast</th><th>Total</th><th>Sk</th><th>Prs</th><th>Hur</th><th>Miss</th></tr></thead><tbody>${rows}</tbody></table></div></div>`
 }
 function teamAnalyticsColumn(g,t,side,stats){
  const ts=teamSide(g,t,side);
  return `<section class="analytics-team-card" style="--team-color:${ts.color}">
-   <div class="analytics-team-head"><span class="analytics-swatch" style="background:${ts.color}"></span><div><h3>${esc(ts.name)}</h3><small>${stats.plays} offensive plays</small></div></div>
-   <div class="analytics-kpis">
-     <div class="analytics-kpi primary"><span>Total Yards</span><b>${stats.totalYards}</b></div>
-     <div class="analytics-kpi"><span>Rush</span><b>${stats.rushYards}</b><small>${stats.rushAtt} att</small></div>
-     <div class="analytics-kpi"><span>Pass</span><b>${stats.passYards}</b><small>${stats.completions}/${stats.passAtt}</small></div>
-     <div class="analytics-kpi"><span>Turnovers</span><b>${stats.turnovers}</b></div>
+   <div class="analytics-team-head">
+     <span class="analytics-swatch" style="background:${ts.color}"></span>
+     <div><h3>${esc(ts.name)}</h3><small>${stats.plays} offensive plays · ${stats.yardsPerPlay.toFixed(1)} yards/play</small></div>
    </div>
-   <div class="yard-mix"><div><span>Run Yards</span><b>${stats.rushYards}</b></div><div><span>Pass Yards</span><b>${stats.passYards}</b></div></div>
+
+   <div class="analytics-hero-row">
+     <div class="analytics-total"><span>TOTAL OFFENSE</span><b>${stats.totalYards}</b><small>yards</small></div>
+     <div class="analytics-split">
+       <div><span>Rushing</span><b>${stats.rushYards}</b><small>${stats.rushAtt} att · ${stats.rushAvg.toFixed(1)} avg</small></div>
+       <div><span>Passing</span><b>${stats.passYards}</b><small>${stats.completions}/${stats.passAtt} · ${pct(stats.completions,stats.passAtt)}%</small></div>
+     </div>
+   </div>
+
+   <div class="analytics-kpis">
+     ${metric('First Downs',stats.firstDowns)}
+     ${metric('Turnovers',stats.turnovers)}
+     ${metric('3rd Down',`${stats.thirdMade}/${stats.thirdAtt}`,`${pct(stats.thirdMade,stats.thirdAtt)}%`)}
+     ${metric('4th Down',`${stats.fourthMade}/${stats.fourthAtt}`,`${pct(stats.fourthMade,stats.fourthAtt)}%`)}
+     ${metric('Sacks Allowed',stats.sacksAllowed)}
+     ${metric('Yards / Play',stats.yardsPerPlay.toFixed(1))}
+   </div>
+
    ${offenseTables(stats)}
    ${defenseTable(stats)}
  </section>`
@@ -259,7 +349,10 @@ function teamAnalyticsColumn(g,t,side,stats){
 function showGameAnalytics(g,t){
  const a=gameAnalytics(g,t);
  showModal(`<div class="analytics-modal">
-   <div class="analytics-modal-head"><div><div class="eyebrow">IN-GAME ANALYTICS</div><h2>${esc(t.name)} vs ${esc(g.opponent)}</h2><p>Live statistics calculated from recorded plays.</p></div><button class="btn btn-light" id="closeAnalytics">Close</button></div>
+   <div class="analytics-modal-head">
+     <div><div class="eyebrow">IN-GAME ANALYTICS</div><h2>${esc(t.name)} vs ${esc(g.opponent)}</h2><p>Live game statistics calculated from recorded plays.</p></div>
+     <button class="btn btn-light" id="closeAnalytics">Close</button>
+   </div>
    <div class="analytics-compare">${teamAnalyticsColumn(g,t,'team',a.team)}${teamAnalyticsColumn(g,t,'opp',a.opp)}</div>
  </div>`);
  $('#closeAnalytics').onclick=closeModal;
@@ -270,14 +363,17 @@ function showPlayerStats(g,t,side,number){
  const hasPass=p.pass.att||p.pass.comp||p.pass.yds||p.pass.td||p.pass.int||p.pass.sacks;
  const hasRush=p.rush.car||p.rush.yds||p.rush.td;
  const hasRec=p.rec.tar||p.rec.rec||p.rec.yds||p.rec.td;
- const hasDef=p.def.tkl||p.def.ast||p.def.sack||p.def.pressure||p.def.hurry||p.def.missed;
+ const hasDef=p.def.solo||p.def.ast||p.def.sack||p.def.pressure||p.def.hurry||p.def.missed;
  showModal(`<div class="player-stat-modal">
-   <div class="player-stat-hero" style="--team-color:${ts.color}"><div class="player-number">#${esc(number)}</div><div><div class="eyebrow">${esc(ts.name)}</div><h2>Player Statistics</h2></div></div>
+   <div class="player-stat-hero" style="--team-color:${ts.color}">
+     <div class="player-number">#${esc(number)}</div>
+     <div><div class="eyebrow">${esc(ts.name)}</div><h2>Player Statistics</h2></div>
+   </div>
    <div class="player-stat-grid">
-     ${hasPass?`<div class="player-stat-card"><h4>Passing</h4><div class="player-stat-numbers"><div><b>${p.pass.comp}/${p.pass.att}</b><span>Comp/Att</span></div><div><b>${p.pass.yds}</b><span>Yards</span></div><div><b>${p.pass.td}</b><span>TD</span></div><div><b>${p.pass.int}</b><span>INT</span></div><div><b>${p.pass.sacks}</b><span>Sacked</span></div></div></div>`:''}
+     ${hasPass?`<div class="player-stat-card"><h4>Passing</h4><div class="player-stat-numbers"><div><b>${p.pass.comp}/${p.pass.att}</b><span>Comp/Att</span></div><div><b>${pct(p.pass.comp,p.pass.att)}%</b><span>Comp %</span></div><div><b>${p.pass.yds}</b><span>Yards</span></div><div><b>${p.pass.td}</b><span>TD</span></div><div><b>${p.pass.int}</b><span>INT</span></div><div><b>${p.pass.sacks}</b><span>Sacked</span></div></div></div>`:''}
      ${hasRush?`<div class="player-stat-card"><h4>Rushing</h4><div class="player-stat-numbers"><div><b>${p.rush.car}</b><span>Carries</span></div><div><b>${p.rush.yds}</b><span>Yards</span></div><div><b>${fmtAvg(p.rush.yds,p.rush.car)}</b><span>Avg</span></div><div><b>${p.rush.td}</b><span>TD</span></div><div><b>${p.fum}</b><span>Fumbles</span></div></div></div>`:''}
      ${hasRec?`<div class="player-stat-card"><h4>Receiving</h4><div class="player-stat-numbers"><div><b>${p.rec.tar}</b><span>Targets</span></div><div><b>${p.rec.rec}</b><span>Rec</span></div><div><b>${p.rec.yds}</b><span>Yards</span></div><div><b>${fmtAvg(p.rec.yds,p.rec.rec)}</b><span>Avg</span></div><div><b>${p.rec.td}</b><span>TD</span></div></div></div>`:''}
-     ${hasDef?`<div class="player-stat-card"><h4>Defense</h4><div class="player-stat-numbers"><div><b>${p.def.tkl}</b><span>Tackles</span></div><div><b>${p.def.ast}</b><span>Assists</span></div><div><b>${p.def.sack}</b><span>Sacks</span></div><div><b>${p.def.pressure}</b><span>Pressure</span></div><div><b>${p.def.hurry}</b><span>Hurry</span></div><div><b>${p.def.missed}</b><span>Missed</span></div></div></div>`:''}
+     ${hasDef?`<div class="player-stat-card"><h4>Defense</h4><div class="player-stat-numbers"><div><b>${p.def.solo}</b><span>Solo</span></div><div><b>${p.def.ast}</b><span>Assists</span></div><div><b>${p.def.solo+p.def.ast}</b><span>Total</span></div><div><b>${p.def.sack}</b><span>Sacks</span></div><div><b>${p.def.pressure}</b><span>Pressure</span></div><div><b>${p.def.hurry}</b><span>Hurry</span></div><div><b>${p.def.missed}</b><span>Missed</span></div></div></div>`:''}
      ${!hasPass&&!hasRush&&!hasRec&&!hasDef?`<div class="stat-empty">No recorded statistics for this player yet.</div>`:''}
    </div>
    <div class="modal-actions"><button class="btn btn-light" id="backAnalytics">Back to Game Analytics</button><button class="btn btn-primary" id="closePlayerStats">Close</button></div>
@@ -285,6 +381,7 @@ function showPlayerStats(g,t,side,number){
  $('#backAnalytics').onclick=()=>showGameAnalytics(g,t);
  $('#closePlayerStats').onclick=closeModal
 }
+
 function renderGame(id){
  const g=state.games.find(x=>x.id===id);if(!g)return location.hash='#teams';normalizeGame(g);
  const t=state.teams.find(x=>x.id===g.teamId);if(!t)return location.hash='#teams';currentPlay=defaultPlay(g);

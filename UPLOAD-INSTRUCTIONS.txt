@@ -1,25 +1,43 @@
-SIDELINEIQ v0.20.0 — IN-GAME ANALYTICS
+SIDELINEIQ v0.20.1 — ANALYTICS READABILITY + STAT COMPLETENESS
 
-IMPORTANT CORRECTION
-- The intended version is v0.20.0.
-- The previous v0.2.0 package contained the analytics code, but its internal BUILD/DB version values were stale.
-- v0.20.0 corrects those internal version values and cache keys.
+FIXES FROM v0.20.0
+- Total Yardage was present but rendered white on a light card. v0.20.1 explicitly fixes all analytics text contrast.
+- The analytics child was wider than the base modal shell, causing the right team column to overflow. The analytics modal now expands correctly to near-full screen.
+- Team cards are now opaque/high-contrast rather than translucent.
+- Tables use dark text on white/ice backgrounds.
 
-WHERE IS ANALYTICS?
-- Open a live game.
-- In the top navigation strip, Analytics is BETWEEN Games and Reset.
-- It has a cyan highlight to make it easy to see.
+TEAM GAME STATS
+- Total Offense
+- Rushing yards, attempts, average
+- Passing yards, completions/attempts, completion %
+- Offensive plays
+- Yards/play
+- First downs
+- Turnovers
+- Third-down conversions
+- Fourth-down conversions
+- Sacks allowed
 
-ANALYTICS
-- Two side-by-side team columns.
-- Total yards.
-- Rush yards + attempts.
-- Pass yards + completions/attempts.
-- Turnovers.
-- QB, RB/rushing, WR/receiving, and defense tables.
-- Click a player number to open individual game statistics.
+PLAYER STATS
+QB
+- C/A, completion %, passing yards, TD, INT, sacks
+RB
+- Carries, yards, average, TD, fumbles
+WR
+- Targets, receptions, yards, average, TD
+Defense
+- Solo tackles, assists, total tackles, sacks, pressures, hurries, missed tackles
 
-DEPLOYMENT
-- Upload ALL files/folders to the repository root.
-- After GitHub Pages finishes deploying, force refresh.
-- Visible build badge should read v0.20.0.
+LEGACY GAME SUPPORT
+- v0.20.1 parses older saved play descriptions (Run #, Pass #, Sack of QB #, receiver arrow)
+  when structured player fields did not yet exist.
+- This should recover player attribution for many plays recorded before the newer structured fields were added.
+- Plays that were originally recorded without any jersey number cannot be assigned to a player retroactively.
+
+PLAYER DETAIL
+- Player numbers remain clickable for full individual in-game statistics.
+
+BUILD
+- v0.20.1
+- DB key sidelineiq_v0201
+- Migrates from v0.20.0

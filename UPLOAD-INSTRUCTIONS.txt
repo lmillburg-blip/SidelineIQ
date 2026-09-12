@@ -1,33 +1,8 @@
-SIDELINEIQ v0.15.14 — BAD SNAP + FUMBLE RECOVERY + POSSESSION
+SIDELINEIQ v0.15.15 — GAME OVER
 
-BAD SNAP
-- Available under BOTH Run and Pass.
-- Tap Bad Snap to open the snap details.
-- Enter Center #.
-- Choose Caught or Not Caught.
-- Not Caught is treated as a center fumble.
-- If Not Caught, choose Who Recovered: Offense or Defense.
-- Defensive recovery produces a turnover.
-- Saved play data stores the center, caught/not-caught status, and recovery team.
-- Recent Plays describes BAD SNAP / CENTER FUMBLE / recovery.
-
-FUMBLE WORKFLOW
-- Removed the browser OK / Cancel confirmation.
-- Clicking Fumble now asks Who recovered the loose ball?
-- Buttons are Offense and Defense.
-- The selected recovery team drives turnover logic and is stored with the play.
-
-POSSESSION
-- A football icon now appears beside the team name at the top for the team currently in possession.
-
-PRESERVED
-- Two-stage Punt: kick -> lock landing -> return.
-- Q2 -> Q3 second-half kickoff.
-- Kickoff and punt return TDs.
-- Sack attribution (#NN Sack).
-- 2-point conversion, player memory, and penalty workflows.
-
-DEPLOYMENT
-- Build badge: v0.15.14
-- Migrates from v0.15.13
-- JS/CSS/service-worker caches bumped.
+- In Q4, the period advance arrow becomes GAME OVER.
+- In Half 2, it also becomes GAME OVER.
+- Tapping GAME OVER confirms the final score and marks the game final.
+- Header state displays FINAL and the button changes to FINAL.
+- Reset Game clears final status.
+- All v0.15.14 workflows are preserved.

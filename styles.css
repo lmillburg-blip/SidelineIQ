@@ -135,3 +135,5 @@ button{cursor:pointer}
 .bad-snap-details{margin-top:10px;padding:10px;border-radius:10px;background:rgba(11,46,58,.05)}
 .recovery-actions{justify-content:center;gap:12px}
 .poss-indicator{display:inline-block;margin-left:6px;font-size:.85em;filter:drop-shadow(0 1px 1px rgba(0,0,0,.2));vertical-align:middle}
+
+.period-next.game-over-btn{width:auto;min-width:82px;padding:0 12px;font-size:12px;font-weight:900;letter-spacing:.04em;text-transform:uppercase}

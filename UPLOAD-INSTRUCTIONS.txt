@@ -1,17 +1,18 @@
-SIDELINEIQ v0.22.1 — GAME OPENING FIX
+SIDELINEIQ v0.22.2 — GAME OPENING ROOT-CAUSE FIX
+
+ROOT CAUSE FOUND
+- v0.22.0 introduced roster-driven quick selections that call teamById().
+- teamById() was referenced in several places but was never actually defined.
+- When a game opened, renderGame() built the offense/defense panes.
+- offenseMemory() -> rememberedPlayers() called teamById(), causing a ReferenceError.
+- The URL/GUID changed correctly, but rendering stopped immediately, which looked like the click did nothing.
 
 FIX
-- Reworked the Games list opening logic.
-- Game rows now use one delegated click handler instead of attaching a separate click handler to every row.
-- Added an explicit Open button to every game row.
-- Entire row remains clickable.
-- Keyboard Enter/Space also opens the selected row.
-- Added openGameById() helper that verifies the game exists before navigating.
-- If the app is already on the same game hash, it renders the game directly instead of depending on a hashchange event.
-
-WHY
-- This removes reliance on row-specific event bindings that can be lost when the Games panel is re-rendered after using Roster or Analytics tabs.
+- Added teamById() and gameById() helpers.
+- renderGame() now uses the helpers consistently.
+- Added explicit missing-game / missing-team handling.
+- Added a route-level error screen so future runtime errors are visible instead of looking like a dead click.
 
 BUILD
-- v0.22.1
-- Migrates from v0.22.0
+- v0.22.2
+- Migrates from v0.22.1

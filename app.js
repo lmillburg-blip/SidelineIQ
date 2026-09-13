@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.22.1';
-const DBKEY='sidelineiq_v0221';
-const LEGACY_KEYS=['sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.22.2';
+const DBKEY='sidelineiq_v0222';
+const LEGACY_KEYS=['sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 
@@ -23,6 +23,8 @@ function save(){localStorage.setItem(DBKEY,JSON.stringify(state))}
 function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function clamp(n){return Math.max(0,Math.min(100,Math.round(Number(n)||0)))}
 function other(s){return s==='team'?'opp':'team'}
+function teamById(id){return state.teams.find(t=>String(t.id)===String(id))||null}
+function gameById(id){return state.games.find(g=>String(g.id)===String(id))||null}
 function fmtPos(v){v=clamp(v);if(v===50)return '50';return v<50?`OWN ${v}`:`OPP ${100-v}`}
 function ordinal(n){return n===1?'1st':n===2?'2nd':n===3?'3rd':`${n}th`}
 function sideYard(v){v=clamp(v);if(v===50)return{side:'50',yard:50};return v<50?{side:'OWN',yard:v}:{side:'OPP',yard:100-v}}
@@ -35,11 +37,22 @@ function touchdownSpot(dir=1){return dir===1?100:0}
 function textColor(hex='#000'){let h=hex.replace('#','');if(h.length===3)h=h.split('').map(x=>x+x).join('');const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);return ((r*299+g*587+b*114)/1000)>150?'#071922':'#fff'}
 function toast(msg){const d=document.createElement('div');d.className='toast';d.textContent=msg;$('#toastHost')?.appendChild(d);setTimeout(()=>d.remove(),2200)}
 function shell(content,topActions=''){ $('#app').innerHTML=`<div class="app-shell"><header class="topbar"><img class="brand-image" src="./assets/sidelineiq-header-logo.png" alt="SidelineIQ — Find Your Edge"><div class="top-actions"><span class="build-badge">${BUILD}</span>${topActions}</div></header>${content}</div>`}
-function route(){const h=location.hash||'#teams';if(h.startsWith('#team/'))return renderTeam(h.split('/')[1]);if(h.startsWith('#game/'))return renderGame(h.split('/')[1]);renderTeams()}
+function route(){
+ try{
+   const h=location.hash||'#teams';
+   if(h.startsWith('#team/'))return renderTeam(h.split('/')[1]);
+   if(h.startsWith('#game/'))return renderGame(h.split('/')[1]);
+   renderTeams()
+ }catch(err){
+   console.error('SidelineIQ route error',err);
+   const appRoot=document.querySelector('#app');
+   if(appRoot)appRoot.innerHTML=`<div class="app-shell"><main class="page"><section class="content-card route-error"><div class="eyebrow">SIDELINEIQ ${BUILD}</div><h2>Unable to open this screen</h2><p>${esc(err?.message||'Unknown application error')}</p><button class="btn btn-primary" onclick="location.hash='#teams'">Back to Teams</button></section></main></div>`
+ }
+}
 window.addEventListener('hashchange',route);
 function openGameById(id){
  if(!id)return;
- const g=state.games.find(x=>String(x.id)===String(id));
+ const g=gameById(id);
  if(!g)return toast('Game could not be found.');
  const next='#game/'+g.id;
  if(location.hash===next)renderGame(g.id);
@@ -823,8 +836,8 @@ function showPlayerStats(g,t,side,number){
 }
 
 function renderGame(id){
- const g=state.games.find(x=>x.id===id);if(!g)return location.hash='#teams';normalizeGame(g);
- const t=state.teams.find(x=>x.id===g.teamId);if(!t)return location.hash='#teams';currentPlay=defaultPlay(g);
+ const g=gameById(id);if(!g){console.error('Game not found',id);toast('Game could not be found.');return location.hash='#teams'};normalizeGame(g);
+ const t=teamById(g.teamId);if(!t){console.error('Team not found for game',g.teamId);toast('Team could not be found for this game.');return location.hash='#teams'};currentPlay=defaultPlay(g);
  const homeTeam=g.location==='Away'?'opp':'team';const left=teamSide(g,t,homeTeam),right=teamSide(g,t,other(homeTeam));left.score=homeTeam==='team'?g.teamScore:g.oppScore;right.score=homeTeam==='team'?g.oppScore:g.teamScore;
  const off=teamSide(g,t,g.poss),def=teamSide(g,t,other(g.poss));
  const stateLabel=g.gameOver?'FINAL':g.kickoffPending?'KICKOFF':g.puntPending?'PUNT':g.awaitingTry?'TRY':`${ordinal(g.down)} & ${g.toGo}`;

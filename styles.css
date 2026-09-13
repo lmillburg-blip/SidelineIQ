@@ -788,3 +788,8 @@ button{cursor:pointer}
   border-radius:8px;padding:6px 10px;font-size:10px;font-weight:900;cursor:pointer;white-space:nowrap
 }
 .game-open-btn:hover{background:#0f4d5f;border-color:#00bada;color:#fff}
+
+/* v0.22.2 route diagnostics */
+.route-error{max-width:680px;margin:40px auto;padding:24px}
+.route-error h2{margin:4px 0 8px}
+.route-error p{color:#b7cdd6;margin:0 0 16px}

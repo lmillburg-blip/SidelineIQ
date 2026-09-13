@@ -948,3 +948,20 @@ button{cursor:pointer}
   .allplay-row{min-width:620px}
   .allplays-list{overflow-x:auto}
 }
+
+/* v0.30.0 workflow completeness */
+.special-results{margin-top:5px}
+.special-results button{font-size:10px}
+.validation-list{display:grid;gap:7px;padding:12px 0;max-height:55vh;overflow:auto}
+.validation-item{padding:10px 12px;border-radius:7px;font-size:12px;font-weight:800}
+.validation-item.warn{background:#fff4d6;color:#714f00;border:1px solid #e8cc7c}
+.validation-item.ok{background:#e2f5eb;color:#155d3b;border:1px solid #9fd1b6}
+.drive-list{display:grid;gap:7px;max-height:65vh;overflow:auto;margin-top:12px}
+.drive-row{display:grid;grid-template-columns:1.5fr 1fr auto;gap:10px;align-items:center;background:#eef4f7;color:#17313b;padding:10px;border-left:5px solid #64748b;border-radius:6px}
+.workflow-modal,.control-modal,.validation-modal,.drive-modal{min-width:0}
+@media(max-width:760px){
+ .drive-row{grid-template-columns:1fr auto}.drive-row span:first-of-type{grid-column:1/-1}
+ .control-modal .setup-game-grid{grid-template-columns:1fr 1fr}
+ .action-grid{grid-template-columns:repeat(3,1fr)}
+ .nav-button{min-width:34px;width:34px;font-size:6px}
+}

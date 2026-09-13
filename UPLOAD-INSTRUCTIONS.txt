@@ -1,22 +1,81 @@
-SIDELINEIQ v0.23.0 — MOBILE LIVE GAME REDESIGN
+SIDELINEIQ v0.30.0 — FOOTBALL WORKFLOW COMPLETENESS
 
-MOBILE GAMEPLAY
-- Period, both team scores, and core app buttons are now in one compact sticky top row.
-- The large SidelineIQ brand block is removed from the live-game screen on phone-sized displays.
-- Field height reduced to 105px on mobile (about one-third of desktop).
-- LOS, Ball At, Distance, Down, and State all sit in one horizontal row.
-- Recent Plays panel is hidden on mobile.
-- New Plays button opens the complete play log.
-- Offense, Defense, Special Teams, and Penalty are collapsible entry windows.
-- One entry window can be opened/minimized at a time.
-- Special Teams opens automatically when a kickoff or punt is pending.
-- The selected window is preserved through normal live-game rerenders.
-- Save Play bar is sticky at the bottom of the mobile screen.
+This release addresses every HIGH and MEDIUM workflow gap identified in the scoring review.
 
-DESKTOP
-- Existing desktop field, Recent Plays panel, four-column workbench, and game layout remain intact.
-- Added Plays button to the top navigation for direct access to the full play log.
+DEFENSE
+- Tackle for Loss (fractional credit supported) + TFL yards
+- Sacks also calculate into TFL/TFL yards
+- Pass Breakup
+- Forced Fumble
+- Fumble Recovery
+- Expanded defensive analytics: TFL, TFL yards, PBU, FF, FR
+
+FUMBLES
+- Forced-by player
+- Recovery team
+- Recovering player
+- Recovery spot
+- Optional return end
+- Fumble return TD support
+- Structured fumble detail stored on the play
+
+KICKOFFS
+- Return
+- Touchback
+- Fair Catch
+- Out of Bounds
+- Onside kick
+- Onside recovery team/player
+
+PUNTS
+- Return
+- Touchback
+- Fair Catch
+- Downed
+- Out of Bounds
+- Blocked
+- Blocked-punt recovery team/player
+
+FIELD GOALS / PAT
+- Blocked kick + blocker
+- Loose-ball recovery team/player
+- Fixed prior missed-field-goal regression: a missed FG no longer triggers a kickoff
+- Made FG and completed PAT still transition to kickoff
+
+GAME CONTROL
+- Manual possession
+- Direction
+- Ball spot
+- Down
+- Distance
+- Period
+- Overtime number
+- Both scores
+- Cancels stale kick/punt workflows when state is manually corrected
+
+DRIVES
+- New Drives button
+- Automatic drive grouping
+- Plays, yards and drive result (TD/FG/Punt/INT/Fumble/current)
+
+OVERTIME
+- Tie at end of regulation offers overtime instead of forcing Final
+- OT displayed in game banner
+- Game Control supports OT1, OT2, etc.
+
+GAME VALIDATION
+- Game Over now runs a Game Check
+- Completion/reception reconciliation
+- Missing sack defender
+- Missing lost-fumble recoverer
+- Missing kickoff/punt returner
+- Blocked-kick attribution checks
+- Review Game or Finalize Anyway
+
+MOBILE
+- v0.23 compact mobile gameplay layout retained
+- New Control and Drives actions available from the live-game banner
 
 BUILD
-- v0.23.0
-- Migrates from v0.22.2
+- v0.30.0
+- Migrates from v0.23.0 and earlier

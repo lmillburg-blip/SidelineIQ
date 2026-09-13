@@ -1,26 +1,32 @@
-SIDELINEIQ v0.20.3
+SIDELINEIQ v0.20.4 — SETUP UI REDESIGN
 
-NEW TEAM / NEW GAME
-- Rebuilt as compact, scrollable setup windows with fixed actions.
-- Two-column layout on larger screens, one column on smaller screens.
+This release specifically fixes the New Team / New Game screens.
 
-INTERCEPTION
-- Pass -> Interception is now two-stage:
-  1) Enter interceptor and drag to interception spot, then Lock Interception.
-  2) Field flips for return; drag to return end.
-- Optional return tacklers and interception return TD.
-- Stores interception return data and adds INT / INT return yards / INT TD to defense analytics.
+ROOT CAUSE
+- The setup forms were using the CSS class ".field".
+- SidelineIQ also uses ".field" for the actual football field.
+- The football field rule forces a large green field-like box, which is why the setup screens looked like giant green MS-DOS panels.
 
-SACK
-- Pass -> Sack now requires explicit defensive sack credit.
-- Sack is both the QB's offensive result and the defender's defensive statistic.
-- Enter one or more sackers with 1.0 or 0.5 credit.
+FIX
+- Setup inputs now use dedicated ".setup-field" classes.
+- No collision with the football field styling.
 
-TACKLES / SACKS
-- Assist removed from live entry.
-- Tackle is 1.0 or 0.5.
-- Sack is 1.0 or 0.5.
-- Historical Assist records count as 0.5 Tackle in analytics.
-- Halftime retro editor now uses the same fractional credit model.
+NEW TEAM
+- Fits on one screen.
+- No scrolling.
+- Compact team-name field.
+- Clean primary/secondary color controls.
+- Football shown as a compact status chip.
+- Branded dark-teal header and light body.
 
-BUILD v0.20.3
+NEW GAME
+- Fits on one screen at normal desktop/tablet sizes.
+- No scrolling.
+- 3-column compact layout.
+- Opponent, date, location, opponent color, format, opening kick, kickoff yard all visible at once.
+- Small kickoff information callout.
+- Cleaner action bar.
+
+BUILD
+- v0.20.4
+- Migrates from v0.20.3

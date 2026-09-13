@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.20.3';
-const DBKEY='sidelineiq_v0203';
-const LEGACY_KEYS=['sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.20.4';
+const DBKEY='sidelineiq_v0204';
+const LEGACY_KEYS=['sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 
@@ -46,19 +46,48 @@ function renderTeams(){
 function showModal(html){const w=document.createElement('div');w.className='modal-wrap';w.innerHTML=`<div class="modal">${html}</div>`;document.body.appendChild(w);$$('[data-close]',w).forEach(b=>b.onclick=()=>w.remove());w.onclick=e=>{if(e.target===w)w.remove()}}
 function closeModal(){document.querySelector('.modal-wrap')?.remove()}
 function showAddTeam(){
- showModal(`<div class="setup-modal">
-   <div class="setup-head"><div><div class="eyebrow">TEAM SETUP</div><h2>New Team</h2><p>Create the team once; game-day setup stays separate.</p></div><button class="btn btn-light" data-close>Close</button></div>
-   <div class="setup-body"><div class="setup-grid team-setup-grid">
-     <div class="field setup-wide"><label>Team Name</label><input id="teamName" placeholder="Auburn Jr. High School JV"></div>
-     <div class="field"><label>Primary Color</label><div class="color-field"><input id="primary" type="color" value="#5B21B6"><span>Primary</span></div></div>
-     <div class="field"><label>Secondary Color</label><div class="color-field"><input id="secondary" type="color" value="#F4C43D"><span>Secondary</span></div></div>
-     <div class="field"><label>Sport</label><input value="Football" disabled></div>
-   </div></div>
-   <div class="setup-actions"><button class="btn btn-light" data-close>Cancel</button><button class="btn btn-primary" id="saveTeam">Create Team</button></div>
+ showModal(`<div class="setup-modal setup-team-modal">
+   <div class="setup-head">
+     <div><div class="eyebrow">TEAM SETUP</div><h2>Add Team</h2><p>Set the identity once. You can change it later.</p></div>
+     <button class="setup-close" data-close aria-label="Close">×</button>
+   </div>
+
+   <div class="setup-body">
+     <div class="setup-field setup-field-wide">
+       <label>Team Name</label>
+       <input id="teamName" placeholder="Auburn Jr. High Trojans" autocomplete="off">
+     </div>
+
+     <div class="setup-color-row">
+       <div class="setup-field">
+         <label>Primary Color</label>
+         <div class="setup-color-control">
+           <input id="primary" type="color" value="#5B21B6">
+           <div><b>Primary</b><span>Main team color</span></div>
+         </div>
+       </div>
+       <div class="setup-field">
+         <label>Secondary Color</label>
+         <div class="setup-color-control">
+           <input id="secondary" type="color" value="#F4C43D">
+           <div><b>Secondary</b><span>Accent color</span></div>
+         </div>
+       </div>
+     </div>
+
+     <div class="setup-field setup-field-inline">
+       <div><label>Sport</label><span class="setup-help">SidelineIQ game tracking</span></div>
+       <div class="setup-value-chip">Football</div>
+     </div>
+   </div>
+
+   <div class="setup-actions">
+     <button class="btn btn-light" data-close>Cancel</button>
+     <button class="btn btn-primary" id="saveTeam">Save Team</button>
+   </div>
  </div>`);
  $('#saveTeam').onclick=()=>{const name=$('#teamName').value.trim();if(!name)return alert('Enter a team name.');state.teams.push({id:uid(),name,primary:$('#primary').value,secondary:$('#secondary').value});save();closeModal();renderTeams()}
 }
-
 function renderTeam(id){
  const t=state.teams.find(x=>x.id===id);if(!t)return location.hash='#teams';
  const games=state.games.filter(g=>g.teamId===id).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
@@ -71,26 +100,66 @@ function showEditTeam(t){
  $('#saveTeam').onclick=()=>{t.name=$('#teamName').value.trim()||t.name;t.primary=$('#primary').value;t.secondary=$('#secondary').value;save();closeModal();renderTeam(t.id)}
 }
 function showAddGame(t){
- showModal(`<div class="setup-modal game-setup-modal">
-   <div class="setup-head"><div><div class="eyebrow">GAME SETUP</div><h2>New Game</h2><p>${esc(t.name)}</p></div><button class="btn btn-light" data-close>Close</button></div>
-   <div class="setup-body">
-     <div class="setup-section"><h3>Opponent</h3><div class="setup-grid">
-       <div class="field setup-wide"><label>Opponent Name</label><input id="opp" placeholder="Pleasant Plains"></div>
-       <div class="field"><label>Opponent Color</label><div class="color-field"><input id="oppColor" type="color" value="#B8860B"><span>Team color</span></div></div>
-       <div class="field"><label>Location</label><select id="loc"><option>Home</option><option>Away</option><option>Neutral</option></select></div>
-       <div class="field"><label>Date</label><input id="gdate" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
-     </div></div>
-     <div class="setup-section"><h3>Game Format</h3><div class="setup-grid">
-       <div class="field"><label>Format</label><select id="format"><option value="quarters">4 Quarters</option><option value="halves">2 Halves</option></select></div>
-       <div class="field"><label>Opening Kick</label><select id="kick"><option value="team">${esc(t.name)} kicks</option><option value="opp">Opponent kicks</option></select></div>
-       <div class="field"><label>Kickoff Yard</label><input id="kickYard" type="number" min="20" max="50" value="40"></div>
-     </div></div>
+ showModal(`<div class="setup-modal setup-game-modal">
+   <div class="setup-head">
+     <div><div class="eyebrow">GAME SETUP</div><h2>Add Game</h2><p>${esc(t.name)}</p></div>
+     <button class="setup-close" data-close aria-label="Close">×</button>
    </div>
-   <div class="setup-actions"><button class="btn btn-light" data-close>Cancel</button><button class="btn btn-primary" id="saveGame">Create & Open Game</button></div>
+
+   <div class="setup-body">
+     <div class="setup-game-grid">
+       <div class="setup-field setup-span-2">
+         <label>Opponent</label>
+         <input id="opp" placeholder="Rochester" autocomplete="off">
+       </div>
+
+       <div class="setup-field">
+         <label>Opponent Color</label>
+         <div class="setup-color-control compact">
+           <input id="oppColor" type="color" value="#B8860B">
+           <div><b>Color</b><span>Opponent accent</span></div>
+         </div>
+       </div>
+
+       <div class="setup-field">
+         <label>Date</label>
+         <input id="gdate" type="date" value="${new Date().toISOString().slice(0,10)}">
+       </div>
+
+       <div class="setup-field">
+         <label>Location</label>
+         <select id="loc"><option>Home</option><option>Away</option><option>Neutral</option></select>
+       </div>
+
+       <div class="setup-field">
+         <label>Game Format</label>
+         <select id="format"><option value="quarters">4 Quarters</option><option value="halves">2 Halves</option></select>
+       </div>
+
+       <div class="setup-field setup-span-2">
+         <label>Opening Kick</label>
+         <select id="kick"><option value="team">${esc(t.name)} kicks</option><option value="opp">Opponent kicks</option></select>
+       </div>
+
+       <div class="setup-field">
+         <label>Kickoff Yard</label>
+         <input id="kickYard" type="number" min="20" max="50" value="40">
+       </div>
+     </div>
+
+     <div class="setup-callout">
+       <span>🏈</span>
+       <div><b>Game starts with the opening kickoff.</b><small>The second-half kickoff is handled automatically.</small></div>
+     </div>
+   </div>
+
+   <div class="setup-actions">
+     <button class="btn btn-light" data-close>Cancel</button>
+     <button class="btn btn-primary" id="saveGame">Create Game</button>
+   </div>
  </div>`);
  $('#saveGame').onclick=()=>{const opponent=$('#opp').value.trim();if(!opponent)return alert('Enter opponent.');const openingKick=$('#kick').value,kickoffYard=Math.max(20,Math.min(50,+$('#kickYard').value||40)),receiving=other(openingKick);const g={id:uid(),teamId:t.id,opponent,date:$('#gdate').value,location:$('#loc').value,oppColor:$('#oppColor').value,format:$('#format').value,openingKick,kickoffYard,teamScore:0,oppScore:0,period:1,down:1,toGo:10,los:20,poss:receiving,plays:[],awaitingTry:false,driveDir:1,kickoffPending:true,kickoff:{phase:'kick',kickingTeam:openingKick,receivingTeam:receiving,startYard:kickoffYard,kickDir:1,startSpot:kickoffYard,landing:null,returnEnd:null,kicker:'',returner:'',tacklers:[],touchback:false}};state.games.push(g);save();closeModal();location.hash='#game/'+g.id}
 }
-
 
 let currentPlay=null;
 function normalizeGame(g){

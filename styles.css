@@ -451,3 +451,186 @@ button{cursor:pointer}
 .retro-defender-row{grid-template-columns:110px 150px 85px auto!important}
 .retro-add-defense{grid-template-columns:130px 160px 85px auto!important}
 @media(max-width:620px){.setup-grid{grid-template-columns:1fr}.setup-wide{grid-column:auto}.setup-body{padding:12px}.setup-head,.setup-actions{padding-left:12px;padding-right:12px}.retro-defender-row,.retro-add-defense{grid-template-columns:1fr 1fr!important}}
+
+/* v0.20.4 — polished fixed-size setup dialogs
+   IMPORTANT: setup fields intentionally do NOT use .field, because .field is the football field. */
+
+.modal:has(.setup-modal){
+  width:min(760px,94vw);
+  max-width:none;
+  padding:0;
+  overflow:visible;
+  border-radius:18px;
+  background:#0b2e3a;
+}
+.modal:has(.setup-team-modal){width:min(620px,92vw)}
+.modal:has(.setup-game-modal){width:min(760px,94vw)}
+
+.setup-modal{
+  display:block;
+  max-height:none;
+  overflow:visible;
+  border-radius:18px;
+  background:#f5f8fa;
+  color:#102635;
+}
+
+.setup-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  padding:18px 20px 15px;
+  background:linear-gradient(135deg,#0b2e3a,#0e4252);
+  border-bottom:1px solid rgba(255,255,255,.10);
+  border-radius:18px 18px 0 0;
+}
+.setup-head h2{
+  margin:2px 0 2px;
+  color:#fff;
+  font-size:23px;
+  line-height:1.1;
+}
+.setup-head p{
+  margin:0;
+  color:#b9d2dc;
+  font-size:12px;
+}
+.setup-head .eyebrow{color:#00d4ff}
+.setup-close{
+  width:34px;height:34px;border:1px solid rgba(255,255,255,.18);
+  border-radius:10px;background:rgba(255,255,255,.08);color:#fff;
+  font-size:23px;line-height:30px;cursor:pointer
+}
+.setup-close:hover{background:rgba(255,255,255,.14)}
+
+.setup-body{
+  padding:16px 20px 14px;
+  overflow:visible;
+  background:#f5f8fa;
+}
+
+.setup-field{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  min-width:0;
+}
+.setup-field label{
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+  color:#52677a;
+}
+.setup-field input,
+.setup-field select{
+  width:100%;
+  height:42px;
+  padding:0 12px;
+  border:1px solid #c8d4dc;
+  border-radius:10px;
+  background:#fff;
+  color:#102635;
+  font-size:14px;
+  outline:none;
+  box-shadow:0 1px 2px rgba(15,23,42,.04);
+}
+.setup-field input:focus,
+.setup-field select:focus{
+  border-color:#00a9ce;
+  box-shadow:0 0 0 3px rgba(0,212,255,.12);
+}
+.setup-field input::placeholder{color:#98a9b5}
+
+.setup-color-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:12px;
+}
+.setup-color-control{
+  display:grid;
+  grid-template-columns:50px 1fr;
+  align-items:center;
+  gap:10px;
+  height:48px;
+  padding:5px 10px;
+  border:1px solid #c8d4dc;
+  border-radius:10px;
+  background:#fff;
+}
+.setup-color-control.compact{height:42px}
+.setup-color-control input[type=color]{
+  width:38px;height:32px;padding:0;border:0;border-radius:8px;background:transparent;cursor:pointer
+}
+.setup-color-control b{display:block;font-size:12px;color:#102635}
+.setup-color-control span{display:block;font-size:10px;color:#7a8c99}
+
+.setup-field-inline{
+  flex-direction:row;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:12px;
+  padding:10px 12px;
+  border:1px solid #d6e0e6;
+  border-radius:10px;
+  background:#edf3f6;
+}
+.setup-field-inline label{display:block}
+.setup-help{font-size:10px;color:#7a8c99}
+.setup-value-chip{
+  padding:6px 10px;
+  border-radius:999px;
+  background:#0b2e3a;
+  color:#fff;
+  font-size:11px;
+  font-weight:850;
+}
+
+.setup-game-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:11px 12px;
+}
+.setup-span-2{grid-column:span 2}
+
+.setup-callout{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:12px;
+  padding:9px 11px;
+  border:1px solid #d4e8ef;
+  border-radius:10px;
+  background:#eaf7fb;
+}
+.setup-callout>span{font-size:18px}
+.setup-callout b{display:block;font-size:11px;color:#153743}
+.setup-callout small{display:block;margin-top:1px;font-size:10px;color:#64748b}
+
+.setup-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  padding:11px 20px 13px;
+  border-top:1px solid #d9e2e8;
+  border-radius:0 0 18px 18px;
+  background:#fff;
+}
+.setup-actions .btn{min-height:38px;padding:8px 14px}
+
+@media(max-width:700px){
+  .modal-wrap{padding:10px}
+  .modal:has(.setup-modal){width:min(96vw,620px)}
+  .setup-head{padding:14px 14px 12px}
+  .setup-body{padding:12px 14px}
+  .setup-actions{padding:10px 14px 12px}
+  .setup-game-grid{grid-template-columns:1fr 1fr}
+  .setup-span-2{grid-column:span 2}
+  .setup-color-row{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  .setup-game-grid,.setup-color-row{grid-template-columns:1fr}
+  .setup-span-2{grid-column:auto}
+}

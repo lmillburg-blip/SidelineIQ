@@ -634,3 +634,91 @@ button{cursor:pointer}
   .setup-game-grid,.setup-color-row{grid-template-columns:1fr}
   .setup-span-2{grid-column:auto}
 }
+
+/* v0.21.0 — Team roster */
+.team-tabs .tab-count{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:19px;height:19px;margin-left:5px;padding:0 5px;border-radius:999px;
+  background:rgba(100,116,139,.16);font-size:10px;font-weight:900
+}
+.team-tabs .tab.active .tab-count{background:rgba(0,212,255,.16);color:#007c99}
+
+.roster-card{padding:0;overflow:hidden}
+.roster-toolbar{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+  padding:18px 20px 14px;border-bottom:1px solid #e0e8ed
+}
+.roster-toolbar h2{margin:2px 0 2px;font-size:22px;color:#102635}
+.roster-toolbar p{margin:0;color:#64748b;font-size:12px}
+.roster-summary{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:#dce6ec;border-bottom:1px solid #dce6ec
+}
+.roster-summary>div{background:#f8fbfc;padding:11px 14px;text-align:center}
+.roster-summary b{display:block;font-size:21px;color:#102635}
+.roster-summary span{display:block;font-size:9px;color:#64748b;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+
+.roster-table-wrap{overflow-x:auto}
+.roster-table{width:100%;border-collapse:collapse;color:#102635}
+.roster-table th{
+  padding:9px 12px;background:#eef4f7;color:#52677a;text-align:left;
+  font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.06em
+}
+.roster-table td{padding:10px 12px;border-top:1px solid #e7edf1;font-size:12px;vertical-align:middle}
+.roster-table tbody tr:hover{background:#f7fbfd}
+.jersey-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:34px;height:30px;padding:0 7px;border-radius:8px;
+  background:#0b2e3a;color:#fff;font-weight:950;font-size:13px
+}
+.roster-player-name{border:0;background:none;padding:0;color:#102635;font-weight:850;cursor:pointer;text-align:left}
+.roster-player-name:hover{color:#007c99}
+.position-chip-row{display:flex;flex-wrap:wrap;gap:4px}
+.position-chip{
+  padding:3px 6px;border-radius:6px;background:#e9f3f7;color:#285064;
+  font-size:9px;font-weight:900
+}
+.status-pill{display:inline-flex;padding:4px 7px;border-radius:999px;font-size:9px;font-weight:900;text-transform:uppercase}
+.status-pill.active{background:#dcfce7;color:#166534}
+.status-pill.inactive{background:#e5e7eb;color:#64748b}
+.roster-more{border:1px solid #cbd5e1;background:#fff;border-radius:7px;padding:5px 8px;color:#334155;font-size:10px;font-weight:800;cursor:pointer}
+.roster-empty{text-align:center;padding:42px 20px}
+.roster-empty-icon{
+  width:50px;height:50px;margin:0 auto 10px;border-radius:14px;
+  display:grid;place-items:center;background:#e8f6fa;color:#007c99;font-size:23px;font-weight:950
+}
+.roster-empty h3{margin:0 0 4px;color:#102635}
+.roster-empty p{max-width:440px;margin:0 auto 14px;color:#64748b;font-size:12px}
+
+.modal:has(.roster-player-modal){
+  width:min(760px,94vw);max-width:none;padding:0;overflow:hidden;border-radius:18px
+}
+.roster-player-modal{background:#f5f8fa;color:#102635;border-radius:18px}
+.roster-player-body{padding:16px 20px}
+.roster-player-grid{
+  display:grid;grid-template-columns:110px 1fr 1fr 110px;gap:11px 12px;align-items:end
+}
+.jersey-field input{font-size:20px;font-weight:950;text-align:center}
+.roster-status-field{grid-column:1/-1}
+.roster-status-field .seg{max-width:240px}
+.roster-position-picker{margin-top:15px;padding-top:13px;border-top:1px solid #dbe4e9}
+.roster-pos-group{display:grid;grid-template-columns:100px 1fr;gap:10px;align-items:start;margin-top:8px}
+.roster-pos-group>span{font-size:10px;font-weight:900;color:#64748b;text-transform:uppercase;padding-top:7px}
+.roster-pos-options{display:flex;flex-wrap:wrap;gap:6px}
+.roster-pos{
+  min-width:42px;padding:6px 9px;border:1px solid #cbd5e1;border-radius:8px;
+  background:#fff;color:#334155;font-size:11px;font-weight:900;cursor:pointer
+}
+.roster-pos.active{border-color:#00a9ce;background:#dff7fc;color:#006f91;box-shadow:inset 0 0 0 1px #00a9ce}
+.roster-player-actions{display:flex}
+.roster-player-actions .action-spacer{flex:1}
+.btn-danger-outline{border:1px solid #ef4444;background:#fff;color:#b91c1c}
+.muted{color:#94a3b8}
+
+@media(max-width:700px){
+  .roster-player-grid{grid-template-columns:90px 1fr 1fr}
+  .roster-player-grid .setup-field:nth-child(4){grid-column:1/2}
+  .roster-status-field{grid-column:2/-1}
+  .roster-summary{grid-template-columns:repeat(2,1fr)}
+  .roster-pos-group{grid-template-columns:1fr}
+}

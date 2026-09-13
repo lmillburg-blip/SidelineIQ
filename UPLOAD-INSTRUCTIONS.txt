@@ -1,32 +1,38 @@
-SIDELINEIQ v0.20.4 — SETUP UI REDESIGN
+SIDELINEIQ v0.21.0 — ROSTER
 
-This release specifically fixes the New Team / New Game screens.
+TEAM ROSTER
+- Roster is now a working tab on each managed team.
+- Add / edit / delete players.
+- Jersey number required and unique within the team.
+- First name, last name, optional grade.
+- Active / inactive status.
+- Multiple positions can be assigned.
 
-ROOT CAUSE
-- The setup forms were using the CSS class ".field".
-- SidelineIQ also uses ".field" for the actual football field.
-- The football field rule forces a large green field-like box, which is why the setup screens looked like giant green MS-DOS panels.
+POSITION GROUPS
+Offense: QB, RB, FB, WR, TE, C, G, T, OL
+Defense: DE, DT, DL, LB, OLB, ILB, CB, S, DB
+Special Teams: K, P, LS
 
-FIX
-- Setup inputs now use dedicated ".setup-field" classes.
-- No collision with the football field styling.
+ROSTER SCREEN
+- Summary counts for total players, active, offense, defense.
+- Sorts by jersey number.
+- Position chips and status are visible.
+- Roster count appears in the team tab/header.
 
-NEW TEAM
-- Fits on one screen.
-- No scrolling.
-- Compact team-name field.
-- Clean primary/secondary color controls.
-- Football shown as a compact status chip.
-- Branded dark-teal header and light body.
+GAME INTEGRATION
+- Active managed-team roster players are automatically added to in-game quick selections.
+- QB roster positions populate QB choices.
+- RB/FB populate rushing choices.
+- WR/TE populate receiver choices.
+- Defensive-position players populate defender choices.
+- Roster quick-select chips show jersey number + last name when available.
+- Previously-used players are still remembered as before.
 
-NEW GAME
-- Fits on one screen at normal desktop/tablet sizes.
-- No scrolling.
-- 3-column compact layout.
-- Opponent, date, location, opponent color, format, opening kick, kickoff yard all visible at once.
-- Small kickoff information callout.
-- Cleaner action bar.
+COMPATIBILITY
+- Existing teams automatically receive an empty roster.
+- Existing games and statistics are unchanged.
+- Edit Team screen was also migrated off the old .field CSS collision.
 
 BUILD
-- v0.20.4
-- Migrates from v0.20.3
+- v0.21.0
+- Migrates from v0.20.4

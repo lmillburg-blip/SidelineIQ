@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.20.4';
-const DBKEY='sidelineiq_v0204';
-const LEGACY_KEYS=['sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.21.0';
+const DBKEY='sidelineiq_v0210';
+const LEGACY_KEYS=['sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 
@@ -88,15 +88,155 @@ function showAddTeam(){
  </div>`);
  $('#saveTeam').onclick=()=>{const name=$('#teamName').value.trim();if(!name)return alert('Enter a team name.');state.teams.push({id:uid(),name,primary:$('#primary').value,secondary:$('#secondary').value});save();closeModal();renderTeams()}
 }
+
+const OFFENSE_POSITIONS=['QB','RB','FB','WR','TE','C','G','T','OL'];
+const DEFENSE_POSITIONS=['DE','DT','DL','LB','OLB','ILB','CB','S','DB'];
+const SPECIAL_POSITIONS=['K','P','LS'];
+function normalizeRoster(t){
+ t.roster??=[];
+ t.roster.forEach(p=>{
+   p.id??=uid();
+   p.number=(p.number??'').toString();
+   p.first??='';p.last??='';p.grade??='';p.positions??=[];
+   p.active=p.active!==false
+ });
+ return t.roster
+}
+function rosterPlayerName(p){
+ const full=[p.first,p.last].filter(Boolean).join(' ').trim();
+ return full||`Player #${p.number||'—'}`
+}
+function rosterShortName(p){
+ return p.last||p.first||''
+}
+function rosterPlayerByNumber(t,n){
+ normalizeRoster(t);
+ return t.roster.find(p=>String(p.number)===String(n))
+}
+function positionGroup(pos){
+ if(OFFENSE_POSITIONS.includes(pos))return 'Offense';
+ if(DEFENSE_POSITIONS.includes(pos))return 'Defense';
+ return 'Special Teams'
+}
+function positionButtons(selected=[]){
+ const section=(title,arr)=>`<div class="roster-pos-group"><span>${title}</span><div class="roster-pos-options">${arr.map(pos=>`<button type="button" class="roster-pos ${selected.includes(pos)?'active':''}" data-pos="${pos}">${pos}</button>`).join('')}</div></div>`;
+ return section('Offense',OFFENSE_POSITIONS)+section('Defense',DEFENSE_POSITIONS)+section('Special Teams',SPECIAL_POSITIONS)
+}
+function rosterSummary(t){
+ const r=normalizeRoster(t),active=r.filter(p=>p.active),off=active.filter(p=>p.positions.some(x=>OFFENSE_POSITIONS.includes(x))),def=active.filter(p=>p.positions.some(x=>DEFENSE_POSITIONS.includes(x)));
+ return `<div class="roster-summary">
+   <div><b>${r.length}</b><span>Players</span></div>
+   <div><b>${active.length}</b><span>Active</span></div>
+   <div><b>${off.length}</b><span>Offense</span></div>
+   <div><b>${def.length}</b><span>Defense</span></div>
+ </div>`
+}
+function rosterTable(t){
+ const r=normalizeRoster(t).slice().sort((a,b)=>(Number(a.number)||999)-(Number(b.number)||999)||rosterPlayerName(a).localeCompare(rosterPlayerName(b)));
+ if(!r.length)return `<div class="roster-empty"><div class="roster-empty-icon">#</div><h3>No players yet</h3><p>Add the roster once, then SidelineIQ can use it throughout games and statistics.</p><button class="btn btn-primary" id="emptyAddPlayer">+ Add Player</button></div>`;
+ return `<div class="roster-table-wrap"><table class="roster-table"><thead><tr><th>#</th><th>Player</th><th>Grade</th><th>Positions</th><th>Status</th><th></th></tr></thead><tbody>${r.map(p=>`<tr>
+   <td><span class="jersey-badge">${esc(p.number||'—')}</span></td>
+   <td><button class="roster-player-name" data-edit-player="${p.id}">${esc(rosterPlayerName(p))}</button></td>
+   <td>${esc(p.grade||'—')}</td>
+   <td><div class="position-chip-row">${p.positions.length?p.positions.map(x=>`<span class="position-chip">${esc(x)}</span>`).join(''):'<span class="muted">—</span>'}</div></td>
+   <td><span class="status-pill ${p.active?'active':'inactive'}">${p.active?'Active':'Inactive'}</span></td>
+   <td><button class="roster-more" data-edit-player="${p.id}">Edit</button></td>
+ </tr>`).join('')}</tbody></table></div>`
+}
+function renderRosterPanel(t){
+ const host=$('#teamPanel');if(!host)return;
+ host.innerHTML=`<section class="content-card roster-card">
+   <div class="roster-toolbar"><div><div class="eyebrow">TEAM ROSTER</div><h2>${esc(t.name)}</h2><p>Players saved here are available as quick selections during games.</p></div><button class="btn btn-primary" id="addPlayer">+ Add Player</button></div>
+   ${rosterSummary(t)}
+   ${rosterTable(t)}
+ </section>`;
+ if($('#addPlayer'))$('#addPlayer').onclick=()=>showRosterPlayer(t);
+ if($('#emptyAddPlayer'))$('#emptyAddPlayer').onclick=()=>showRosterPlayer(t);
+ $$('[data-edit-player]').forEach(b=>b.onclick=()=>showRosterPlayer(t,b.dataset.editPlayer))
+}
+function showRosterPlayer(t,id=null){
+ normalizeRoster(t);
+ const existing=id?t.roster.find(p=>p.id===id):null;
+ const p=existing?structuredClone(existing):{id:uid(),number:'',first:'',last:'',grade:'',positions:[],active:true};
+ showModal(`<div class="roster-player-modal">
+   <div class="setup-head"><div><div class="eyebrow">${existing?'EDIT PLAYER':'ROSTER'}</div><h2>${existing?'Edit Player':'Add Player'}</h2><p>${esc(t.name)}</p></div><button class="setup-close" data-close>×</button></div>
+   <div class="roster-player-body">
+     <div class="roster-player-grid">
+       <div class="setup-field jersey-field"><label>Jersey #</label><input id="rpNumber" inputmode="numeric" maxlength="3" value="${esc(p.number)}" placeholder="12"></div>
+       <div class="setup-field"><label>First Name</label><input id="rpFirst" value="${esc(p.first)}" placeholder="First"></div>
+       <div class="setup-field"><label>Last Name</label><input id="rpLast" value="${esc(p.last)}" placeholder="Last"></div>
+       <div class="setup-field"><label>Grade</label><select id="rpGrade"><option value="">—</option>${['6','7','8','9','10','11','12'].map(x=>`<option value="${x}" ${p.grade===x?'selected':''}>${x}th${x==='6'?'':x==='7'?'':x==='8'?'':''}</option>`).join('')}</select></div>
+       <div class="setup-field roster-status-field"><label>Status</label><div class="seg" id="rpStatus"><button class="${p.active?'active':''}" data-active="true">Active</button><button class="${!p.active?'active':''}" data-active="false">Inactive</button></div></div>
+     </div>
+     <div class="roster-position-picker"><div class="section-label">Positions</div>${positionButtons(p.positions)}</div>
+   </div>
+   <div class="setup-actions roster-player-actions">
+     ${existing?'<button class="btn btn-danger-outline" id="deleteRosterPlayer">Delete</button>':''}
+     <span class="action-spacer"></span>
+     <button class="btn btn-light" data-close>Cancel</button>
+     <button class="btn btn-primary" id="saveRosterPlayer">${existing?'Save Changes':'Add Player'}</button>
+   </div>
+ </div>`);
+ let active=p.active;
+ $('#rpStatus [data-active="true"]').onclick=()=>{active=true;$$('#rpStatus button').forEach(x=>x.classList.toggle('active',x.dataset.active==='true'))};
+ $('#rpStatus [data-active="false"]').onclick=()=>{active=false;$$('#rpStatus button').forEach(x=>x.classList.toggle('active',x.dataset.active==='false'))};
+ $$('.roster-pos').forEach(b=>b.onclick=()=>b.classList.toggle('active'));
+ $('#saveRosterPlayer').onclick=()=>{
+   const number=$('#rpNumber').value.trim(),first=$('#rpFirst').value.trim(),last=$('#rpLast').value.trim();
+   if(!number)return toast('Enter a jersey number.');
+   const duplicate=t.roster.find(x=>x.id!==p.id&&String(x.number)===number);
+   if(duplicate)return toast(`#${number} is already on this roster.`);
+   const positions=$$('.roster-pos.active').map(x=>x.dataset.pos);
+   Object.assign(p,{number,first,last,grade:$('#rpGrade').value,positions,active});
+   if(existing)Object.assign(existing,p);else t.roster.push(p);
+   save();closeModal();renderRosterPanel(t)
+ };
+ if($('#deleteRosterPlayer'))$('#deleteRosterPlayer').onclick=()=>{
+   if(!confirm(`Remove #${p.number} ${rosterPlayerName(p)} from the roster?`))return;
+   t.roster=t.roster.filter(x=>x.id!==p.id);save();closeModal();renderRosterPanel(t)
+ }
+}
+
 function renderTeam(id){
  const t=state.teams.find(x=>x.id===id);if(!t)return location.hash='#teams';
+ normalizeRoster(t);
  const games=state.games.filter(g=>g.teamId===id).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
- const rows=games.map(g=>`<tr data-open-game="${g.id}"><td>${esc(g.date||'')}</td><td>${esc(g.opponent)}</td><td>${esc(g.location||'Home')}</td><td>${g.final?`${g.teamScore>=g.oppScore?'W':'L'} ${g.teamScore}-${g.oppScore}`:`${g.teamScore||0}-${g.oppScore||0}`}</td><td>›</td></tr>`).join('');
- shell(`<main class="page"><button class="btn" onclick="location.hash='#teams'">‹ Back to Teams</button><section class="content-card team-banner" style="border-left:6px solid ${t.primary}"><div class="team-banner-left"><div class="team-swatch" style="background:linear-gradient(135deg,${t.primary} 0 60%,${t.secondary} 60%)"></div><div><div class="team-title">${esc(t.name)}</div><div class="team-meta">Football · SidelineIQ</div></div></div><button class="btn" id="editTeam">Edit Team</button></section><div class="tabs"><button class="tab active">Games</button><button class="tab">Roster · Coming Soon</button><button class="tab">Analytics · Coming Soon</button><button class="btn btn-primary" id="addGame">+ Add Game</button></div><section class="content-card"><table class="games-table"><thead><tr><th>Date</th><th>Opponent</th><th>Location</th><th>Score</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="5" class="empty">No games yet.</td></tr>'}</tbody></table></section></main>`);
- $('#addGame').onclick=()=>showAddGame(t);$('#editTeam').onclick=()=>showEditTeam(t);$$('[data-open-game]').forEach(x=>x.onclick=()=>location.hash='#game/'+x.dataset.openGame)
+ const rows=games.map(g=>`<tr data-open-game="${g.id}"><td>${esc(g.date||'')}</td><td>${esc(g.opponent)}</td><td>${esc(g.location||'Home')}</td><td>${g.gameOver?`${g.teamScore>=g.oppScore?'W':'L'} ${g.teamScore}-${g.oppScore}`:`${g.teamScore||0}-${g.oppScore||0}`}</td><td>›</td></tr>`).join('');
+ shell(`<main class="page"><button class="btn" onclick="location.hash='#teams'">‹ Back to Teams</button>
+ <section class="content-card team-banner" style="border-left:6px solid ${t.primary}">
+   <div class="team-banner-left"><div class="team-swatch" style="background:linear-gradient(135deg,${t.primary} 0 60%,${t.secondary} 60%)"></div><div><div class="team-title">${esc(t.name)}</div><div class="team-meta">Football · ${t.roster.length} rostered player${t.roster.length===1?'':'s'}</div></div></div>
+   <button class="btn" id="editTeam">Edit Team</button>
+ </section>
+ <div class="tabs team-tabs">
+   <button class="tab active" data-team-tab="games">Games</button>
+   <button class="tab" data-team-tab="roster">Roster <span class="tab-count">${t.roster.length}</span></button>
+   <button class="tab" disabled>Analytics · Coming Soon</button>
+   <button class="btn btn-primary" id="teamPrimaryAction">+ Add Game</button>
+ </div>
+ <div id="teamPanel"><section class="content-card"><table class="games-table"><thead><tr><th>Date</th><th>Opponent</th><th>Location</th><th>Score</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="5" class="empty">No games yet.</td></tr>'}</tbody></table></section></div>
+ </main>`);
+ const renderGames=()=>{
+   $('#teamPanel').innerHTML=`<section class="content-card"><table class="games-table"><thead><tr><th>Date</th><th>Opponent</th><th>Location</th><th>Score</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="5" class="empty">No games yet.</td></tr>'}</tbody></table></section>`;
+   $('#teamPrimaryAction').textContent='+ Add Game';
+   $('#teamPrimaryAction').onclick=()=>showAddGame(t);
+   $$('[data-open-game]').forEach(x=>x.onclick=()=>location.hash='#game/'+x.dataset.openGame)
+ };
+ const selectTab=name=>{
+   $$('[data-team-tab]').forEach(b=>b.classList.toggle('active',b.dataset.teamTab===name));
+   if(name==='games')renderGames();
+   else{
+     renderRosterPanel(t);
+     $('#teamPrimaryAction').textContent='+ Add Player';
+     $('#teamPrimaryAction').onclick=()=>showRosterPlayer(t)
+   }
+ };
+ $$('[data-team-tab]').forEach(b=>b.onclick=()=>selectTab(b.dataset.teamTab));
+ $('#teamPrimaryAction').onclick=()=>showAddGame(t);
+ $('#editTeam').onclick=()=>showEditTeam(t);
+ $$('[data-open-game]').forEach(x=>x.onclick=()=>location.hash='#game/'+x.dataset.openGame)
 }
 function showEditTeam(t){
- showModal(`<h2>Edit Team</h2><div class="form-grid"><div class="field"><label>Team Name</label><input id="teamName" value="${esc(t.name)}"></div><div class="field"><label>Primary Color</label><input id="primary" type="color" value="${t.primary}"></div><div class="field"><label>Secondary Color</label><input id="secondary" type="color" value="${t.secondary}"></div></div><div class="modal-actions"><button class="btn" data-close>Cancel</button><button class="btn btn-primary" id="saveTeam">Save Changes</button></div>`);
+ showModal(`<div class="setup-modal setup-team-modal"><div class="setup-head"><div><div class="eyebrow">TEAM SETUP</div><h2>Edit Team</h2><p>Update team identity.</p></div><button class="setup-close" data-close>×</button></div><div class="setup-body"><div class="setup-field"><label>Team Name</label><input id="teamName" value="${esc(t.name)}"></div><div class="setup-color-row"><div class="setup-field"><label>Primary Color</label><div class="setup-color-control"><input id="primary" type="color" value="${t.primary}"><div><b>Primary</b><span>Main color</span></div></div></div><div class="setup-field"><label>Secondary Color</label><div class="setup-color-control"><input id="secondary" type="color" value="${t.secondary}"><div><b>Secondary</b><span>Accent color</span></div></div></div></div></div><div class="setup-actions"><button class="btn btn-light" data-close>Cancel</button><button class="btn btn-primary" id="saveTeam">Save Changes</button></div></div>`);
  $('#saveTeam').onclick=()=>{t.name=$('#teamName').value.trim()||t.name;t.primary=$('#primary').value;t.secondary=$('#secondary').value;save();closeModal();renderTeam(t.id)}
 }
 function showAddGame(t){
@@ -218,28 +358,42 @@ function rememberedPlayers(g,side){
        if(!qb){
          let x=(p.desc||'').match(/^Pass #(\d+)/);
          if(!x)x=(p.desc||'').match(/^Sack of QB #(\d+)/);
-         qb=x?.[1];
+         qb=x?.[1]
        }
        if(!wr){const x=(p.desc||'').match(/→ #(\d+)/);wr=x?.[1]}
-       addRemembered(m.qb,qb);addRemembered(m.wr,wr);
+       addRemembered(m.qb,qb);addRemembered(m.wr,wr)
      }
    }
-   if(team&&other(team)===side){
-     (p.defenders||[]).slice().reverse().forEach(d=>addRemembered(m.def,d.n));
-   }
+   if(team&&other(team)===side)(p.defenders||[]).slice().reverse().forEach(d=>addRemembered(m.def,d.n))
  });
- return m;
+ if(side==='team'){
+   const t=teamById(g.teamId);
+   if(t){
+     normalizeRoster(t);
+     const active=t.roster.filter(p=>p.active&&p.number);
+     active.filter(p=>p.positions.includes('QB')).reverse().forEach(p=>addRemembered(m.qb,p.number));
+     active.filter(p=>p.positions.some(x=>['RB','FB'].includes(x))).reverse().forEach(p=>addRemembered(m.rb,p.number));
+     active.filter(p=>p.positions.some(x=>['WR','TE'].includes(x))).reverse().forEach(p=>addRemembered(m.wr,p.number));
+     active.filter(p=>p.positions.some(x=>DEFENSE_POSITIONS.includes(x))).reverse().forEach(p=>addRemembered(m.def,p.number))
+   }
+ }
+ return m
 }
-function memoryButtons(nums,role){
- return nums.length?nums.map(n=>`<button type="button" class="memory-chip" data-memory-role="${role}" data-memory-player="${esc(n)}">#${esc(n)}</button>`).join(''):'<span class="memory-empty">—</span>';
+function memoryButtons(nums,role,g=null,side=null){
+ const t=g&&side==='team'?teamById(g.teamId):null;
+ return nums.length?nums.map(n=>{
+   const rp=t?rosterPlayerByNumber(t,n):null;
+   const short=rp?rosterShortName(rp):'';
+   return `<button type="button" class="memory-chip" data-memory-role="${role}" data-memory-player="${esc(n)}" title="${rp?esc(rosterPlayerName(rp)):''}">#${esc(n)}${short?` ${esc(short)}`:''}</button>`
+ }).join(''):'<span class="memory-empty">—</span>'
 }
 function offenseMemory(g){
  const m=rememberedPlayers(g,g.poss);
- return `<div class="player-memory"><div class="memory-title">PLAYERS</div><div class="memory-columns"><div class="memory-col"><small>QB</small><div>${memoryButtons(m.qb,'qb')}</div></div><div class="memory-col"><small>RB</small><div>${memoryButtons(m.rb,'rb')}</div></div><div class="memory-col"><small>WR / TARGETS</small><div>${memoryButtons(m.wr,'wr')}</div></div></div></div>`;
+ return `<div class="player-memory"><div class="memory-title">PLAYERS</div><div class="memory-columns"><div class="memory-col"><small>QB</small><div>${memoryButtons(m.qb,'qb',g,g.poss)}</div></div><div class="memory-col"><small>RB</small><div>${memoryButtons(m.rb,'rb',g,g.poss)}</div></div><div class="memory-col"><small>WR / TARGETS</small><div>${memoryButtons(m.wr,'wr',g,g.poss)}</div></div></div></div>`;
 }
 function defenseMemory(g){
  const m=rememberedPlayers(g,other(g.poss));
- return `<div class="player-memory defense-memory"><div class="memory-title">DEFENDERS</div><div class="memory-chip-row">${memoryButtons(m.def,'def')}</div></div>`;
+ return `<div class="player-memory defense-memory"><div class="memory-title">DEFENDERS</div><div class="memory-chip-row">${memoryButtons(m.def,'def',g,other(g.poss))}</div></div>`;
 }
 
 

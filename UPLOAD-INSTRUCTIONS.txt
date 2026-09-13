@@ -1,38 +1,17 @@
-SIDELINEIQ v0.21.0 — ROSTER
+SIDELINEIQ v0.22.1 — GAME OPENING FIX
 
-TEAM ROSTER
-- Roster is now a working tab on each managed team.
-- Add / edit / delete players.
-- Jersey number required and unique within the team.
-- First name, last name, optional grade.
-- Active / inactive status.
-- Multiple positions can be assigned.
+FIX
+- Reworked the Games list opening logic.
+- Game rows now use one delegated click handler instead of attaching a separate click handler to every row.
+- Added an explicit Open button to every game row.
+- Entire row remains clickable.
+- Keyboard Enter/Space also opens the selected row.
+- Added openGameById() helper that verifies the game exists before navigating.
+- If the app is already on the same game hash, it renders the game directly instead of depending on a hashchange event.
 
-POSITION GROUPS
-Offense: QB, RB, FB, WR, TE, C, G, T, OL
-Defense: DE, DT, DL, LB, OLB, ILB, CB, S, DB
-Special Teams: K, P, LS
-
-ROSTER SCREEN
-- Summary counts for total players, active, offense, defense.
-- Sorts by jersey number.
-- Position chips and status are visible.
-- Roster count appears in the team tab/header.
-
-GAME INTEGRATION
-- Active managed-team roster players are automatically added to in-game quick selections.
-- QB roster positions populate QB choices.
-- RB/FB populate rushing choices.
-- WR/TE populate receiver choices.
-- Defensive-position players populate defender choices.
-- Roster quick-select chips show jersey number + last name when available.
-- Previously-used players are still remembered as before.
-
-COMPATIBILITY
-- Existing teams automatically receive an empty roster.
-- Existing games and statistics are unchanged.
-- Edit Team screen was also migrated off the old .field CSS collision.
+WHY
+- This removes reliance on row-specific event bindings that can be lost when the Games panel is re-rendered after using Roster or Analytics tabs.
 
 BUILD
-- v0.21.0
-- Migrates from v0.20.4
+- v0.22.1
+- Migrates from v0.22.0

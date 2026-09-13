@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.21.0';
-const DBKEY='sidelineiq_v0210';
-const LEGACY_KEYS=['sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.22.1';
+const DBKEY='sidelineiq_v0221';
+const LEGACY_KEYS=['sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 
@@ -37,6 +37,14 @@ function toast(msg){const d=document.createElement('div');d.className='toast';d.
 function shell(content,topActions=''){ $('#app').innerHTML=`<div class="app-shell"><header class="topbar"><img class="brand-image" src="./assets/sidelineiq-header-logo.png" alt="SidelineIQ — Find Your Edge"><div class="top-actions"><span class="build-badge">${BUILD}</span>${topActions}</div></header>${content}</div>`}
 function route(){const h=location.hash||'#teams';if(h.startsWith('#team/'))return renderTeam(h.split('/')[1]);if(h.startsWith('#game/'))return renderGame(h.split('/')[1]);renderTeams()}
 window.addEventListener('hashchange',route);
+function openGameById(id){
+ if(!id)return;
+ const g=state.games.find(x=>String(x.id)===String(id));
+ if(!g)return toast('Game could not be found.');
+ const next='#game/'+g.id;
+ if(location.hash===next)renderGame(g.id);
+ else location.hash=next
+}
 
 function renderTeams(){
  const cards=state.teams.map(t=>{const count=state.games.filter(g=>g.teamId===t.id).length;return `<div class="team-card" data-open-team="${t.id}"><div class="team-left"><div class="team-swatch" style="background:linear-gradient(135deg,${t.primary} 0 60%,${t.secondary} 60%)"></div><div><div class="team-name">${esc(t.name)}</div><div class="team-meta">Football · ${count} game${count===1?'':'s'}</div></div></div><div class="chev">›</div></div>`}).join('');
@@ -136,7 +144,7 @@ function rosterTable(t){
  if(!r.length)return `<div class="roster-empty"><div class="roster-empty-icon">#</div><h3>No players yet</h3><p>Add the roster once, then SidelineIQ can use it throughout games and statistics.</p><button class="btn btn-primary" id="emptyAddPlayer">+ Add Player</button></div>`;
  return `<div class="roster-table-wrap"><table class="roster-table"><thead><tr><th>#</th><th>Player</th><th>Grade</th><th>Positions</th><th>Status</th><th></th></tr></thead><tbody>${r.map(p=>`<tr>
    <td><span class="jersey-badge">${esc(p.number||'—')}</span></td>
-   <td><button class="roster-player-name" data-edit-player="${p.id}">${esc(rosterPlayerName(p))}</button></td>
+   <td><button class="roster-player-name" data-roster-stats="${p.id}">${esc(rosterPlayerName(p))}</button></td>
    <td>${esc(p.grade||'—')}</td>
    <td><div class="position-chip-row">${p.positions.length?p.positions.map(x=>`<span class="position-chip">${esc(x)}</span>`).join(''):'<span class="muted">—</span>'}</div></td>
    <td><span class="status-pill ${p.active?'active':'inactive'}">${p.active?'Active':'Inactive'}</span></td>
@@ -152,7 +160,8 @@ function renderRosterPanel(t){
  </section>`;
  if($('#addPlayer'))$('#addPlayer').onclick=()=>showRosterPlayer(t);
  if($('#emptyAddPlayer'))$('#emptyAddPlayer').onclick=()=>showRosterPlayer(t);
- $$('[data-edit-player]').forEach(b=>b.onclick=()=>showRosterPlayer(t,b.dataset.editPlayer))
+ $$('[data-edit-player]').forEach(b=>b.onclick=()=>showRosterPlayer(t,b.dataset.editPlayer));
+ $$('[data-roster-stats]').forEach(b=>b.onclick=()=>showSeasonPlayerStats(t,b.dataset.rosterStats))
 }
 function showRosterPlayer(t,id=null){
  normalizeRoster(t);
@@ -165,7 +174,7 @@ function showRosterPlayer(t,id=null){
        <div class="setup-field jersey-field"><label>Jersey #</label><input id="rpNumber" inputmode="numeric" maxlength="3" value="${esc(p.number)}" placeholder="12"></div>
        <div class="setup-field"><label>First Name</label><input id="rpFirst" value="${esc(p.first)}" placeholder="First"></div>
        <div class="setup-field"><label>Last Name</label><input id="rpLast" value="${esc(p.last)}" placeholder="Last"></div>
-       <div class="setup-field"><label>Grade</label><select id="rpGrade"><option value="">—</option>${['6','7','8','9','10','11','12'].map(x=>`<option value="${x}" ${p.grade===x?'selected':''}>${x}th${x==='6'?'':x==='7'?'':x==='8'?'':''}</option>`).join('')}</select></div>
+       <div class="setup-field"><label>Grade</label><select id="rpGrade"><option value="">—</option>${['5','6','7','8','9','10','11','12'].map(x=>`<option value="${x}" ${p.grade===x?'selected':''}>${x}${x==='5'?'th':x==='6'?'th':x==='7'?'th':x==='8'?'th':x==='9'?'th':x==='10'?'th':x==='11'?'th':'th'} Grade</option>`).join('')}</select></div>
        <div class="setup-field roster-status-field"><label>Status</label><div class="seg" id="rpStatus"><button class="${p.active?'active':''}" data-active="true">Active</button><button class="${!p.active?'active':''}" data-active="false">Inactive</button></div></div>
      </div>
      <div class="roster-position-picker"><div class="section-label">Positions</div>${positionButtons(p.positions)}</div>
@@ -197,11 +206,160 @@ function showRosterPlayer(t,id=null){
  }
 }
 
+
+function emptySeasonPlayer(number,player=null){
+ return {
+   number:String(number),
+   player,
+   games:0,
+   pass:{att:0,comp:0,yds:0,td:0,int:0,sacks:0},
+   rush:{car:0,yds:0,td:0},
+   rec:{tar:0,rec:0,yds:0,td:0},
+   def:{tackle:0,sack:0,int:0,intYds:0,intTD:0,pressure:0,hurry:0,missed:0},
+   fum:0
+ }
+}
+function mergePlayerStats(dest,src){
+ dest.pass.att+=src.pass.att;dest.pass.comp+=src.pass.comp;dest.pass.yds+=src.pass.yds;dest.pass.td+=src.pass.td;dest.pass.int+=src.pass.int;dest.pass.sacks+=src.pass.sacks;
+ dest.rush.car+=src.rush.car;dest.rush.yds+=src.rush.yds;dest.rush.td+=src.rush.td;
+ dest.rec.tar+=src.rec.tar;dest.rec.rec+=src.rec.rec;dest.rec.yds+=src.rec.yds;dest.rec.td+=src.rec.td;
+ dest.def.tackle+=src.def.tackle;dest.def.sack+=src.def.sack;dest.def.int+=src.def.int;dest.def.intYds+=src.def.intYds;dest.def.intTD+=src.def.intTD;dest.def.pressure+=src.def.pressure;dest.def.hurry+=src.def.hurry;dest.def.missed+=src.def.missed;
+ dest.fum+=src.fum
+}
+function computeSeasonAnalytics(t){
+ normalizeRoster(t);
+ const games=state.games.filter(g=>g.teamId===t.id);
+ const season={
+   games:games.length,completed:games.filter(g=>g.gameOver).length,
+   pointsFor:0,pointsAgainst:0,wins:0,losses:0,ties:0,
+   totalYards:0,rushYards:0,passYards:0,rushAtt:0,passAtt:0,completions:0,plays:0,
+   firstDowns:0,turnovers:0,sacksAllowed:0,thirdMade:0,thirdAtt:0,fourthMade:0,fourthAtt:0,
+   players:{}
+ };
+ t.roster.forEach(rp=>{
+   const sp=emptySeasonPlayer(rp.number,rp);
+   season.players[String(rp.number)]=sp
+ });
+ for(const g of games){
+   normalizeGame(g);
+   const s=computeTeamStats(g,'team');
+   season.pointsFor+=g.teamScore||0;season.pointsAgainst+=g.oppScore||0;
+   if(g.gameOver){
+     if(g.teamScore>g.oppScore)season.wins++;
+     else if(g.teamScore<g.oppScore)season.losses++;
+     else season.ties++
+   }
+   ['totalYards','rushYards','passYards','rushAtt','passAtt','completions','plays','firstDowns','turnovers','sacksAllowed','thirdMade','thirdAtt','fourthMade','fourthAtt'].forEach(k=>season[k]+=s[k]||0);
+   Object.values(s.players).forEach(ps=>{
+     const key=String(ps.number);
+     if(!season.players[key])season.players[key]=emptySeasonPlayer(key,rosterPlayerByNumber(t,key)||null);
+     mergePlayerStats(season.players[key],ps);
+     const hasGameStat=ps.pass.att||ps.pass.comp||ps.rush.car||ps.rec.tar||ps.def.tackle||ps.def.sack||ps.def.int||ps.def.pressure||ps.def.hurry;
+     if(hasGameStat)season.players[key].games++
+   })
+ }
+ season.yardsPerPlay=season.plays?season.totalYards/season.plays:0;
+ season.rushAvg=season.rushAtt?season.rushYards/season.rushAtt:0;
+ season.passPct=season.passAtt?season.completions/season.passAtt*100:0;
+ return season
+}
+function seasonPlayerName(t,sp){
+ const rp=sp.player||rosterPlayerByNumber(t,sp.number);
+ return rp?rosterPlayerName(rp):`#${sp.number}`
+}
+function seasonPlayerRows(t,season){
+ const players=Object.values(season.players).sort((a,b)=>(Number(a.number)||999)-(Number(b.number)||999));
+ if(!players.length)return `<div class="season-empty">Add players to the roster to begin building player analytics.</div>`;
+ return `<div class="season-player-table-wrap"><table class="season-player-table"><thead><tr><th>#</th><th>Player</th><th>Pos</th><th>GP</th><th>Rush</th><th>Rec</th><th>Pass</th><th>Tkl</th><th>Sk</th><th>INT</th></tr></thead><tbody>${players.map(sp=>{
+   const rp=sp.player||rosterPlayerByNumber(t,sp.number);
+   const pos=rp?.positions?.join(' · ')||'—';
+   return `<tr data-season-player="${rp?.id||sp.number}">
+     <td><span class="jersey-badge">${esc(sp.number)}</span></td>
+     <td><button class="season-player-link" data-season-player="${rp?.id||sp.number}">${esc(seasonPlayerName(t,sp))}</button></td>
+     <td>${esc(pos)}</td><td>${sp.games}</td>
+     <td>${sp.rush.yds} yd</td><td>${sp.rec.yds} yd</td><td>${sp.pass.yds} yd</td>
+     <td>${sp.def.tackle.toFixed(1)}</td><td>${sp.def.sack.toFixed(1)}</td><td>${sp.def.int}</td>
+   </tr>`
+ }).join('')}</tbody></table></div>`
+}
+function renderOverallAnalytics(t){
+ const host=$('#teamPanel');if(!host)return;
+ const s=computeSeasonAnalytics(t);
+ const record=s.completed?`${s.wins}-${s.losses}${s.ties?'-'+s.ties:''}`:'—';
+ host.innerHTML=`<section class="content-card season-analytics-card">
+   <div class="season-analytics-head">
+     <div><div class="eyebrow">OVERALL ANALYTICS</div><h2>${esc(t.name)}</h2><p>Team and player performance across ${s.games} game${s.games===1?'':'s'}.</p></div>
+     <div class="season-record"><span>Record</span><b>${record}</b></div>
+   </div>
+
+   <div class="season-kpis">
+     <div><span>Games</span><b>${s.games}</b><small>${s.completed} final</small></div>
+     <div><span>Points For</span><b>${s.pointsFor}</b><small>${s.games?(s.pointsFor/s.games).toFixed(1):'0.0'} / game</small></div>
+     <div><span>Points Against</span><b>${s.pointsAgainst}</b><small>${s.games?(s.pointsAgainst/s.games).toFixed(1):'0.0'} / game</small></div>
+     <div class="primary"><span>Total Offense</span><b>${s.totalYards}</b><small>${s.yardsPerPlay.toFixed(1)} / play</small></div>
+   </div>
+
+   <div class="season-split-grid">
+     <div class="season-split-card"><div><span>Rushing</span><b>${s.rushYards}</b><small>${s.rushAtt} attempts · ${s.rushAvg.toFixed(1)} avg</small></div></div>
+     <div class="season-split-card"><div><span>Passing</span><b>${s.passYards}</b><small>${s.completions}/${s.passAtt} · ${s.passPct.toFixed(0)}%</small></div></div>
+     <div class="season-split-card"><div><span>First Downs</span><b>${s.firstDowns}</b><small>${s.games?(s.firstDowns/s.games).toFixed(1):'0.0'} / game</small></div></div>
+     <div class="season-split-card"><div><span>Turnovers</span><b>${s.turnovers}</b><small>${s.games?(s.turnovers/s.games).toFixed(1):'0.0'} / game</small></div></div>
+   </div>
+
+   <div class="season-rate-row">
+     <div><span>3rd Down</span><b>${s.thirdMade}/${s.thirdAtt}</b><small>${pct(s.thirdMade,s.thirdAtt)}%</small></div>
+     <div><span>4th Down</span><b>${s.fourthMade}/${s.fourthAtt}</b><small>${pct(s.fourthMade,s.fourthAtt)}%</small></div>
+     <div><span>Sacks Allowed</span><b>${s.sacksAllowed}</b></div>
+     <div><span>Offensive Plays</span><b>${s.plays}</b></div>
+   </div>
+
+   <div class="season-player-section">
+     <div class="season-section-head"><div><h3>Players</h3><p>Rostered players appear immediately, even before recording a statistic.</p></div></div>
+     ${seasonPlayerRows(t,s)}
+   </div>
+ </section>`;
+ $$('[data-season-player]').forEach(b=>b.onclick=()=>{
+   const key=b.dataset.seasonPlayer;
+   const rp=t.roster.find(x=>x.id===key)||rosterPlayerByNumber(t,key);
+   if(rp)showSeasonPlayerStats(t,rp.id)
+ })
+}
+function showSeasonPlayerStats(t,playerId){
+ normalizeRoster(t);
+ const rp=t.roster.find(p=>p.id===playerId)||rosterPlayerByNumber(t,playerId);
+ if(!rp)return toast('Player not found.');
+ const s=computeSeasonAnalytics(t);
+ const p=s.players[String(rp.number)]||emptySeasonPlayer(rp.number,rp);
+ showModal(`<div class="season-player-modal">
+   <div class="player-stat-hero" style="--team-color:${t.primary}">
+     <div class="player-number">#${esc(rp.number)}</div>
+     <div><div class="eyebrow">${esc(t.name)}</div><h2>${esc(rosterPlayerName(rp))}</h2><p>${esc(rp.positions.join(' · ')||'No positions assigned')} · ${p.games} game${p.games===1?'':'s'} with stats</p></div>
+   </div>
+
+   <div class="player-stat-grid">
+     <div class="player-stat-card"><h4>Rushing</h4><div class="player-stat-numbers">
+       <div><b>${p.rush.car}</b><span>Carries</span></div><div><b>${p.rush.yds}</b><span>Yards</span></div><div><b>${fmtAvg(p.rush.yds,p.rush.car)}</b><span>Avg</span></div><div><b>${p.rush.td}</b><span>TD</span></div><div><b>${p.fum}</b><span>Fumbles</span></div>
+     </div></div>
+     <div class="player-stat-card"><h4>Receiving</h4><div class="player-stat-numbers">
+       <div><b>${p.rec.tar}</b><span>Targets</span></div><div><b>${p.rec.rec}</b><span>Rec</span></div><div><b>${p.rec.yds}</b><span>Yards</span></div><div><b>${fmtAvg(p.rec.yds,p.rec.rec)}</b><span>Avg</span></div><div><b>${p.rec.td}</b><span>TD</span></div>
+     </div></div>
+     <div class="player-stat-card"><h4>Passing</h4><div class="player-stat-numbers">
+       <div><b>${p.pass.comp}/${p.pass.att}</b><span>Comp/Att</span></div><div><b>${pct(p.pass.comp,p.pass.att)}%</b><span>Comp %</span></div><div><b>${p.pass.yds}</b><span>Yards</span></div><div><b>${p.pass.td}</b><span>TD</span></div><div><b>${p.pass.int}</b><span>INT</span></div><div><b>${p.pass.sacks}</b><span>Sacked</span></div>
+     </div></div>
+     <div class="player-stat-card"><h4>Defense</h4><div class="player-stat-numbers">
+       <div><b>${p.def.tackle.toFixed(1)}</b><span>Tackles</span></div><div><b>${p.def.sack.toFixed(1)}</b><span>Sacks</span></div><div><b>${p.def.int}</b><span>INT</span></div><div><b>${p.def.intYds}</b><span>INT Yards</span></div><div><b>${p.def.intTD}</b><span>INT TD</span></div><div><b>${p.def.pressure}</b><span>Pressure</span></div><div><b>${p.def.hurry}</b><span>Hurry</span></div><div><b>${p.def.missed}</b><span>Missed</span></div>
+     </div></div>
+   </div>
+   <div class="setup-actions"><button class="btn btn-light" data-close>Close</button><button class="btn btn-primary" id="editFromStats">Edit Player</button></div>
+ </div>`);
+ $('#editFromStats').onclick=()=>{closeModal();showRosterPlayer(t,rp.id)}
+}
+
 function renderTeam(id){
  const t=state.teams.find(x=>x.id===id);if(!t)return location.hash='#teams';
  normalizeRoster(t);
  const games=state.games.filter(g=>g.teamId===id).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
- const rows=games.map(g=>`<tr data-open-game="${g.id}"><td>${esc(g.date||'')}</td><td>${esc(g.opponent)}</td><td>${esc(g.location||'Home')}</td><td>${g.gameOver?`${g.teamScore>=g.oppScore?'W':'L'} ${g.teamScore}-${g.oppScore}`:`${g.teamScore||0}-${g.oppScore||0}`}</td><td>›</td></tr>`).join('');
+ const rows=games.map(g=>`<tr data-open-game="${g.id}" tabindex="0" role="button" aria-label="Open game versus ${esc(g.opponent)}"><td>${esc(g.date||'')}</td><td>${esc(g.opponent)}</td><td>${esc(g.location||'Home')}</td><td>${g.gameOver?`${g.teamScore>=g.oppScore?'W':'L'} ${g.teamScore}-${g.oppScore}`:`${g.teamScore||0}-${g.oppScore||0}`}</td><td><button class="game-open-btn" data-open-game-button="${g.id}">Open ›</button></td></tr>`).join('');
  shell(`<main class="page"><button class="btn" onclick="location.hash='#teams'">‹ Back to Teams</button>
  <section class="content-card team-banner" style="border-left:6px solid ${t.primary}">
    <div class="team-banner-left"><div class="team-swatch" style="background:linear-gradient(135deg,${t.primary} 0 60%,${t.secondary} 60%)"></div><div><div class="team-title">${esc(t.name)}</div><div class="team-meta">Football · ${t.roster.length} rostered player${t.roster.length===1?'':'s'}</div></div></div>
@@ -210,30 +368,49 @@ function renderTeam(id){
  <div class="tabs team-tabs">
    <button class="tab active" data-team-tab="games">Games</button>
    <button class="tab" data-team-tab="roster">Roster <span class="tab-count">${t.roster.length}</span></button>
-   <button class="tab" disabled>Analytics · Coming Soon</button>
+   <button class="tab" data-team-tab="analytics">Analytics</button>
    <button class="btn btn-primary" id="teamPrimaryAction">+ Add Game</button>
  </div>
  <div id="teamPanel"><section class="content-card"><table class="games-table"><thead><tr><th>Date</th><th>Opponent</th><th>Location</th><th>Score</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="5" class="empty">No games yet.</td></tr>'}</tbody></table></section></div>
  </main>`);
+ const bindGameListOpeners=()=>{
+   const panel=$('#teamPanel');if(!panel)return;
+   panel.onclick=e=>{
+     const btn=e.target.closest?.('[data-open-game-button]');
+     const row=e.target.closest?.('[data-open-game]');
+     const id=btn?.dataset.openGameButton||row?.dataset.openGame;
+     if(id){e.preventDefault();e.stopPropagation();openGameById(id)}
+   };
+   panel.onkeydown=e=>{
+     if(e.key!=='Enter'&&e.key!==' ')return;
+     const row=e.target.closest?.('[data-open-game]');
+     if(row){e.preventDefault();openGameById(row.dataset.openGame)}
+   }
+ };
  const renderGames=()=>{
    $('#teamPanel').innerHTML=`<section class="content-card"><table class="games-table"><thead><tr><th>Date</th><th>Opponent</th><th>Location</th><th>Score</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="5" class="empty">No games yet.</td></tr>'}</tbody></table></section>`;
    $('#teamPrimaryAction').textContent='+ Add Game';
+   $('#teamPrimaryAction').style.display='';
    $('#teamPrimaryAction').onclick=()=>showAddGame(t);
-   $$('[data-open-game]').forEach(x=>x.onclick=()=>location.hash='#game/'+x.dataset.openGame)
+   bindGameListOpeners()
  };
  const selectTab=name=>{
    $$('[data-team-tab]').forEach(b=>b.classList.toggle('active',b.dataset.teamTab===name));
    if(name==='games')renderGames();
-   else{
+   else if(name==='roster'){
      renderRosterPanel(t);
      $('#teamPrimaryAction').textContent='+ Add Player';
+     $('#teamPrimaryAction').style.display='';
      $('#teamPrimaryAction').onclick=()=>showRosterPlayer(t)
+   }else{
+     renderOverallAnalytics(t);
+     $('#teamPrimaryAction').style.display='none'
    }
  };
  $$('[data-team-tab]').forEach(b=>b.onclick=()=>selectTab(b.dataset.teamTab));
  $('#teamPrimaryAction').onclick=()=>showAddGame(t);
  $('#editTeam').onclick=()=>showEditTeam(t);
- $$('[data-open-game]').forEach(x=>x.onclick=()=>location.hash='#game/'+x.dataset.openGame)
+ bindGameListOpeners()
 }
 function showEditTeam(t){
  showModal(`<div class="setup-modal setup-team-modal"><div class="setup-head"><div><div class="eyebrow">TEAM SETUP</div><h2>Edit Team</h2><p>Update team identity.</p></div><button class="setup-close" data-close>×</button></div><div class="setup-body"><div class="setup-field"><label>Team Name</label><input id="teamName" value="${esc(t.name)}"></div><div class="setup-color-row"><div class="setup-field"><label>Primary Color</label><div class="setup-color-control"><input id="primary" type="color" value="${t.primary}"><div><b>Primary</b><span>Main color</span></div></div></div><div class="setup-field"><label>Secondary Color</label><div class="setup-color-control"><input id="secondary" type="color" value="${t.secondary}"><div><b>Secondary</b><span>Accent color</span></div></div></div></div></div><div class="setup-actions"><button class="btn btn-light" data-close>Cancel</button><button class="btn btn-primary" id="saveTeam">Save Changes</button></div></div>`);
@@ -451,6 +628,13 @@ function computeTeamStats(g,side){
    firstDowns:0,thirdAtt:0,thirdMade:0,fourthAtt:0,fourthMade:0,
    turnovers:0,sacksAllowed:0,players:{}
  };
+ if(side==='team'){
+   const rt=teamById(g.teamId);
+   if(rt){
+     normalizeRoster(rt);
+     rt.roster.filter(p=>p.active&&p.number).forEach(p=>ensurePlayer(team.players,p.number))
+   }
+ }
 
  for(const p of (g.plays||[])){
    const offense=p.team||p.before?.poss;

@@ -722,3 +722,69 @@ button{cursor:pointer}
   .roster-summary{grid-template-columns:repeat(2,1fr)}
   .roster-pos-group{grid-template-columns:1fr}
 }
+
+/* v0.22.0 overall/team analytics */
+.season-analytics-card{padding:0;overflow:hidden}
+.season-analytics-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:18px;
+  padding:18px 20px 14px;border-bottom:1px solid #dce5eb
+}
+.season-analytics-head h2{margin:2px 0 2px;color:#102635;font-size:23px}
+.season-analytics-head p{margin:0;color:#64748b;font-size:12px}
+.season-record{
+  min-width:110px;padding:9px 12px;border-radius:12px;background:#0b2e3a;color:#fff;text-align:center
+}
+.season-record span{display:block;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;color:#b7cdd6}
+.season-record b{display:block;font-size:24px;margin-top:2px}
+
+.season-kpis{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#dce5eb;border-bottom:1px solid #dce5eb
+}
+.season-kpis>div{background:#f8fbfc;padding:13px 15px;text-align:center}
+.season-kpis>div.primary{background:#e6f8fc;box-shadow:inset 0 3px 0 #00a9ce}
+.season-kpis span,.season-kpis small{display:block;color:#64748b;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.05em}
+.season-kpis b{display:block;color:#102635;font-size:24px;margin:3px 0}
+
+.season-split-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 20px 0}
+.season-split-card{
+  padding:12px;border:1px solid #d8e2e8;border-radius:12px;background:#fff
+}
+.season-split-card span{display:block;color:#64748b;font-size:9px;font-weight:900;text-transform:uppercase}
+.season-split-card b{display:block;color:#102635;font-size:23px;margin:3px 0}
+.season-split-card small{display:block;color:#64748b;font-size:10px}
+
+.season-rate-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 20px 16px
+}
+.season-rate-row>div{padding:9px 10px;border-radius:10px;background:#eef4f7;text-align:center}
+.season-rate-row span,.season-rate-row small{display:block;color:#64748b;font-size:9px;font-weight:900;text-transform:uppercase}
+.season-rate-row b{display:block;color:#102635;font-size:18px;margin:2px 0}
+
+.season-player-section{padding:0 20px 20px}
+.season-section-head{display:flex;justify-content:space-between;align-items:end;margin:3px 0 8px}
+.season-section-head h3{margin:0;color:#102635}
+.season-section-head p{margin:2px 0 0;color:#64748b;font-size:11px}
+.season-player-table-wrap{overflow-x:auto;border:1px solid #d7e1e7;border-radius:12px}
+.season-player-table{width:100%;border-collapse:collapse;color:#102635}
+.season-player-table th{padding:8px 9px;background:#eef4f7;color:#52677a;text-align:right;font-size:9px;text-transform:uppercase;letter-spacing:.05em}
+.season-player-table th:nth-child(1),.season-player-table th:nth-child(2),.season-player-table th:nth-child(3){text-align:left}
+.season-player-table td{padding:9px;border-top:1px solid #e9eef2;text-align:right;font-size:11px}
+.season-player-table td:nth-child(1),.season-player-table td:nth-child(2),.season-player-table td:nth-child(3){text-align:left}
+.season-player-table tbody tr:hover{background:#f7fbfd}
+.season-player-link{border:0;background:none;padding:0;color:#006e99;font-weight:900;cursor:pointer;text-align:left}
+.season-player-link:hover{text-decoration:underline}
+.season-empty{padding:24px;text-align:center;color:#64748b}
+.modal:has(.season-player-modal){width:min(840px,94vw);max-width:none}
+
+@media(max-width:900px){
+  .season-kpis,.season-split-grid,.season-rate-row{grid-template-columns:repeat(2,1fr)}
+}
+
+/* v0.22.1 — robust game opening */
+.games-table tbody tr[data-open-game]{cursor:pointer}
+.games-table tbody tr[data-open-game]:focus{outline:2px solid #00D4FF;outline-offset:-2px;background:rgba(0,212,255,.06)}
+.game-open-btn{
+  border:1px solid #2f687a;background:#0b3441;color:#dff9ff;
+  border-radius:8px;padding:6px 10px;font-size:10px;font-weight:900;cursor:pointer;white-space:nowrap
+}
+.game-open-btn:hover{background:#0f4d5f;border-color:#00bada;color:#fff}

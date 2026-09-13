@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.20.1';
-const DBKEY='sidelineiq_v0201';
-const LEGACY_KEYS=['sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.20.2';
+const DBKEY='sidelineiq_v0202';
+const LEGACY_KEYS=['sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 
@@ -390,7 +390,7 @@ function renderGame(id){
  const stateLabel=g.gameOver?'FINAL':g.kickoffPending?'KICKOFF':g.puntPending?'PUNT':g.awaitingTry?'TRY':`${ordinal(g.down)} & ${g.toGo}`;
  shell(`<main class="game-page"><section class="game-top"><div class="game-brand"><img src="./assets/sidelineiq-header-logo.png" alt="SidelineIQ"></div><div class="score-card" style="background:${left.color};color:${textColor(left.color)}"><span class="team-label">${esc(left.name)}${homeTeam===g.poss?' <span class="poss-indicator" title="Possession">🏈</span>':''}</span><span class="score-value">${left.score}</span></div><div class="game-state"><div class="period period-control"><span>${g.format==='halves'?'H':'Q'}${g.period}</span><button class="period-next ${g.period>=(g.format==='halves'?2:4)?'game-over-btn':''}" id="nextPeriod" title="${g.gameOver?'Game is final':g.period>=(g.format==='halves'?2:4)?'End game':'Advance period'}">${g.gameOver?'FINAL':g.period>=(g.format==='halves'?2:4)?'Game Over':'›'}</button></div><div class="downline">${stateLabel}</div><div class="pos">${g.kickoffPending?(g.kickoff?.halftime?'Second-half kickoff':'Opening kickoff'):g.puntPending?(g.punt?.phase==='kick'?'Punt':'Punt return'):fmtDrive(g.los,g.driveDir)}</div></div><div class="score-card" style="background:${right.color};color:${textColor(right.color)}"><span class="score-value">${right.score}</span><span class="team-label">${other(homeTeam)===g.poss?'<span class="poss-indicator" title="Possession">🏈</span> ':''}${esc(right.name)}</span></div><div class="nav-strip"><button class="nav-button" onclick="location.hash='#team/${t.id}'"><span class="ico">▣</span>Games</button><button class="nav-button analytics-nav" id="gameAnalytics"><span class="ico">▥</span>Analytics</button><button class="nav-button" id="resetGame"><span class="ico">↻</span>Reset</button><button class="nav-button danger-nav" id="deleteGame"><span class="ico">✕</span>Delete</button><button class="nav-button"><span class="ico">⚙</span>Settings</button></div></section>
  <div class="main-grid"><section class="field-panel"><div class="field" id="field"></div><div class="field-controls"><div class="mini"><small>Line of Scrimmage</small><div class="los-control"><select id="losSide"><option>OWN</option><option>OPP</option><option>50</option></select><input id="losYard" type="number" min="0" max="49"><button class="btn btn-light" id="setLos">Set</button></div></div><div class="mini"><small>Ball at</small><b id="ballText">${g.kickoffPending?'—':fmtDrive(g.los,g.driveDir)}</b></div><div class="mini"><small>Distance</small><b>${g.kickoffPending?'—':g.toGo}</b></div><div class="mini"><small>Down</small><b>${g.kickoffPending?'—':g.down}</b></div><div class="mini"><small>State</small><b>${g.kickoffPending?'KO':g.awaitingTry?'TRY':'LIVE'}</b></div></div></section>
- <aside class="recent-panel"><div class="recent-head"><span>Recent Plays</span><select><option>All Plays</option></select></div><div class="recent-list">${recentRows(g,t)}</div><div class="recent-actions"><button class="btn btn-light" id="editPlay">Edit Selected</button><button class="btn btn-light" id="undoPlay">Undo Last Play</button></div></aside></div>
+ <aside class="recent-panel"><div class="recent-head"><span>Recent Plays</span><button class="btn btn-light all-plays-btn" id="allPlays">View All</button></div><div class="recent-list">${recentRows(g,t)}</div><div class="recent-actions"><button class="btn btn-light" id="editPlay">Edit Selected</button><button class="btn btn-light" id="undoPlay">Undo Last Play</button></div></aside></div>
  <section class="workbench"><div class="pane off"><div class="pane-title">OFFENSE</div><div class="pane-body">${offensePane(g)}</div></div><div class="pane def"><div class="pane-title">DEFENSE</div><div class="pane-body">${defensePane(g)}</div></div><div class="pane st"><div class="pane-title">SPECIAL TEAMS</div><div class="pane-body">${specialPane(g,t)}</div></div><div class="pane pen"><div class="pane-title">PENALTY</div><div class="pane-body">${penaltyPane()}</div></div></section>
  <section class="savebar"><input class="play-note" id="playNote" placeholder="Play notes (optional) — e.g. screen right, blitz, alignment..."><div class="save-actions"><button class="btn btn-primary" id="savePlay">✓ Save Play</button><button class="btn btn-light" id="clearPlay">Clear</button></div></section></main>`);
  bindGame(g,t);drawField(g,t)
@@ -434,6 +434,209 @@ function kickoffPane(g,t){
  return `<div class="kick-steps"><div class="step done">✓ KICK</div><span>›</span><div class="step active">2 · RETURN</div></div><div class="notice"><b>${esc(rec.name)}</b> return. Field perspective has flipped to the receiving team.</div><div class="form-row"><label>Returner #</label><input id="koReturner" value="${esc(k.returner||'')}"><label>Tackler #</label><input id="koTackler"><button class="btn btn-light" id="addKoTackler">Add</button></div><div class="summary">Catch: <b>${fmtDrive(k.landing,-(k.kickDir||1))}</b> · End: <b>${k.returnEnd==null?'drag football':fmtDrive(k.returnEnd,-(k.kickDir||1))}</b><br>Tacklers: ${k.tacklers.length?k.tacklers.map(x=>'#'+esc(x)).join(', '):'—'}</div><div class="form-row"><button class="btn btn-light" id="touchbackReturn">Touchback</button><button class="btn btn-light" id="kickReturnTD">${k.returnTD?'✓ Return TD':'Return TD'}</button><button class="btn btn-primary" id="finishKickoff" ${k.returnEnd==null?'disabled':''}>Finish Kickoff</button></div>`
 }
 function recentRows(g,t){return [...g.plays].reverse().slice(0,25).map((p,i)=>{const n=g.plays.length-i,team=p.team||p.before?.poss||'team',tm=teamSide(g,t,team),abbr=teamAbbr(tm.name),bg1=lighten(tm.color,.84),bg2=lighten(tm.secondary||tm.color,.90);return `<div class="play-row" data-play="${p.id}" style="background:linear-gradient(90deg,${bg1},${bg2});border-left:4px solid ${tm.color};color:#132D36"><div>${n}</div><div>${p.period||p.before?.period||1}</div><div>${esc(p.time||'')}</div><div><b>${abbr}</b></div><div class="desc">${esc(p.desc||'')}</div><div class="yds">${Number.isFinite(p.yds)?(p.yds>0?'+':'')+p.yds:''}</div></div>`}).join('')||'<div class="empty">No plays yet.</div>'}
+
+
+function playTeamName(g,t,p){
+ const side=p.team||p.before?.poss||'team';
+ return teamSide(g,t,side).name
+}
+function playPeriodLabel(g,p){
+ const n=p.period||p.before?.period||1;
+ return g.format==='halves'?`H${n}`:`Q${n}`
+}
+function allPlayRows(g,t){
+ if(!(g.plays||[]).length)return `<div class="allplays-empty">No plays recorded yet.</div>`;
+ return [...g.plays].map((p,i)=>{
+   const side=p.team||p.before?.poss||'team';
+   const tm=teamSide(g,t,side);
+   const y=Number.isFinite(p.yds)?p.yds:statYards(p);
+   const defenders=(p.defenders||[]).map(d=>`#${esc(d.n)} ${esc(d.action)}`).join(' · ');
+   return `<div class="allplay-row" data-allplay="${p.id}" style="--play-team:${tm.color}">
+     <div class="allplay-num">${i+1}</div>
+     <div class="allplay-period">${playPeriodLabel(g,p)}</div>
+     <div class="allplay-team">${teamAbbr(tm.name)}</div>
+     <div class="allplay-main">
+       <div class="allplay-desc">${esc(p.desc||p.kind||'Play')}</div>
+       ${defenders?`<div class="allplay-defense">${defenders}</div>`:''}
+     </div>
+     <div class="allplay-yards">${Number.isFinite(y)?(y>0?'+':'')+y:''}</div>
+     <button class="btn btn-light allplay-edit" data-edit-allplay="${p.id}">Edit</button>
+   </div>`
+ }).join('')
+}
+function showAllPlays(g,t){
+ showModal(`<div class="allplays-modal">
+   <div class="allplays-head">
+     <div><div class="eyebrow">GAME LOG</div><h2>All Plays</h2><p>${esc(t.name)} vs ${esc(g.opponent)} · ${g.plays.length} recorded plays</p></div>
+     <button class="btn btn-light" id="closeAllPlays">Close</button>
+   </div>
+   <div class="allplays-tools">
+     <input id="playSearch" placeholder="Search plays, player numbers, tackles..." autocomplete="off">
+     <select id="playPeriodFilter"><option value="">All periods</option>${Array.from({length:g.format==='halves'?2:4},(_,i)=>`<option value="${i+1}">${g.format==='halves'?'Half':'Quarter'} ${i+1}</option>`).join('')}</select>
+     <select id="playTeamFilter"><option value="">Both teams</option><option value="team">${esc(t.name)}</option><option value="opp">${esc(g.opponent)}</option></select>
+   </div>
+   <div class="allplays-list" id="allPlaysList">${allPlayRows(g,t)}</div>
+ </div>`);
+ $('#closeAllPlays').onclick=closeModal;
+
+ const apply=()=>{
+   const q=($('#playSearch')?.value||'').trim().toLowerCase();
+   const per=$('#playPeriodFilter')?.value||'';
+   const team=$('#playTeamFilter')?.value||'';
+   $$('.allplay-row').forEach(row=>{
+     const p=g.plays.find(x=>x.id===row.dataset.allplay);
+     const txt=row.textContent.toLowerCase();
+     const pper=String(p?.period||p?.before?.period||1);
+     const pteam=p?.team||p?.before?.poss||'team';
+     row.style.display=(!q||txt.includes(q))&&(!per||pper===per)&&(!team||pteam===team)?'grid':'none'
+   })
+ };
+ $('#playSearch').oninput=apply;
+ $('#playPeriodFilter').onchange=apply;
+ $('#playTeamFilter').onchange=apply;
+ $$('[data-edit-allplay]').forEach(b=>b.onclick=()=>{
+   const id=b.dataset.editAllplay;
+   closeModal();
+   showPlayEditor(g,t,id)
+ })
+}
+function defenderEditorRows(p){
+ const defs=p.defenders||[];
+ return defs.length?defs.map((d,i)=>`<div class="retro-defender-row">
+   <input class="retro-def-num" data-def-i="${i}" inputmode="numeric" value="${esc(d.n||'')}" placeholder="#">
+   <select class="retro-def-action" data-def-i="${i}">
+     ${['Tackle','Assist','Sack','Pressure','Hurry','Missed'].map(a=>`<option ${d.action===a?'selected':''}>${a}</option>`).join('')}
+   </select>
+   <button class="btn btn-light retro-remove-def" data-remove-def="${i}">Remove</button>
+ </div>`).join(''):`<div class="retro-empty-defense">No defenders recorded on this play.</div>`
+}
+function offensiveEditFields(p){
+ const parsed=parsedPlayPlayers(p);
+ if(p.kind==='Run')return `<div class="retro-grid">
+   <div class="field"><label>Ball Carrier #</label><input id="retroPlayer" inputmode="numeric" value="${esc(parsed.player||'')}"></div>
+   <div class="field"><label>Fumble</label><select id="retroFumble"><option value="no" ${!p.fumble?'selected':''}>No</option><option value="Offense" ${p.fumble&&p.fumbleRecovery==='Offense'?'selected':''}>Yes · Recovered by Offense</option><option value="Defense" ${p.fumble&&p.fumbleRecovery==='Defense'?'selected':''}>Yes · Recovered by Defense</option></select></div>
+ </div>`;
+ if(p.kind==='Pass')return `<div class="retro-grid">
+   <div class="field"><label>QB #</label><input id="retroQB" inputmode="numeric" value="${esc(parsed.qb||'')}"></div>
+   <div class="field"><label>Receiver #</label><input id="retroReceiver" inputmode="numeric" value="${esc(parsed.receiver||'')}"></div>
+   <div class="field"><label>Pass Result</label><select id="retroPassResult">${['Complete','Incomplete','Interception','Sack'].map(x=>`<option ${parsed.result===x?'selected':''}>${x}</option>`).join('')}</select></div>
+   <div class="field"><label>Fumble</label><select id="retroFumble"><option value="no" ${!p.fumble?'selected':''}>No</option><option value="Offense" ${p.fumble&&p.fumbleRecovery==='Offense'?'selected':''}>Yes · Recovered by Offense</option><option value="Defense" ${p.fumble&&p.fumbleRecovery==='Defense'?'selected':''}>Yes · Recovered by Defense</option></select></div>
+ </div>`;
+ return `<div class="retro-note">This is a ${esc(p.kind||'special teams')} play. You can correct the description, period, statistical yardage, and defensive actions below.</div>`
+}
+function showPlayEditor(g,t,id){
+ const p=g.plays.find(x=>x.id===id);
+ if(!p){toast('Play not found.');return showAllPlays(g,t)}
+ const originalYds=Number.isFinite(p.yds)?p.yds:statYards(p);
+ const period=p.period||p.before?.period||1;
+ showModal(`<div class="retro-edit-modal">
+   <div class="retro-edit-head">
+     <div><div class="eyebrow">EDIT RECORDED PLAY</div><h2>Play ${g.plays.indexOf(p)+1} · ${esc(p.kind||'Play')}</h2><p>${esc(playTeamName(g,t,p))} · ${playPeriodLabel(g,p)}</p></div>
+     <button class="btn btn-light" id="cancelRetroEdit">Back to All Plays</button>
+   </div>
+
+   <div class="retro-section">
+     <h3>Play Details</h3>
+     <div class="retro-grid">
+       <div class="field"><label>Period</label><select id="retroPeriod">${Array.from({length:g.format==='halves'?2:4},(_,i)=>`<option value="${i+1}" ${period===i+1?'selected':''}>${g.format==='halves'?'Half':'Quarter'} ${i+1}</option>`).join('')}</select></div>
+       <div class="field"><label>Statistical Yards</label><input id="retroYards" type="number" value="${originalYds}"><small>Changing this updates the stored end spot for statistics; it does not rewind current game state.</small></div>
+     </div>
+     ${offensiveEditFields(p)}
+     <div class="field"><label>Description</label><textarea id="retroDesc" rows="3">${esc(p.desc||'')}</textarea></div>
+   </div>
+
+   <div class="retro-section">
+     <div class="retro-section-head"><div><h3>Defense</h3><p>Add or correct tackles, assists, sacks, pressures, hurries, and missed tackles.</p></div></div>
+     <div id="retroDefenders">${defenderEditorRows(p)}</div>
+     <div class="retro-add-defense">
+       <input id="retroNewDefender" inputmode="numeric" placeholder="Defender #">
+       <select id="retroNewAction"><option>Tackle</option><option>Assist</option><option>Sack</option><option>Pressure</option><option>Hurry</option><option>Missed</option></select>
+       <button class="btn btn-light" id="retroAddDefender">+ Add Defender</button>
+     </div>
+   </div>
+
+   <div class="retro-savebar">
+     <button class="btn btn-light" id="retroBack">Cancel</button>
+     <button class="btn btn-primary" id="retroSave">Save Corrections</button>
+   </div>
+ </div>`);
+
+ const collectDefenders=()=>{
+   const defs=[];
+   $$('.retro-defender-row').forEach(row=>{
+     const n=row.querySelector('.retro-def-num')?.value.trim();
+     const action=row.querySelector('.retro-def-action')?.value;
+     if(n)defs.push({n,action})
+   });
+   return defs
+ };
+ const rerenderDefs=(defs)=>{
+   p.defenders=defs;
+   $('#retroDefenders').innerHTML=defenderEditorRows(p);
+   bindDefRows()
+ };
+ const bindDefRows=()=>{
+   $$('.retro-remove-def').forEach(b=>b.onclick=()=>{
+     const defs=collectDefenders();
+     defs.splice(Number(b.dataset.removeDef),1);
+     rerenderDefs(defs)
+   })
+ };
+ bindDefRows();
+
+ $('#retroAddDefender').onclick=()=>{
+   const n=$('#retroNewDefender').value.trim();
+   if(!n)return toast('Enter a defender number.');
+   const defs=collectDefenders();
+   defs.push({n,action:$('#retroNewAction').value});
+   $('#retroNewDefender').value='';
+   rerenderDefs(defs)
+ };
+
+ const back=()=>{closeModal();showAllPlays(g,t)};
+ $('#cancelRetroEdit').onclick=back;
+ $('#retroBack').onclick=back;
+
+ $('#retroSave').onclick=()=>{
+   p.period=Number($('#retroPeriod').value)||period;
+   const y=Number($('#retroYards').value);
+   if(Number.isFinite(y)){
+     const dir=p.before?.driveDir??1;
+     const start=Number.isFinite(p.start)?p.start:(p.before?.los??0);
+     p.start=start;
+     p.end=clamp(start+y*dir);
+     p.yds=y;
+   }
+
+   if(p.kind==='Run'){
+     p.player=$('#retroPlayer')?.value.trim()||'';
+   }
+   if(p.kind==='Pass'){
+     p.qb=$('#retroQB')?.value.trim()||'';
+     p.receiver=$('#retroReceiver')?.value.trim()||'';
+     p.passResult=$('#retroPassResult')?.value||p.passResult||'Complete';
+   }
+   if($('#retroFumble')){
+     const f=$('#retroFumble').value;
+     p.fumble=f!=='no';
+     p.fumbleRecovery=f==='no'?null:f;
+   }
+
+   p.defenders=collectDefenders();
+   p.desc=$('#retroDesc').value.trim()||p.desc;
+
+   // Preserve the v0.15.12 convention: on a sack play, the primary tackle is statistically a sack.
+   if(p.kind==='Pass'&&p.passResult==='Sack'){
+     p.defenders=p.defenders.map(d=>d.action==='Tackle'?{...d,action:'Sack'}:d)
+   }
+
+   save();
+   closeModal();
+   toast('Play corrections saved.');
+   renderGame(g.id);
+   showAllPlays(g,t)
+ }
+}
 
 function resetGameState(g){
  const openingKick=g.openingKick||'team';
@@ -505,6 +708,7 @@ function beginHalftimeKickoff(g){
 
 function bindGame(g,t){
  if($('#gameAnalytics'))$('#gameAnalytics').onclick=()=>showGameAnalytics(g,t);
+ if($('#allPlays'))$('#allPlays').onclick=()=>showAllPlays(g,t);
  $('#resetGame').onclick=()=>{
    const ok=confirm(`Are you sure you want to reset this game against ${g.opponent}?\n\nThis will permanently clear all plays, scores, penalties, and game progress. The game itself will remain on the schedule.`);
    if(!ok)return;
@@ -957,7 +1161,7 @@ function applyAfterPlay(g,p,start,end){
 }
 function turnoverDowns(g,spot){g.poss=other(g.poss);g.driveDir=-(g.driveDir||1);g.los=clamp(spot);g.down=1;g.toGo=Math.min(10,Math.max(1,g.driveDir===1?100-g.los:g.los))}
 function undoPlay(g){const p=g.plays.pop();if(!p)return toast('No play to undo.');Object.assign(g,structuredClone(p.before));save();renderGame(g.id)}
-function editSelected(g){const p=g.plays.find(x=>x.id===selectedPlayId);if(!p)return toast('Select a play first.');showModal(`<h2>Edit Play Description</h2><div class="field"><label>Description</label><textarea id="editDesc" rows="4">${esc(p.desc)}</textarea></div><div class="modal-actions"><button class="btn" data-close>Cancel</button><button class="btn btn-primary" id="saveEdit">Save</button></div>`);$('#saveEdit').onclick=()=>{p.desc=$('#editDesc').value.trim()||p.desc;save();closeModal();renderGame(g.id)}}
+function editSelected(g){const p=g.plays.find(x=>x.id===selectedPlayId);if(!p)return toast('Select a play first.');const t=teamById(g.teamId);showPlayEditor(g,t,p.id)}
 function drawField(g,t){
  const f=$('#field');if(!f)return;const driveDir=g.driveDir||1,k=g.kickoff,p=g.punt;
  const perspective=g.kickoffPending?(k.phase==='kick'?(k.kickDir||1)===1?k.kickingTeam:other(k.kickingTeam):(-(k.kickDir||1))===1?k.receivingTeam:other(k.receivingTeam)):g.puntPending?(p.phase==='kick'?(p.kickDir||1)===1?p.puntingTeam:other(p.puntingTeam):(-(p.kickDir||1))===1?p.receivingTeam:other(p.receivingTeam)):(driveDir===1?g.poss:other(g.poss)),left=teamSide(g,t,perspective),right=teamSide(g,t,other(perspective));

@@ -1,43 +1,57 @@
-SIDELINEIQ v0.20.1 — ANALYTICS READABILITY + STAT COMPLETENESS
+SIDELINEIQ v0.20.2 — ALL PLAYS / HALFTIME CORRECTIONS
 
-FIXES FROM v0.20.0
-- Total Yardage was present but rendered white on a light card. v0.20.1 explicitly fixes all analytics text contrast.
-- The analytics child was wider than the base modal shell, causing the right team column to overflow. The analytics modal now expands correctly to near-full screen.
-- Team cards are now opaque/high-contrast rather than translucent.
-- Tables use dark text on white/ice backgrounds.
+NEW: VIEW ALL
+- Recent Plays now has a real View All button.
+- Opens a full game-log window with every recorded play.
+- Search by play text, player number, or defensive action.
+- Filter by period and team.
+- Every row has Edit.
 
-TEAM GAME STATS
-- Total Offense
-- Rushing yards, attempts, average
-- Passing yards, completions/attempts, completion %
-- Offensive plays
-- Yards/play
-- First downs
-- Turnovers
-- Third-down conversions
-- Fourth-down conversions
-- Sacks allowed
+RETROACTIVE PLAY EDITING
+Designed specifically for halftime cleanup/corrections.
 
-PLAYER STATS
-QB
-- C/A, completion %, passing yards, TD, INT, sacks
-RB
-- Carries, yards, average, TD, fumbles
-WR
-- Targets, receptions, yards, average, TD
-Defense
-- Solo tackles, assists, total tackles, sacks, pressures, hurries, missed tackles
+You can edit:
+- Period
+- Statistical yardage
+- Description
+- Run ball carrier
+- Pass QB
+- Pass receiver
+- Pass result
+- Fumble + who recovered
+- Defensive player numbers
+- Defensive action:
+  Tackle
+  Assist
+  Sack
+  Pressure
+  Hurry
+  Missed
 
-LEGACY GAME SUPPORT
-- v0.20.1 parses older saved play descriptions (Run #, Pass #, Sack of QB #, receiver arrow)
-  when structured player fields did not yet exist.
-- This should recover player attribution for many plays recorded before the newer structured fields were added.
-- Plays that were originally recorded without any jersey number cannot be assigned to a player retroactively.
+DEFENSIVE CORRECTIONS
+- Add defenders to an old play.
+- Add a tackle/assist/sack/etc.
+- Remove an incorrect defender.
+- Change a defender's action.
+- On Pass -> Sack, a Tackle action is still converted to Sack to preserve the existing statistical convention.
 
-PLAYER DETAIL
-- Player numbers remain clickable for full individual in-game statistics.
+IMPORTANT
+- Retroactively changing statistical yardage updates the stored end spot used by analytics.
+- It does NOT rewind the current live game state. This makes it safe for halftime stat corrections.
+
+EDIT SELECTED
+- The existing Edit Selected button in Recent Plays now opens this same richer editor instead of only editing the text description.
+
+PRESERVED
+- v0.20.1 analytics.
+- Game Over.
+- Bad Snap / fumble recovery.
+- Possession indicator.
+- Two-stage punt.
+- Second-half kickoff.
+- Return TDs.
+- Sack attribution.
 
 BUILD
-- v0.20.1
-- DB key sidelineiq_v0201
-- Migrates from v0.20.0
+- v0.20.2
+- Migrates from v0.20.1

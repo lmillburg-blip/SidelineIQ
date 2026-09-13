@@ -350,3 +350,82 @@ button{cursor:pointer}
  .analytics-kpis{grid-template-columns:repeat(3,1fr)}
  .player-stat-grid{grid-template-columns:1fr}
 }
+
+/* v0.20.2 All Plays / halftime correction workspace */
+.all-plays-btn{padding:6px 10px;font-size:11px}
+.modal:has(.allplays-modal),.modal:has(.retro-edit-modal){
+  width:min(1260px,96vw);
+  max-width:none;
+  max-height:94vh;
+  overflow:hidden;
+  padding:18px;
+}
+.allplays-modal,.retro-edit-modal{width:100%;max-height:88vh;overflow:auto;color:#102635}
+.allplays-head,.retro-edit-head{
+  position:sticky;top:0;z-index:4;
+  display:flex;justify-content:space-between;align-items:flex-start;gap:18px;
+  margin:-2px -2px 14px;padding:4px 4px 13px;
+  background:#0D3340;border-bottom:1px solid #2A6173
+}
+.allplays-head h2,.retro-edit-head h2{color:#fff;margin:2px 0 3px}
+.allplays-head p,.retro-edit-head p{color:#B7CDD6;margin:0}
+.allplays-tools{
+  display:grid;grid-template-columns:1fr 180px 220px;gap:9px;
+  margin-bottom:11px
+}
+.allplays-tools input,.allplays-tools select{
+  min-height:38px;border:1px solid #cbd5e1;border-radius:9px;padding:7px 9px;background:#fff;color:#102635
+}
+.allplays-list{border:1px solid #d8e1e7;border-radius:12px;overflow:hidden;background:#fff}
+.allplay-row{
+  display:grid;
+  grid-template-columns:42px 46px 54px minmax(0,1fr) 62px 68px;
+  gap:8px;align-items:center;
+  padding:9px 10px;border-top:1px solid #e8eef2;
+  border-left:5px solid var(--play-team);
+  background:#fff;color:#102635
+}
+.allplay-row:first-child{border-top:0}
+.allplay-row:nth-child(even){background:#f8fafc}
+.allplay-num,.allplay-period,.allplay-team{font-size:11px;font-weight:900;color:#52677a}
+.allplay-main{min-width:0}
+.allplay-desc{font-size:12px;font-weight:750;white-space:normal}
+.allplay-defense{font-size:10px;color:#64748b;margin-top:3px}
+.allplay-yards{text-align:right;font-weight:900;font-size:12px}
+.allplay-edit{padding:5px 8px;font-size:10px}
+.allplays-empty{padding:30px;text-align:center;color:#64748b}
+
+.retro-section{
+  border:1px solid #d8e1e7;border-radius:13px;background:#f8fafc;
+  padding:14px;margin-bottom:13px
+}
+.retro-section h3{margin:0 0 10px;color:#102635}
+.retro-section-head{display:flex;justify-content:space-between;gap:12px}
+.retro-section-head p{margin:-4px 0 10px;color:#64748b;font-size:12px}
+.retro-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:10px}
+.retro-grid small{display:block;color:#64748b;margin-top:4px}
+.retro-note{padding:9px 11px;background:#eef4f7;border-radius:9px;color:#52677a;font-size:12px;margin-bottom:10px}
+.retro-defender-row{
+  display:grid;grid-template-columns:120px 180px auto;gap:8px;align-items:center;
+  margin-bottom:8px
+}
+.retro-defender-row input,.retro-defender-row select,.retro-add-defense input,.retro-add-defense select{
+  min-height:38px;border:1px solid #cbd5e1;border-radius:8px;padding:7px 9px;background:#fff;color:#102635
+}
+.retro-empty-defense{padding:10px;color:#64748b;background:#fff;border:1px dashed #cbd5e1;border-radius:8px;margin-bottom:9px}
+.retro-add-defense{
+  display:grid;grid-template-columns:140px 180px auto;gap:8px;align-items:center;
+  padding-top:8px;border-top:1px solid #e2e8f0
+}
+.retro-savebar{
+  position:sticky;bottom:-1px;display:flex;justify-content:flex-end;gap:8px;
+  padding:12px 0 2px;background:linear-gradient(to bottom,rgba(255,255,255,0),#fff 28%)
+}
+@media(max-width:800px){
+ .allplays-tools{grid-template-columns:1fr}
+ .allplay-row{grid-template-columns:34px 38px 44px minmax(0,1fr) 52px}
+ .allplay-edit{grid-column:2/-1;justify-self:end}
+ .retro-grid{grid-template-columns:1fr}
+ .retro-defender-row,.retro-add-defense{grid-template-columns:1fr 1fr}
+ .retro-defender-row .btn,.retro-add-defense .btn{grid-column:1/-1}
+}

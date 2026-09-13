@@ -793,3 +793,158 @@ button{cursor:pointer}
 .route-error{max-width:680px;margin:40px auto;padding:24px}
 .route-error h2{margin:4px 0 8px}
 .route-error p{color:#b7cdd6;margin:0 0 16px}
+
+/* v0.23.0 — mobile-first live game controls */
+.pane-title{
+  width:100%;border:0;display:flex;align-items:center;justify-content:center;gap:8px;
+  font-family:inherit;cursor:pointer
+}
+.pane-chevron{display:none;font-size:14px;line-height:1}
+
+@media(max-width:760px){
+  /* Strip away the desktop brand block and make the entire scoreboard/action area one compact row. */
+  body:has(.game-page) .topbar{display:none}
+  .game-page{padding:4px 4px 72px}
+  .game-top{
+    display:grid;
+    grid-template-columns:minmax(74px,1fr) 48px minmax(74px,1fr) auto;
+    gap:3px;
+    align-items:stretch;
+    position:sticky;
+    top:0;
+    z-index:35;
+    padding:3px;
+    background:#061b24;
+    border:1px solid #245565;
+    border-radius:8px;
+    box-shadow:0 3px 12px rgba(0,0,0,.25)
+  }
+  .game-brand{display:none}
+  .score-card{
+    min-height:46px;padding:4px 6px;border-radius:6px;
+    gap:4px
+  }
+  .score-card .team-label{
+    font-size:10px;line-height:1.05;max-width:68px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+  }
+  .score-card .score-value{font-size:24px;line-height:1}
+  .game-state{
+    min-width:48px;padding:3px 2px;border-radius:6px;
+    place-content:center
+  }
+  .game-state .period{font-size:11px}
+  .game-state .period-control{gap:2px}
+  .game-state .period-next{width:18px;height:18px;font-size:13px;border-radius:4px}
+  .game-state .downline,.game-state .pos{display:none}
+
+  .nav-strip{
+    grid-column:auto;
+    display:flex;
+    align-items:stretch;
+    overflow:visible;
+    border-radius:6px;
+    min-width:0
+  }
+  .nav-button{
+    min-width:38px;
+    width:38px;
+    padding:3px 2px;
+    border-right:1px solid #173f4e;
+    font-size:7px;
+    line-height:1;
+  }
+  .nav-button .ico{font-size:13px;margin-bottom:2px}
+  .nav-button.mobile-hide-action{display:none}
+
+  /* Field becomes a compact situational strip instead of the dominant screen element. */
+  .main-grid{display:block;margin-top:4px}
+  .field-panel{padding:3px;border-radius:6px}
+  .field{height:105px;border-width:2px}
+  .yard-number{font-size:9px}
+  .yard-number.top{top:4px}
+  .yard-number.bottom{bottom:4px}
+  .hash{height:5px}
+  .football{width:24px;height:15px}
+  .football:after{width:9px;left:6px;top:4px}
+
+  /* Five game-state controls in one horizontal row. */
+  .field-controls{
+    display:grid;
+    grid-template-columns:1.7fr 1fr .68fr .68fr .68fr;
+    gap:2px;
+    margin-top:3px
+  }
+  .mini{padding:3px 4px;border-radius:4px;min-width:0;text-align:center}
+  .mini small{font-size:7px;line-height:1;white-space:nowrap}
+  .mini b{font-size:11px;white-space:nowrap}
+  .los-control{display:grid;grid-template-columns:42px 38px 27px;gap:2px;justify-content:center}
+  .los-control select,.los-control input{
+    width:100%;min-width:0;padding:2px 1px;height:24px;font-size:9px
+  }
+  .los-control .btn{
+    min-width:0;padding:2px;font-size:8px;height:24px
+  }
+
+  /* Recent plays are accessed from the Plays button in the compact top banner. */
+  .recent-panel{display:none}
+
+  /* Entry areas become accordion windows. Only the selected window consumes vertical space. */
+  .workbench{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:4px;
+    margin-top:4px;
+    overflow:visible;
+    border-radius:0
+  }
+  .pane{
+    min-height:0;
+    border:1px solid #cbd7dc;
+    border-radius:7px;
+    overflow:hidden
+  }
+  .pane-title{
+    padding:8px 10px;
+    justify-content:space-between;
+    font-size:11px;
+    min-height:34px
+  }
+  .pane-chevron{display:inline-block}
+  .pane.mobile-collapsed .pane-body{display:none}
+  .pane.mobile-open .pane-body{display:block}
+  .pane-body{padding:8px}
+
+  /* Keep actions thumb-friendly while compacting entry forms. */
+  .section-label{margin:6px 0 3px}
+  .seg{gap:4px}
+  .seg button{padding:6px 8px;font-size:10px}
+  .form-row{gap:4px;margin-top:4px}
+  .form-row input,.form-row select{padding:6px;max-width:88px}
+  .player-memory{margin-top:8px;padding-top:7px}
+  .memory-columns{grid-template-columns:1fr 1fr;gap:6px}
+  .memory-col:last-child{grid-column:1/-1}
+  .action-grid button{padding:7px 3px}
+
+  /* Saving stays available without scrolling back through the entry panels. */
+  .savebar{
+    position:sticky;
+    bottom:0;
+    z-index:34;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 110px;
+    gap:4px;
+    padding:5px;
+    border-radius:7px;
+    box-shadow:0 -3px 12px rgba(0,0,0,.20)
+  }
+  .play-note{padding:7px;font-size:11px;min-width:0}
+  .save-actions{display:grid;grid-template-columns:1fr 44px;gap:3px}
+  .save-actions .btn-primary{font-size:11px;padding:7px 5px}
+  .save-actions .btn-light{font-size:9px;padding:5px 3px}
+
+  /* Full play log is still readable when opened from the Plays button. */
+  .allplays-modal{max-height:88vh;overflow:auto}
+  .allplays-tools{grid-template-columns:1fr}
+  .allplay-row{min-width:620px}
+  .allplays-list{overflow-x:auto}
+}

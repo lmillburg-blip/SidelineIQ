@@ -1,18 +1,22 @@
-SIDELINEIQ v0.22.2 — GAME OPENING ROOT-CAUSE FIX
+SIDELINEIQ v0.23.0 — MOBILE LIVE GAME REDESIGN
 
-ROOT CAUSE FOUND
-- v0.22.0 introduced roster-driven quick selections that call teamById().
-- teamById() was referenced in several places but was never actually defined.
-- When a game opened, renderGame() built the offense/defense panes.
-- offenseMemory() -> rememberedPlayers() called teamById(), causing a ReferenceError.
-- The URL/GUID changed correctly, but rendering stopped immediately, which looked like the click did nothing.
+MOBILE GAMEPLAY
+- Period, both team scores, and core app buttons are now in one compact sticky top row.
+- The large SidelineIQ brand block is removed from the live-game screen on phone-sized displays.
+- Field height reduced to 105px on mobile (about one-third of desktop).
+- LOS, Ball At, Distance, Down, and State all sit in one horizontal row.
+- Recent Plays panel is hidden on mobile.
+- New Plays button opens the complete play log.
+- Offense, Defense, Special Teams, and Penalty are collapsible entry windows.
+- One entry window can be opened/minimized at a time.
+- Special Teams opens automatically when a kickoff or punt is pending.
+- The selected window is preserved through normal live-game rerenders.
+- Save Play bar is sticky at the bottom of the mobile screen.
 
-FIX
-- Added teamById() and gameById() helpers.
-- renderGame() now uses the helpers consistently.
-- Added explicit missing-game / missing-team handling.
-- Added a route-level error screen so future runtime errors are visible instead of looking like a dead click.
+DESKTOP
+- Existing desktop field, Recent Plays panel, four-column workbench, and game layout remain intact.
+- Added Plays button to the top navigation for direct access to the full play log.
 
 BUILD
-- v0.22.2
-- Migrates from v0.22.1
+- v0.23.0
+- Migrates from v0.22.2

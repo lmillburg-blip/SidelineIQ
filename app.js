@@ -1,11 +1,12 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.22.2';
-const DBKEY='sidelineiq_v0222';
-const LEGACY_KEYS=['sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.23.0';
+const DBKEY='sidelineiq_v0230';
+const LEGACY_KEYS=['sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
+let mobilePaneOpen='off';
 
 function uid(){return crypto.randomUUID?.()||Math.random().toString(36).slice(2)+Date.now()}
 function load(){
@@ -841,10 +842,15 @@ function renderGame(id){
  const homeTeam=g.location==='Away'?'opp':'team';const left=teamSide(g,t,homeTeam),right=teamSide(g,t,other(homeTeam));left.score=homeTeam==='team'?g.teamScore:g.oppScore;right.score=homeTeam==='team'?g.oppScore:g.teamScore;
  const off=teamSide(g,t,g.poss),def=teamSide(g,t,other(g.poss));
  const stateLabel=g.gameOver?'FINAL':g.kickoffPending?'KICKOFF':g.puntPending?'PUNT':g.awaitingTry?'TRY':`${ordinal(g.down)} & ${g.toGo}`;
- shell(`<main class="game-page"><section class="game-top"><div class="game-brand"><img src="./assets/sidelineiq-header-logo.png" alt="SidelineIQ"></div><div class="score-card" style="background:${left.color};color:${textColor(left.color)}"><span class="team-label">${esc(left.name)}${homeTeam===g.poss?' <span class="poss-indicator" title="Possession">🏈</span>':''}</span><span class="score-value">${left.score}</span></div><div class="game-state"><div class="period period-control"><span>${g.format==='halves'?'H':'Q'}${g.period}</span><button class="period-next ${g.period>=(g.format==='halves'?2:4)?'game-over-btn':''}" id="nextPeriod" title="${g.gameOver?'Game is final':g.period>=(g.format==='halves'?2:4)?'End game':'Advance period'}">${g.gameOver?'FINAL':g.period>=(g.format==='halves'?2:4)?'Game Over':'›'}</button></div><div class="downline">${stateLabel}</div><div class="pos">${g.kickoffPending?(g.kickoff?.halftime?'Second-half kickoff':'Opening kickoff'):g.puntPending?(g.punt?.phase==='kick'?'Punt':'Punt return'):fmtDrive(g.los,g.driveDir)}</div></div><div class="score-card" style="background:${right.color};color:${textColor(right.color)}"><span class="score-value">${right.score}</span><span class="team-label">${other(homeTeam)===g.poss?'<span class="poss-indicator" title="Possession">🏈</span> ':''}${esc(right.name)}</span></div><div class="nav-strip"><button class="nav-button" onclick="location.hash='#team/${t.id}'"><span class="ico">▣</span>Games</button><button class="nav-button analytics-nav" id="gameAnalytics"><span class="ico">▥</span>Analytics</button><button class="nav-button" id="resetGame"><span class="ico">↻</span>Reset</button><button class="nav-button danger-nav" id="deleteGame"><span class="ico">✕</span>Delete</button><button class="nav-button"><span class="ico">⚙</span>Settings</button></div></section>
+ shell(`<main class="game-page"><section class="game-top"><div class="game-brand"><img src="./assets/sidelineiq-header-logo.png" alt="SidelineIQ"></div><div class="score-card" style="background:${left.color};color:${textColor(left.color)}"><span class="team-label">${esc(left.name)}${homeTeam===g.poss?' <span class="poss-indicator" title="Possession">🏈</span>':''}</span><span class="score-value">${left.score}</span></div><div class="game-state"><div class="period period-control"><span>${g.format==='halves'?'H':'Q'}${g.period}</span><button class="period-next ${g.period>=(g.format==='halves'?2:4)?'game-over-btn':''}" id="nextPeriod" title="${g.gameOver?'Game is final':g.period>=(g.format==='halves'?2:4)?'End game':'Advance period'}">${g.gameOver?'FINAL':g.period>=(g.format==='halves'?2:4)?'Game Over':'›'}</button></div><div class="downline">${stateLabel}</div><div class="pos">${g.kickoffPending?(g.kickoff?.halftime?'Second-half kickoff':'Opening kickoff'):g.puntPending?(g.punt?.phase==='kick'?'Punt':'Punt return'):fmtDrive(g.los,g.driveDir)}</div></div><div class="score-card" style="background:${right.color};color:${textColor(right.color)}"><span class="score-value">${right.score}</span><span class="team-label">${other(homeTeam)===g.poss?'<span class="poss-indicator" title="Possession">🏈</span> ':''}${esc(right.name)}</span></div><div class="nav-strip"><button class="nav-button" onclick="location.hash='#team/${t.id}'"><span class="ico">▣</span>Games</button><button class="nav-button" id="gamePlays"><span class="ico">☷</span>Plays</button><button class="nav-button analytics-nav" id="gameAnalytics"><span class="ico">▥</span>Analytics</button><button class="nav-button mobile-hide-action" id="resetGame"><span class="ico">↻</span>Reset</button><button class="nav-button danger-nav mobile-hide-action" id="deleteGame"><span class="ico">✕</span>Delete</button><button class="nav-button settings-nav mobile-hide-action"><span class="ico">⚙</span>Settings</button></div></section>
  <div class="main-grid"><section class="field-panel"><div class="field" id="field"></div><div class="field-controls"><div class="mini"><small>Line of Scrimmage</small><div class="los-control"><select id="losSide"><option>OWN</option><option>OPP</option><option>50</option></select><input id="losYard" type="number" min="0" max="49"><button class="btn btn-light" id="setLos">Set</button></div></div><div class="mini"><small>Ball at</small><b id="ballText">${g.kickoffPending?'—':fmtDrive(g.los,g.driveDir)}</b></div><div class="mini"><small>Distance</small><b>${g.kickoffPending?'—':g.toGo}</b></div><div class="mini"><small>Down</small><b>${g.kickoffPending?'—':g.down}</b></div><div class="mini"><small>State</small><b>${g.kickoffPending?'KO':g.awaitingTry?'TRY':'LIVE'}</b></div></div></section>
  <aside class="recent-panel"><div class="recent-head"><span>Recent Plays</span><button class="btn btn-light all-plays-btn" id="allPlays">View All</button></div><div class="recent-list">${recentRows(g,t)}</div><div class="recent-actions"><button class="btn btn-light" id="editPlay">Edit Selected</button><button class="btn btn-light" id="undoPlay">Undo Last Play</button></div></aside></div>
- <section class="workbench"><div class="pane off"><div class="pane-title">OFFENSE</div><div class="pane-body">${offensePane(g)}</div></div><div class="pane def"><div class="pane-title">DEFENSE</div><div class="pane-body">${defensePane(g)}</div></div><div class="pane st"><div class="pane-title">SPECIAL TEAMS</div><div class="pane-body">${specialPane(g,t)}</div></div><div class="pane pen"><div class="pane-title">PENALTY</div><div class="pane-body">${penaltyPane()}</div></div></section>
+ <section class="workbench">
+ <div class="pane off" data-pane="off"><button type="button" class="pane-title" data-pane-toggle="off"><span>OFFENSE</span><span class="pane-chevron">⌄</span></button><div class="pane-body">${offensePane(g)}</div></div>
+ <div class="pane def" data-pane="def"><button type="button" class="pane-title" data-pane-toggle="def"><span>DEFENSE</span><span class="pane-chevron">⌄</span></button><div class="pane-body">${defensePane(g)}</div></div>
+ <div class="pane st" data-pane="st"><button type="button" class="pane-title" data-pane-toggle="st"><span>SPECIAL TEAMS</span><span class="pane-chevron">⌄</span></button><div class="pane-body">${specialPane(g,t)}</div></div>
+ <div class="pane pen" data-pane="pen"><button type="button" class="pane-title" data-pane-toggle="pen"><span>PENALTY</span><span class="pane-chevron">⌄</span></button><div class="pane-body">${penaltyPane()}</div></div>
+ </section>
  <section class="savebar"><input class="play-note" id="playNote" placeholder="Play notes (optional) — e.g. screen right, blitz, alignment..."><div class="save-actions"><button class="btn btn-primary" id="savePlay">✓ Save Play</button><button class="btn btn-light" id="clearPlay">Clear</button></div></section></main>`);
  bindGame(g,t);drawField(g,t)
 }
@@ -1172,7 +1178,23 @@ function beginHalftimeKickoff(g){
 }
 
 function bindGame(g,t){
+ if(g.kickoffPending||g.puntPending)mobilePaneOpen='st';
+ const syncMobilePanes=()=>{
+   $$('.pane[data-pane]').forEach(p=>{
+     const open=p.dataset.pane===mobilePaneOpen;
+     p.classList.toggle('mobile-open',open);
+     p.classList.toggle('mobile-collapsed',!open);
+     const c=p.querySelector('.pane-chevron');if(c)c.textContent=open?'⌃':'⌄'
+   })
+ };
+ $$('[data-pane-toggle]').forEach(b=>b.onclick=()=>{
+   const pane=b.dataset.paneToggle;
+   mobilePaneOpen=mobilePaneOpen===pane?'':pane;
+   syncMobilePanes()
+ });
+ syncMobilePanes();
  if($('#gameAnalytics'))$('#gameAnalytics').onclick=()=>showGameAnalytics(g,t);
+ if($('#gamePlays'))$('#gamePlays').onclick=()=>showAllPlays(g,t);
  if($('#allPlays'))$('#allPlays').onclick=()=>showAllPlays(g,t);
  $('#resetGame').onclick=()=>{
    const ok=confirm(`Are you sure you want to reset this game against ${g.opponent}?\n\nThis will permanently clear all plays, scores, penalties, and game progress. The game itself will remain on the schedule.`);

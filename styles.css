@@ -429,3 +429,25 @@ button{cursor:pointer}
  .retro-defender-row,.retro-add-defense{grid-template-columns:1fr 1fr}
  .retro-defender-row .btn,.retro-add-defense .btn{grid-column:1/-1}
 }
+
+/* v0.20.3 compact setup + interception/sack stat credit */
+.modal:has(.setup-modal){width:min(720px,94vw);max-width:none;max-height:92vh;padding:0;overflow:hidden}
+.setup-modal{display:flex;flex-direction:column;max-height:92vh;background:#f7fafc;color:#102635}
+.setup-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:16px 18px 13px;background:#0D3340;border-bottom:1px solid #2A6173;flex:0 0 auto}
+.setup-head h2{color:#fff;margin:2px 0 2px;font-size:22px}.setup-head p{color:#B7CDD6;margin:0;font-size:12px}
+.setup-body{overflow-y:auto;padding:14px 18px;min-height:0}.setup-section{margin-bottom:14px}.setup-section:last-child{margin-bottom:0}
+.setup-section h3{margin:0 0 8px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#52677a}
+.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}.setup-wide{grid-column:1/-1}.setup-grid .field{margin:0}
+.setup-grid .field label{margin-bottom:4px;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#52677a;font-weight:850}
+.setup-grid input,.setup-grid select{min-height:38px;padding:7px 9px}
+.color-field{display:grid;grid-template-columns:48px 1fr;align-items:center;gap:8px;min-height:38px;padding:4px 8px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}
+.color-field input[type=color]{width:40px;height:28px;border:0;padding:0;background:none}.color-field span{font-size:12px;color:#52677a}
+.setup-actions{display:flex;justify-content:flex-end;gap:8px;padding:11px 18px;border-top:1px solid #d8e1e7;background:#fff;flex:0 0 auto}
+
+.turnover-workflow,.sack-workflow{margin-top:10px;padding:10px;border:1px solid #bcd9e4;border-radius:10px;background:#eef8fb}
+.workflow-steps{display:flex;align-items:center;gap:7px;margin-bottom:8px;font-size:10px;letter-spacing:.05em;color:#64748b}
+.workflow-steps b.active{color:#006f91}.compact-credit{min-width:120px}.compact-credit button{padding:7px 10px}
+.inline-check{display:flex;align-items:center;gap:7px;margin-top:8px;font-size:12px;font-weight:750;color:#334155}
+.retro-defender-row{grid-template-columns:110px 150px 85px auto!important}
+.retro-add-defense{grid-template-columns:130px 160px 85px auto!important}
+@media(max-width:620px){.setup-grid{grid-template-columns:1fr}.setup-wide{grid-column:auto}.setup-body{padding:12px}.setup-head,.setup-actions{padding-left:12px;padding-right:12px}.retro-defender-row,.retro-add-defense{grid-template-columns:1fr 1fr!important}}

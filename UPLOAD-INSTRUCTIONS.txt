@@ -1,57 +1,26 @@
-SIDELINEIQ v0.20.2 — ALL PLAYS / HALFTIME CORRECTIONS
+SIDELINEIQ v0.20.3
 
-NEW: VIEW ALL
-- Recent Plays now has a real View All button.
-- Opens a full game-log window with every recorded play.
-- Search by play text, player number, or defensive action.
-- Filter by period and team.
-- Every row has Edit.
+NEW TEAM / NEW GAME
+- Rebuilt as compact, scrollable setup windows with fixed actions.
+- Two-column layout on larger screens, one column on smaller screens.
 
-RETROACTIVE PLAY EDITING
-Designed specifically for halftime cleanup/corrections.
+INTERCEPTION
+- Pass -> Interception is now two-stage:
+  1) Enter interceptor and drag to interception spot, then Lock Interception.
+  2) Field flips for return; drag to return end.
+- Optional return tacklers and interception return TD.
+- Stores interception return data and adds INT / INT return yards / INT TD to defense analytics.
 
-You can edit:
-- Period
-- Statistical yardage
-- Description
-- Run ball carrier
-- Pass QB
-- Pass receiver
-- Pass result
-- Fumble + who recovered
-- Defensive player numbers
-- Defensive action:
-  Tackle
-  Assist
-  Sack
-  Pressure
-  Hurry
-  Missed
+SACK
+- Pass -> Sack now requires explicit defensive sack credit.
+- Sack is both the QB's offensive result and the defender's defensive statistic.
+- Enter one or more sackers with 1.0 or 0.5 credit.
 
-DEFENSIVE CORRECTIONS
-- Add defenders to an old play.
-- Add a tackle/assist/sack/etc.
-- Remove an incorrect defender.
-- Change a defender's action.
-- On Pass -> Sack, a Tackle action is still converted to Sack to preserve the existing statistical convention.
+TACKLES / SACKS
+- Assist removed from live entry.
+- Tackle is 1.0 or 0.5.
+- Sack is 1.0 or 0.5.
+- Historical Assist records count as 0.5 Tackle in analytics.
+- Halftime retro editor now uses the same fractional credit model.
 
-IMPORTANT
-- Retroactively changing statistical yardage updates the stored end spot used by analytics.
-- It does NOT rewind the current live game state. This makes it safe for halftime stat corrections.
-
-EDIT SELECTED
-- The existing Edit Selected button in Recent Plays now opens this same richer editor instead of only editing the text description.
-
-PRESERVED
-- v0.20.1 analytics.
-- Game Over.
-- Bad Snap / fumble recovery.
-- Possession indicator.
-- Two-stage punt.
-- Second-half kickoff.
-- Return TDs.
-- Sack attribution.
-
-BUILD
-- v0.20.2
-- Migrates from v0.20.1
+BUILD v0.20.3

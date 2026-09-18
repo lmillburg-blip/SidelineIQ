@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.30.0';
-const DBKEY='sidelineiq_v0300';
-const LEGACY_KEYS=['sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.40.1';
+const DBKEY='sidelineiq_v0401';
+const LEGACY_KEYS=['sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 let mobilePaneOpen='off';
@@ -837,7 +837,7 @@ function metric(label,value,sub='',cls=''){
  return `<div class="analytics-kpi ${cls}"><span>${label}</span><b>${value}</b>${sub?`<small>${sub}</small>`:''}</div>`
 }
 function offenseTables(stats){
- const players=Object.values(stats.players).sort((a,b)=>Number(a.number)-Number(b.number));
+ const players=Object.values(stats.players).map(safeDefStats).sort((a,b)=>Number(a.number)-Number(b.number));
  const qbs=players.filter(p=>p.pass.att||p.pass.comp||p.pass.yds||p.pass.sacks||p.pass.int||p.pass.td);
  const rbs=players.filter(p=>p.rush.car);
  const wrs=players.filter(p=>p.rec.tar||p.rec.rec);
@@ -851,11 +851,25 @@ function offenseTables(stats){
  <div class="stat-section"><h4>Rushing</h4><div class="stat-table-wrap"><table class="stat-table"><thead><tr><th>Player</th><th>Car</th><th>Yds</th><th>Avg</th><th>TD</th><th>Fum</th></tr></thead><tbody>${rbRows}</tbody></table></div></div>
  <div class="stat-section"><h4>Receiving</h4><div class="stat-table-wrap"><table class="stat-table"><thead><tr><th>Player</th><th>Tgt</th><th>Rec</th><th>Yds</th><th>Avg</th><th>TD</th></tr></thead><tbody>${wrRows}</tbody></table></div></div>`
 }
+
+function safeDefStats(p){
+ p.def??={};
+ for(const k of ['tackle','tfl','tflYds','sack','int','intYds','intTD','pbu','ff','fr','pressure','hurry','missed']){
+   if(!Number.isFinite(Number(p.def[k])))p.def[k]=0;
+   else p.def[k]=Number(p.def[k]);
+ }
+ p.pass??={att:0,comp:0,yds:0,td:0,int:0,sacks:0};
+ p.rush??={car:0,yds:0,td:0};
+ p.rec??={tar:0,rec:0,yds:0,td:0};
+ p.fum=Number(p.fum||0);
+ return p
+}
+
 function defenseTable(stats){
- const players=Object.values(stats.players)
+ const players=Object.values(stats.players).map(safeDefStats)
    .filter(p=>p.def.tackle||p.def.tfl||p.def.sack||p.def.int||p.def.pbu||p.def.ff||p.def.fr||p.def.pressure||p.def.hurry||p.def.missed)
    .sort((a,b)=>((b.def.tackle+b.def.sack+b.def.int)-(a.def.tackle+a.def.sack+a.def.int)));
- const rows=players.length?players.map(p=>`<tr><td>${playerButton(stats.side,p.number)}</td><td>${p.def.tackle.toFixed(1)}</td><td>${p.def.tfl.toFixed(1)}</td><td>${p.def.tflYds}</td><td>${p.def.sack.toFixed(1)}</td><td>${p.def.int}</td><td>${p.def.intYds}</td><td>${p.def.pbu}</td><td>${p.def.ff}</td><td>${p.def.fr}</td><td>${p.def.pressure}</td><td>${p.def.hurry}</td><td>${p.def.missed}</td></tr>`).join(''):`<tr><td colspan="12" class="stat-empty">No defensive player stats recorded yet</td></tr>`;
+ const rows=players.length?players.map(p=>`<tr><td>${playerButton(stats.side,p.number)}</td><td>${p.def.tackle.toFixed(1)}</td><td>${p.def.tfl.toFixed(1)}</td><td>${p.def.tflYds}</td><td>${p.def.sack.toFixed(1)}</td><td>${p.def.int}</td><td>${p.def.intYds}</td><td>${p.def.pbu}</td><td>${p.def.ff}</td><td>${p.def.fr}</td><td>${p.def.pressure}</td><td>${p.def.hurry}</td><td>${p.def.missed}</td></tr>`).join(''):`<tr><td colspan="13" class="stat-empty">No defensive player stats recorded yet</td></tr>`;
  return `<div class="stat-section"><h4>Defense</h4><div class="stat-table-wrap"><table class="stat-table"><thead><tr><th>Player</th><th>Tkl</th><th>TFL</th><th>TFL Yds</th><th>Sk</th><th>INT</th><th>INT Yds</th><th>PBU</th><th>FF</th><th>FR</th><th>Prs</th><th>Hur</th><th>Miss</th></tr></thead><tbody>${rows}</tbody></table></div></div>`
 }
 
@@ -889,16 +903,21 @@ function teamAnalyticsColumn(g,t,side,stats){
  </section>`
 }
 function showGameAnalytics(g,t){
- const a=gameAnalytics(g,t);
- showModal(`<div class="analytics-modal">
-   <div class="analytics-modal-head">
-     <div><div class="eyebrow">IN-GAME ANALYTICS</div><h2>${esc(t.name)} vs ${esc(g.opponent)}</h2><p>Live game statistics calculated from recorded plays.</p></div>
-     <button class="btn btn-light" id="closeAnalytics">Close</button>
-   </div>
-   <div class="analytics-compare">${teamAnalyticsColumn(g,t,'team',a.team)}${teamAnalyticsColumn(g,t,'opp',a.opp)}</div>
- </div>`);
- $('#closeAnalytics').onclick=closeModal;
- $$('[data-stat-player]').forEach(b=>b.onclick=()=>showPlayerStats(g,t,b.dataset.statSide,b.dataset.statPlayer))
+ try{
+   const a=gameAnalytics(g,t);
+   showModal(`<div class="analytics-modal">
+     <div class="analytics-modal-head">
+       <div><div class="eyebrow">IN-GAME ANALYTICS</div><h2>${esc(t.name)} vs ${esc(g.opponent)}</h2><p>Live game statistics calculated from recorded plays.</p></div>
+       <button class="btn btn-light" id="closeAnalytics">Close</button>
+     </div>
+     <div class="analytics-compare">${teamAnalyticsColumn(g,t,'team',a.team)}${teamAnalyticsColumn(g,t,'opp',a.opp)}</div>
+   </div>`);
+   if($('#closeAnalytics'))$('#closeAnalytics').onclick=closeModal;
+   $$('[data-stat-player]').forEach(b=>b.onclick=()=>showPlayerStats(g,t,b.dataset.statSide,b.dataset.statPlayer))
+ }catch(err){
+   console.error('SidelineIQ analytics error',err);
+   showModal(`<div class="analytics-error"><div class="eyebrow">IN-GAME ANALYTICS</div><h2>Analytics could not be calculated</h2><p>${esc(err?.message||'Unknown analytics error')}</p><div class="modal-actions"><button class="btn btn-light" data-close>Close</button></div></div>`)
+ }
 }
 function showPlayerStats(g,t,side,number){
  const a=computeTeamStats(g,side),p=a.players[String(number)]||ensurePlayer(a.players,String(number)),ts=teamSide(g,t,side);
@@ -930,10 +949,10 @@ function renderGame(id){
  const homeTeam=g.location==='Away'?'opp':'team';const left=teamSide(g,t,homeTeam),right=teamSide(g,t,other(homeTeam));left.score=homeTeam==='team'?g.teamScore:g.oppScore;right.score=homeTeam==='team'?g.oppScore:g.teamScore;
  const off=teamSide(g,t,g.poss),def=teamSide(g,t,other(g.poss));
  const stateLabel=g.gameOver?'FINAL':g.kickoffPending?'KICKOFF':g.puntPending?'PUNT':g.awaitingTry?'TRY':`${ordinal(g.down)} & ${g.toGo}`;const periodLabel=g.overtime?`OT${g.overtime>1?g.overtime:''}`:`${g.format==='halves'?'H':'Q'}${g.period}`;
- shell(`<main class="game-page"><section class="game-top"><div class="game-brand"><img src="./assets/sidelineiq-header-logo.png" alt="SidelineIQ"></div><div class="score-card" style="background:${left.color};color:${textColor(left.color)}"><span class="team-label">${esc(left.name)}${homeTeam===g.poss?' <span class="poss-indicator" title="Possession">🏈</span>':''}</span><span class="score-value">${left.score}</span></div><div class="game-state"><div class="period period-control"><span>${periodLabel}</span><button class="period-next ${g.period>=(g.format==='halves'?2:4)?'game-over-btn':''}" id="nextPeriod" title="${g.gameOver?'Game is final':g.period>=(g.format==='halves'?2:4)?'End game':'Advance period'}">${g.gameOver?'FINAL':g.period>=(g.format==='halves'?2:4)?'Game Over':'›'}</button></div><div class="downline">${stateLabel}</div><div class="pos">${g.kickoffPending?(g.kickoff?.halftime?'Second-half kickoff':'Opening kickoff'):g.puntPending?(g.punt?.phase==='kick'?'Punt':'Punt return'):fmtDrive(g.los,g.driveDir)}</div></div><div class="score-card" style="background:${right.color};color:${textColor(right.color)}"><span class="score-value">${right.score}</span><span class="team-label">${other(homeTeam)===g.poss?'<span class="poss-indicator" title="Possession">🏈</span> ':''}${esc(right.name)}</span></div><div class="nav-strip"><button class="nav-button" onclick="location.hash='#team/${t.id}'"><span class="ico">▣</span>Games</button><button class="nav-button" id="gamePlays"><span class="ico">☷</span>Plays</button><button class="nav-button" id="gameControl"><span class="ico">⌘</span>Control</button><button class="nav-button" id="gameDrives"><span class="ico">↳</span>Drives</button><button class="nav-button analytics-nav" id="gameAnalytics"><span class="ico">▥</span>Analytics</button><button class="nav-button mobile-hide-action" id="resetGame"><span class="ico">↻</span>Reset</button><button class="nav-button danger-nav mobile-hide-action" id="deleteGame"><span class="ico">✕</span>Delete</button><button class="nav-button settings-nav mobile-hide-action"><span class="ico">⚙</span>Settings</button></div></section>
- <div class="main-grid"><section class="field-panel"><div class="field" id="field"></div><div class="field-controls"><div class="mini"><small>Line of Scrimmage</small><div class="los-control"><select id="losSide"><option>OWN</option><option>OPP</option><option>50</option></select><input id="losYard" type="number" min="0" max="49"><button class="btn btn-light" id="setLos">Set</button></div></div><div class="mini"><small>Ball at</small><b id="ballText">${g.kickoffPending?'—':fmtDrive(g.los,g.driveDir)}</b></div><div class="mini"><small>Distance</small><b>${g.kickoffPending?'—':g.toGo}</b></div><div class="mini"><small>Down</small><b>${g.kickoffPending?'—':g.down}</b></div><div class="mini"><small>State</small><b>${g.kickoffPending?'KO':g.awaitingTry?'TRY':'LIVE'}</b></div></div></section>
+ shell(`<main class="game-page"><section class="game-top"><div class="game-brand"><img src="./assets/sidelineiq-header-logo.png" alt="SidelineIQ"></div><div class="score-card" style="background:${left.color};color:${textColor(left.color)}"><span class="team-label">${esc(left.name)}${homeTeam===g.poss?' <span class="poss-indicator" title="Possession">🏈</span>':''}</span><span class="score-value">${left.score}</span></div><div class="game-state"><div class="period period-control"><span>${periodLabel}</span><button class="period-next ${g.period>=(g.format==='halves'?2:4)?'game-over-btn':''}" id="nextPeriod" title="${g.gameOver?'Game is final':g.period>=(g.format==='halves'?2:4)?'End game':'Advance period'}">${g.gameOver?'FINAL':g.period>=(g.format==='halves'?2:4)?'Game Over':'›'}</button></div><div class="downline">${stateLabel}</div><div class="pos">${g.kickoffPending?(g.kickoff?.halftime?'Second-half kickoff':'Opening kickoff'):g.puntPending?(g.punt?.phase==='kick'?'Punt':'Punt return'):fmtDrive(g.los,g.driveDir)}</div></div><div class="score-card" style="background:${right.color};color:${textColor(right.color)}"><span class="score-value">${right.score}</span><span class="team-label">${other(homeTeam)===g.poss?'<span class="poss-indicator" title="Possession">🏈</span> ':''}${esc(right.name)}</span></div><div class="nav-strip"><button class="nav-button" onclick="location.hash='#team/${t.id}'"><span class="ico">▣</span>Games</button><button class="nav-button" id="gamePlays"><span class="ico">☷</span>Plays</button><button class="nav-button mobile-primary-action" id="mobileUndo"><span class="ico">↶</span>Undo</button><button class="nav-button mobile-primary-action" id="mobileEdit"><span class="ico">✎</span>Edit</button><button class="nav-button secondary-mobile-nav" id="gameControl"><span class="ico">⌘</span>Control</button><button class="nav-button secondary-mobile-nav" id="gameDrives"><span class="ico">↳</span>Drives</button><button class="nav-button analytics-nav" id="gameAnalytics"><span class="ico">▥</span>Analytics</button><button class="nav-button mobile-hide-action" id="resetGame"><span class="ico">↻</span>Reset</button><button class="nav-button danger-nav mobile-hide-action" id="deleteGame"><span class="ico">✕</span>Delete</button><button class="nav-button settings-nav mobile-hide-action"><span class="ico">⚙</span>Settings</button></div></section>
+ <div class="main-grid mobile-field-zone"><section class="field-panel"><div class="field" id="field"></div><div class="field-controls"><div class="mini"><small>Line of Scrimmage</small><div class="los-control"><select id="losSide"><option>OWN</option><option>OPP</option><option>50</option></select><input id="losYard" type="number" min="0" max="49"><button class="btn btn-light" id="setLos">Set</button></div></div><div class="mini"><small>Ball at</small><b id="ballText">${g.kickoffPending?'—':fmtDrive(g.los,g.driveDir)}</b></div><div class="mini"><small>Distance</small><b>${g.kickoffPending?'—':g.toGo}</b></div><div class="mini"><small>Down</small><b>${g.kickoffPending?'—':g.down}</b></div><div class="mini"><small>State</small><b>${g.kickoffPending?'KO':g.awaitingTry?'TRY':'LIVE'}</b></div></div></section>
  <aside class="recent-panel"><div class="recent-head"><span>Recent Plays</span><button class="btn btn-light all-plays-btn" id="allPlays">View All</button></div><div class="recent-list">${recentRows(g,t)}</div><div class="recent-actions"><button class="btn btn-light" id="editPlay">Edit Selected</button><button class="btn btn-light" id="undoPlay">Undo Last Play</button></div></aside></div>
- <section class="workbench">
+ <section class="workbench mobile-side-workspace">
  <div class="pane off" data-pane="off"><button type="button" class="pane-title" data-pane-toggle="off"><span>OFFENSE</span><span class="pane-chevron">⌄</span></button><div class="pane-body">${offensePane(g)}</div></div>
  <div class="pane def" data-pane="def"><button type="button" class="pane-title" data-pane-toggle="def"><span>DEFENSE</span><span class="pane-chevron">⌄</span></button><div class="pane-body">${defensePane(g)}</div></div>
  <div class="pane st" data-pane="st"><button type="button" class="pane-title" data-pane-toggle="st"><span>SPECIAL TEAMS</span><span class="pane-chevron">⌄</span></button><div class="pane-body">${specialPane(g,t)}</div></div>
@@ -1056,7 +1075,8 @@ function showAllPlays(g,t){
    const id=b.dataset.editAllplay;
    closeModal();
    showPlayEditor(g,t,id)
- })
+ });
+ $$('.allplay-row').forEach(row=>row.addEventListener('click',e=>{if(e.target.closest('[data-edit-allplay]'))return;const id=row.dataset.allplay;closeModal();showPlayEditor(g,t,id)}))
 }
 function defenderEditorRows(p){
  const defs=p.defenders||[];
@@ -1281,10 +1301,16 @@ function bindGame(g,t){
    syncMobilePanes()
  });
  syncMobilePanes();
- if($('#gameAnalytics'))$('#gameAnalytics').onclick=()=>showGameAnalytics(g,t);
+ const analyticsBtn=$('#gameAnalytics');
+ if(analyticsBtn){
+   analyticsBtn.onclick=null;
+   analyticsBtn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();showGameAnalytics(g,t)})
+ }
  if($('#gameControl'))$('#gameControl').onclick=()=>showGameControl(g,t);
  if($('#gameDrives'))$('#gameDrives').onclick=()=>showDriveSummary(g,t);
  if($('#gamePlays'))$('#gamePlays').onclick=()=>showAllPlays(g,t);
+ if($('#mobileUndo'))$('#mobileUndo').onclick=()=>undoPlay(g);
+ if($('#mobileEdit'))$('#mobileEdit').onclick=()=>{const id=selectedPlayId||(g.plays.length?g.plays[g.plays.length-1].id:null);if(!id)return toast('No play to edit.');showPlayEditor(g,t,id)};
  if($('#allPlays'))$('#allPlays').onclick=()=>showAllPlays(g,t);
  $('#resetGame').onclick=()=>{
    const ok=confirm(`Are you sure you want to reset this game against ${g.opponent}?\n\nThis will permanently clear all plays, scores, penalties, and game progress. The game itself will remain on the schedule.`);
@@ -1800,17 +1826,19 @@ function drawField(g,t){
  const f=$('#field');if(!f)return;const driveDir=g.driveDir||1,k=g.kickoff,p=g.punt,intRet=currentPlay?.type==='Pass'&&currentPlay?.passResult==='Interception'?currentPlay.interception:null;
  const perspective=g.kickoffPending?(k.phase==='kick'?(k.kickDir||1)===1?k.kickingTeam:other(k.kickingTeam):(-(k.kickDir||1))===1?k.receivingTeam:other(k.receivingTeam)):g.puntPending?(p.phase==='kick'?(p.kickDir||1)===1?p.puntingTeam:other(p.puntingTeam):(-(p.kickDir||1))===1?p.receivingTeam:other(p.receivingTeam)):intRet?.phase==='return'?((-(driveDir||1))===1?other(g.poss):g.poss):(driveDir===1?g.poss:other(g.poss)),left=teamSide(g,t,perspective),right=teamSide(g,t,other(perspective));
  let ballAbs=g.kickoffPending?(k.phase==='kick'?(k.landing??k.startSpot??k.startYard):(k.returnEnd??k.landing)):g.puntPending?(p.phase==='kick'?(p.landing??p.startSpot):(p.returnEnd??p.landing)):intRet?(intRet.phase==='return'?(intRet.returnEnd??intRet.catchSpot):(intRet.catchSpot??currentPlay.end)):currentPlay.end;
+ const portrait=()=>window.matchMedia?.('(max-width:760px) and (orientation:portrait)').matches;
+ const place=(el,pct,kind='mark')=>{if(portrait()){el.style.setProperty('--mobile-yard-top',pct+'%');if(kind==='ball')el.style.setProperty('--mobile-ball-top',pct+'%')}else el.style.left=pct+'%'};
  f.innerHTML=`<div class="endzone left" style="background:${left.color};color:${textColor(left.color)}">${esc(left.name.slice(0,12))}</div><div class="endzone right" style="background:${right.color};color:${textColor(right.color)}">${esc(right.name.slice(0,12))}</div><div class="field-inner" id="fieldInner"></div>`;
  const inner=$('#fieldInner');
- for(let y=0;y<=100;y+=5){const d=document.createElement('div');d.className='yard-line'+(y%10===0?' major':'');d.style.left=y+'%';inner.appendChild(d)}
- for(let y=10;y<100;y+=10){const n=y<=50?y:100-y;['top','bottom'].forEach(pos=>{const d=document.createElement('div');d.className='yard-number '+pos;d.style.left=y+'%';d.textContent=n;inner.appendChild(d)})}
- for(let y=1;y<100;y++){const d=document.createElement('div');d.className='hash';d.style.left=y+'%';inner.appendChild(d)}
- if(!g.kickoffPending&&!g.puntPending){const los=document.createElement('div');los.className='los-line';los.style.left=g.los+'%';inner.appendChild(los);const fd=document.createElement('div');fd.className='fd-line';fd.style.left=clamp(g.los+(g.driveDir||1)*g.toGo)+'%';inner.appendChild(fd)}
- else if(g.kickoffPending&&g.kickoff.phase==='kick'){const kl=document.createElement('div');kl.className='kick-line';kl.style.left=(g.kickoff.startSpot??screenSpot(g.kickoff.startYard,g.kickoff.kickDir||1))+'%';inner.appendChild(kl)}
- else if(g.puntPending&&g.punt.phase==='kick'){const pl=document.createElement('div');pl.className='kick-line';pl.style.left=g.punt.startSpot+'%';inner.appendChild(pl)}
- const ball=document.createElement('div');ball.className='football';ball.style.left=ballAbs+'%';inner.appendChild(ball);
- const setBall=x=>{const r=inner.getBoundingClientRect();const pct=clamp((x-r.left)/r.width*100);ball.style.left=pct+'%';if($('#ballText'))$('#ballText').textContent=fmtDrive(pct,g.driveDir||1);if(g.kickoffPending){if(g.kickoff.phase==='kick')g.kickoff.landing=pct;else g.kickoff.returnEnd=pct;save()}else if(g.puntPending){if(g.punt.phase==='kick')g.punt.landing=pct;else g.punt.returnEnd=pct;save()}else if(intRet){if(intRet.phase==='catch'){intRet.catchSpot=pct;currentPlay.end=pct}else{intRet.returnEnd=pct;currentPlay.end=pct}}else currentPlay.end=pct};
- let drag=false;ball.addEventListener('pointerdown',e=>{drag=true;ball.setPointerCapture(e.pointerId);e.preventDefault()});ball.addEventListener('pointermove',e=>{if(drag)setBall(e.clientX)});ball.addEventListener('pointerup',e=>{drag=false;setBall(e.clientX);if(g.kickoffPending||g.puntPending)renderGame(g.id)});inner.addEventListener('click',e=>{if(e.target===ball)return;setBall(e.clientX);if(g.kickoffPending||g.puntPending)renderGame(g.id)})
+ for(let y=0;y<=100;y+=5){const d=document.createElement('div');d.className='yard-line'+(y%10===0?' major':'');place(d,y);inner.appendChild(d)}
+ for(let y=10;y<100;y+=10){const n=y<=50?y:100-y;['top','bottom'].forEach(pos=>{const d=document.createElement('div');d.className='yard-number '+pos;place(d,y);d.textContent=n;inner.appendChild(d)})}
+ for(let y=1;y<100;y++){const d=document.createElement('div');d.className='hash';place(d,y);inner.appendChild(d)}
+ if(!g.kickoffPending&&!g.puntPending){const los=document.createElement('div');los.className='los-line';place(los,g.los);inner.appendChild(los);const fd=document.createElement('div');fd.className='fd-line';place(fd,clamp(g.los+(g.driveDir||1)*g.toGo));inner.appendChild(fd)}
+ else if(g.kickoffPending&&g.kickoff.phase==='kick'){const kl=document.createElement('div');kl.className='kick-line';place(kl,g.kickoff.startSpot??screenSpot(g.kickoff.startYard,g.kickoff.kickDir||1));inner.appendChild(kl)}
+ else if(g.puntPending&&g.punt.phase==='kick'){const pl=document.createElement('div');pl.className='kick-line';place(pl,g.punt.startSpot);inner.appendChild(pl)}
+ const ball=document.createElement('div');ball.className='football';place(ball,ballAbs,'ball');inner.appendChild(ball);
+ const setBall=(clientX,clientY)=>{const r=inner.getBoundingClientRect();const pct=clamp(portrait()?((clientY-r.top)/r.height*100):((clientX-r.left)/r.width*100));if(portrait())ball.style.setProperty('--mobile-ball-top',pct+'%');else ball.style.left=pct+'%';if($('#ballText'))$('#ballText').textContent=fmtDrive(pct,g.driveDir||1);if(g.kickoffPending){if(g.kickoff.phase==='kick')g.kickoff.landing=pct;else g.kickoff.returnEnd=pct;save()}else if(g.puntPending){if(g.punt.phase==='kick')g.punt.landing=pct;else g.punt.returnEnd=pct;save()}else if(intRet){if(intRet.phase==='catch'){intRet.catchSpot=pct;currentPlay.end=pct}else{intRet.returnEnd=pct;currentPlay.end=pct}}else currentPlay.end=pct};
+ let drag=false;ball.addEventListener('pointerdown',e=>{drag=true;ball.setPointerCapture(e.pointerId);e.preventDefault()});ball.addEventListener('pointermove',e=>{if(drag)setBall(e.clientX,e.clientY)});ball.addEventListener('pointerup',e=>{drag=false;setBall(e.clientX,e.clientY);if(g.kickoffPending||g.puntPending)renderGame(g.id)});inner.addEventListener('click',e=>{if(e.target===ball)return;setBall(e.clientX,e.clientY);if(g.kickoffPending||g.puntPending)renderGame(g.id)})
 }
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(console.warn));
 route();

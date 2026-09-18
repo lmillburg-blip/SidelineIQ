@@ -1,81 +1,16 @@
-SIDELINEIQ v0.30.0 — FOOTBALL WORKFLOW COMPLETENESS
+SIDELINEIQ v0.40.1 — MOBILE FIELD-CENTERED GAMEPLAY
 
-This release addresses every HIGH and MEDIUM workflow gap identified in the scoring review.
-
-DEFENSE
-- Tackle for Loss (fractional credit supported) + TFL yards
-- Sacks also calculate into TFL/TFL yards
-- Pass Breakup
-- Forced Fumble
-- Fumble Recovery
-- Expanded defensive analytics: TFL, TFL yards, PBU, FF, FR
-
-FUMBLES
-- Forced-by player
-- Recovery team
-- Recovering player
-- Recovery spot
-- Optional return end
-- Fumble return TD support
-- Structured fumble detail stored on the play
-
-KICKOFFS
-- Return
-- Touchback
-- Fair Catch
-- Out of Bounds
-- Onside kick
-- Onside recovery team/player
-
-PUNTS
-- Return
-- Touchback
-- Fair Catch
-- Downed
-- Out of Bounds
-- Blocked
-- Blocked-punt recovery team/player
-
-FIELD GOALS / PAT
-- Blocked kick + blocker
-- Loose-ball recovery team/player
-- Fixed prior missed-field-goal regression: a missed FG no longer triggers a kickoff
-- Made FG and completed PAT still transition to kickoff
-
-GAME CONTROL
-- Manual possession
-- Direction
-- Ball spot
-- Down
-- Distance
-- Period
-- Overtime number
-- Both scores
-- Cancels stale kick/punt workflows when state is manually corrected
-
-DRIVES
-- New Drives button
-- Automatic drive grouping
-- Plays, yards and drive result (TD/FG/Punt/INT/Fumble/current)
-
-OVERTIME
-- Tie at end of regulation offers overtime instead of forcing Final
-- OT displayed in game banner
-- Game Control supports OT1, OT2, etc.
-
-GAME VALIDATION
-- Game Over now runs a Game Check
-- Completion/reception reconciliation
-- Missing sack defender
-- Missing lost-fumble recoverer
-- Missing kickoff/punt returner
-- Blocked-kick attribution checks
-- Review Game or Finalize Anyway
-
-MOBILE
-- v0.23 compact mobile gameplay layout retained
-- New Control and Drives actions available from the live-game banner
-
-BUILD
-- v0.30.0
-- Migrates from v0.23.0 and earlier
+- Desktop gameplay preserved from v0.30.1.
+- Portrait mobile uses a vertical field as the center spine.
+- Offense + Special Teams sit left of the field.
+- Defense + Penalty sit right of the field.
+- Offense/Defense panels can remain open while the field stays visible.
+- Pass workflow remains inside Offense with QB, receiver, result, sack and interception branches.
+- Mobile top actions now include first-class Plays, Undo, Edit, Analytics.
+- Edit defaults directly to the most recent play when no play has been selected.
+- All Plays rows are tap-to-edit on mobile in addition to their Edit buttons.
+- Field dragging is vertical in portrait mobile; desktop remains horizontal.
+- Mobile play log/editor reflow to phone width.
+- Existing v0.30.1 analytics reliability fix retained.
+- Existing v0.30 workflow-completeness features retained.
+- Migrates data from v0.30.1 and earlier.

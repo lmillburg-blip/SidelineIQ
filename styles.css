@@ -140,7 +140,7 @@ button{cursor:pointer}
 
 
 /* v0.20.1 In-game analytics — high contrast / full-width */
-.modal:has(.analytics-modal){
+.modal:has(.modal:has(.analytics-modal){
   width:min(1420px,97vw);
   max-width:none;
   max-height:94vh;
@@ -344,7 +344,7 @@ button{cursor:pointer}
  .analytics-hero-row{grid-template-columns:150px 1fr}
 }
 @media(max-width:900px){
- .modal:has(.analytics-modal){width:97vw;padding:12px}
+ .modal:has(.modal:has(.analytics-modal){width:97vw;padding:12px}
  .analytics-compare{grid-template-columns:1fr}
  .analytics-hero-row{grid-template-columns:1fr}
  .analytics-kpis{grid-template-columns:repeat(3,1fr)}
@@ -964,4 +964,95 @@ button{cursor:pointer}
  .control-modal .setup-game-grid{grid-template-columns:1fr 1fr}
  .action-grid{grid-template-columns:repeat(3,1fr)}
  .nav-button{min-width:34px;width:34px;font-size:6px}
+}
+
+/* v0.30.1 analytics reliability */
+.modal:has(.analytics-modal){
+  width:min(1420px,97vw);
+  max-width:none;
+  max-height:94vh;
+  overflow:hidden;
+  padding:18px;
+}
+.analytics-error{color:#fff}
+.analytics-error p{color:#b7cdd6}
+@media(max-width:760px){
+  .modal:has(.analytics-modal){width:98vw;padding:8px;max-height:94vh}
+  .analytics-compare{grid-template-columns:1fr}
+}
+
+/* v0.40.1 — portrait mobile field-centered gameplay */
+.mobile-primary-action{display:none}
+@media(max-width:760px) and (orientation:portrait){
+  .game-page{padding:4px 4px 66px;max-width:none}
+  .game-top{grid-template-columns:minmax(70px,1fr) 46px minmax(70px,1fr);gap:3px;position:sticky;top:0;z-index:40}
+  .game-top .nav-strip{grid-column:1/-1;display:grid;grid-template-columns:repeat(6,1fr);gap:2px;background:#071f29;padding:2px}
+  .game-top .nav-button{display:flex;width:auto;min-width:0;min-height:38px;padding:3px 1px;align-items:center;justify-content:center;font-size:7px;border-radius:5px}
+  .game-top .mobile-primary-action{display:flex}
+  .game-top .secondary-mobile-nav{display:none}
+  .game-top .settings-nav,.game-top .danger-nav{display:none}
+
+  /* The field is the fixed visual spine of the scoring workspace. */
+  .mobile-field-zone{display:block;margin:4px 0 0;padding:0 30%;position:relative;z-index:1}
+  .field-panel{padding:3px;border-radius:7px;background:#082630}
+  .field{height:430px;min-height:430px;width:100%;border-width:2px;background:linear-gradient(180deg,#19702A,#258238 50%,#19702A)}
+  .endzone{left:0;right:0;width:auto;height:7%;top:auto;bottom:auto;writing-mode:horizontal-tb;letter-spacing:.2px;font-size:7px;transform:none!important}
+  .endzone.left{top:0;left:0;transform:none}.endzone.right{bottom:0;right:0}
+  .field-inner{left:0;right:0;top:7%;bottom:7%}
+  .yard-line{left:0!important;right:0;width:auto;height:1px;top:var(--mobile-yard-top,0);bottom:auto}
+  .yard-line.major{width:auto;height:2px}
+  .yard-number{font-size:8px;transform:translateY(-50%) rotate(90deg);top:var(--mobile-yard-top,0)!important;bottom:auto!important;left:7px!important}
+  .yard-number.bottom{left:auto!important;right:7px!important;transform:translateY(-50%) rotate(-90deg)}
+  .hash{width:7px;height:1px;left:50%!important;top:var(--mobile-yard-top,0)!important;transform:translate(-50%,-50%)}
+  .los-line,.fd-line,.kick-line{left:0!important;right:0;width:auto;height:3px;top:var(--mobile-yard-top,0)!important;bottom:auto}
+  .football{left:50%!important;top:var(--mobile-ball-top,50%);width:25px;height:16px;transform:translate(-50%,-50%) rotate(90deg)}
+  .football:after{width:9px;left:6px;top:4px}
+  .field-controls{grid-template-columns:1fr 1fr;gap:2px}
+  .field-controls .mini:first-child{grid-column:1/-1}
+  .field-controls .mini:nth-child(3),.field-controls .mini:nth-child(4),.field-controls .mini:nth-child(5){font-size:8px}
+  .los-control{grid-template-columns:38px 34px 28px}
+
+  /* Offense/Special live left of the field; Defense/Penalty live right. */
+  .mobile-side-workspace{display:contents}
+  .mobile-side-workspace .pane{position:absolute;z-index:5;width:29%;margin:0;border-radius:7px;background:#102a34;overflow:hidden}
+  .mobile-side-workspace .pane.off{left:0;top:94px}
+  .mobile-side-workspace .pane.st{left:0;top:306px}
+  .mobile-side-workspace .pane.def{right:0;top:94px}
+  .mobile-side-workspace .pane.pen{right:0;top:306px}
+  .mobile-side-workspace .pane-title{min-height:38px;padding:5px 4px;font-size:9px;line-height:1.05;text-align:left}
+  .mobile-side-workspace .pane-body{padding:5px;max-height:198px;overflow:auto}
+  .mobile-side-workspace .pane.mobile-collapsed .pane-body{display:none}
+  .mobile-side-workspace .pane.mobile-open .pane-body{display:block}
+  .mobile-side-workspace .section-label{font-size:7px;margin:4px 0 2px}
+  .mobile-side-workspace .seg{grid-template-columns:1fr 1fr;gap:2px}
+  .mobile-side-workspace .seg button{min-height:34px;padding:3px 2px;font-size:8px;white-space:normal}
+  .mobile-side-workspace .form-row{display:grid;grid-template-columns:1fr;gap:2px;margin-top:3px}
+  .mobile-side-workspace .form-row label{font-size:7px}
+  .mobile-side-workspace .form-row input,.mobile-side-workspace .form-row select{width:100%;max-width:none;min-width:0;padding:5px 3px;font-size:10px}
+  .mobile-side-workspace .summary,.mobile-side-workspace .notice{font-size:8px;line-height:1.25;padding:4px}
+  .mobile-side-workspace .player-memory{display:none}
+  .mobile-side-workspace .action-grid{grid-template-columns:1fr 1fr;gap:2px}
+  .mobile-side-workspace .action-grid button{min-height:34px;font-size:7px;padding:3px 1px}
+  .mobile-side-workspace .pen-checks{font-size:8px}
+  .mobile-side-workspace .btn{font-size:8px;padding:5px 3px;min-width:0}
+  .mobile-side-workspace .workflow-steps{font-size:7px;gap:2px}
+  .mobile-side-workspace .turnover-workflow,.mobile-side-workspace .sack-workflow{padding:4px}
+
+  .savebar{position:sticky;bottom:0;z-index:38;grid-template-columns:minmax(0,1fr) 104px;padding:4px}
+  .play-note{font-size:10px;padding:7px}
+  .save-actions{grid-template-columns:1fr 38px}
+
+  /* Play log/editor must be phone-native rather than a desktop-width table. */
+  .modal-wrap{padding:6px;align-items:start;overflow:auto}
+  .modal{width:98vw;max-width:98vw;padding:10px;margin-top:6px}
+  .allplays-modal{max-height:none;overflow:visible}
+  .allplays-tools{grid-template-columns:1fr 1fr;gap:4px}
+  .allplays-tools input{grid-column:1/-1}
+  .allplays-list{overflow:visible}
+  .allplay-row{min-width:0;display:grid;grid-template-columns:24px 28px 34px minmax(0,1fr) 32px;gap:4px;padding:8px 4px;cursor:pointer}
+  .allplay-main{grid-column:4/6;min-width:0}
+  .allplay-yards{grid-column:3;text-align:center}
+  .allplay-edit{grid-column:1/-1;min-height:34px}
+  .retro-edit-modal{max-height:none;overflow:visible}
+  .retro-grid,.retro-defender-row{grid-template-columns:1fr!important}
 }

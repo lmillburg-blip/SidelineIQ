@@ -1208,3 +1208,149 @@ button{cursor:pointer}
 .mobile-game-active .nav-strip{height:42px!important;min-height:42px!important;padding:1px!important}
 .mobile-game-active .nav-strip .nav-button{height:40px!important;min-height:40px!important;font-size:8px!important;padding:1px!important}
 .mobile-game-active .nav-strip .ico{font-size:11px!important}
+
+
+/* v0.41.5 — mobile scoring refinements */
+
+/* Modal scrolling owns the gesture; the game behind it cannot scroll. */
+body.modal-open{overflow:hidden!important;touch-action:none}
+.modal-wrap{
+  overflow:hidden!important;
+  overscroll-behavior:contain!important;
+  touch-action:none;
+}
+.modal{
+  max-height:94dvh!important;
+  overflow:hidden!important;
+  display:block;
+}
+.modal .allplays-modal,
+.modal .analytics-modal,
+.modal .player-stat-modal,
+.modal .retro-edit-modal{
+  max-height:calc(94dvh - 24px)!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+  touch-action:pan-y!important;
+}
+
+/* Current-play notes are a compact popup, not permanent scoring-screen chrome. */
+.play-notes-modal{color:#102635;background:#f7fafc;border-radius:14px;padding:2px}
+.compact-modal-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px}
+.compact-modal-head h2{color:#102635;margin:2px 0 3px}
+.compact-modal-head p{margin:0;color:#64748b;font-size:12px}
+.play-notes-modal .notes-label{display:block;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.7px;color:#52677a;margin-bottom:5px}
+.play-notes-modal textarea{width:100%;resize:vertical;min-height:130px;border:1px solid #b9c8cf;border-radius:10px;background:#fff;color:#102635;padding:11px;font:inherit}
+
+/* Cleaner retro editor: same card/form language as the rest of SidelineIQ. */
+.modal:has(.retro-edit-modal){padding:0!important;border-radius:16px!important;background:#f4f8fa!important}
+.retro-edit-modal{background:#f4f8fa!important;color:#102635!important;padding:0!important}
+.retro-edit-head{
+  margin:0!important;padding:16px 18px!important;
+  background:linear-gradient(180deg,#0b3441,#092a35)!important;
+  border-radius:15px 15px 0 0!important;
+}
+.retro-edit-head .eyebrow{color:#00d4ff!important}
+.retro-edit-head h2{font-size:22px!important}
+.retro-section{
+  margin:12px!important;padding:13px!important;background:#fff!important;
+  border:1px solid #d4e0e5!important;border-radius:12px!important;
+  box-shadow:0 2px 8px rgba(16,38,53,.06)!important;
+}
+.retro-section h3{font-size:15px!important;margin:0 0 10px!important}
+.retro-field{min-width:0}
+.retro-field label{
+  display:block;font-size:9px;text-transform:uppercase;letter-spacing:.65px;
+  font-weight:900;color:#52677a;margin-bottom:4px
+}
+.retro-field input,.retro-field select,.retro-field textarea{
+  width:100%;min-width:0;background:#f8fbfc;color:#102635;
+  border:1px solid #bdccd3;border-radius:9px;padding:9px;font:inherit
+}
+.retro-field textarea{resize:vertical}
+.retro-field small{display:block;color:#64748b;margin-top:4px;font-size:10px}
+.retro-savebar{
+  margin:0!important;padding:10px 12px!important;
+  background:#edf3f6!important;border-top:1px solid #d4e0e5!important;
+}
+
+/* Mobile: Save is at the top; bottom savebar is removed entirely. */
+.mobile-game-active .savebar{display:none!important}
+.mobile-game-active .nav-strip{
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+}
+.mobile-game-active .nav-strip .mobile-save-action{
+  background:linear-gradient(180deg,#00d4ff,#08b8dc)!important;
+  color:#05242e!important;font-weight:950!important;
+}
+.mobile-game-active .nav-strip .mobile-note-action{background:rgba(255,255,255,.06)!important}
+
+/* Give the field more visual importance: narrower sides, wider/taller center. */
+.mobile-game-active .mobile-score-workspace{
+  grid-template-columns:minmax(0,.82fr) 104px minmax(0,.98fr)!important;
+}
+.mobile-game-active .mobile-score-center .field{
+  height:550px!important;
+  min-height:550px!important;
+}
+
+/* Defense must fit its column without horizontal scrolling. */
+.mobile-score-workspace .pane.def .pane-body{
+  padding:5px!important;
+  overflow-x:hidden!important;
+}
+.mobile-score-workspace .pane.def .form-row{
+  gap:3px!important;margin-top:2px!important
+}
+.mobile-score-workspace .pane.def .action-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:3px!important;
+}
+.mobile-score-workspace .pane.def .action-grid button{
+  min-width:0!important;width:100%!important;
+  padding:5px 1px!important;font-size:7px!important;line-height:1.05!important;
+  white-space:normal!important;overflow-wrap:anywhere!important;
+}
+.mobile-score-workspace .pane.def input,
+.mobile-score-workspace .pane.def select{
+  min-width:0!important;width:100%!important;max-width:100%!important;
+  padding:5px 3px!important;font-size:9px!important
+}
+.mobile-score-workspace .pane.def .summary{font-size:7.5px!important;padding:4px!important}
+.mobile-score-workspace .pane.def .section-label{font-size:7px!important;margin-top:4px!important}
+.mobile-score-workspace .pane.def .chips{gap:2px!important}
+.mobile-score-workspace .pane.def .chip{padding:4px!important;font-size:7px!important}
+
+@media(max-width:390px){
+ .mobile-game-active .mobile-score-workspace{
+   grid-template-columns:minmax(0,.78fr) 100px minmax(0,.94fr)!important;
+ }
+ .mobile-game-active .mobile-score-center .field{height:535px!important;min-height:535px!important}
+}
+
+/* Mobile edit screen: compact, polished, touch-friendly. */
+@media(max-width:760px){
+ .modal-wrap{padding:7px!important;place-items:center!important}
+ .modal:has(.retro-edit-modal),
+ .modal:has(.allplays-modal),
+ .modal:has(.analytics-modal){
+   width:calc(100vw - 14px)!important;
+   max-width:none!important;
+   height:auto!important;
+   max-height:96dvh!important;
+   padding:0!important;
+ }
+ .retro-edit-modal{max-height:96dvh!important}
+ .retro-edit-head{padding:12px!important;gap:8px!important}
+ .retro-edit-head h2{font-size:18px!important}
+ .retro-edit-head p{font-size:10px!important}
+ .retro-section{margin:8px!important;padding:10px!important}
+ .retro-grid{grid-template-columns:1fr 1fr!important;gap:7px!important}
+ .retro-field label{font-size:8px!important}
+ .retro-field input,.retro-field select,.retro-field textarea{padding:8px!important;font-size:12px!important}
+ .retro-defender-row,.retro-add-defense{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:5px!important}
+ .retro-savebar{position:sticky!important;bottom:0!important;z-index:5!important}
+ .allplays-modal,.analytics-modal{max-height:96dvh!important}
+}

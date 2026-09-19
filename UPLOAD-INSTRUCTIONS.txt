@@ -1,23 +1,13 @@
-SIDELINEIQ v0.41.4 — MOCKUP-ACCURATE COMPACT MOBILE HEADER
+SIDELINEIQ v0.41.5
 
-Root cause found in v0.41.3:
-The old <=760px stylesheet still forced .game-state to grid-column:1/-1 and order:-1.
-v0.41.3 changed the parent grid but never explicitly reset those child grid placements.
-That is why Q1/KICKOFF remained a full-width row and the status controls became a
-third column beside the score cards.
-
-v0.41.4 explicitly places:
-ROW 1: Team score | Game state | Opponent score
-ROW 2: LOS | Ball At | Distance | Down | State
-ROW 3: Plays | Undo | Edit | Control | Stats
-
-Target in-app header height: ~136px before borders/gaps.
-
-Also:
-- equal-width team score areas
-- compact two-line team names
-- all five status cells forced into the same row
-- LOS controls compressed to fit without horizontal overflow
-- navigation reduced to 40px height
-- v0.41.3 three-column play workspace retained
-- v0.41.3 data migrates forward
+Mobile refinements:
+- Save Play moved to the top action bar.
+- Edit removed from the top bar; editing remains available through Plays.
+- Notes removed from the permanent scoring screen and moved to a Notes popup.
+- Notes persist on the current play until it is saved/cleared.
+- Bottom save bar hidden on mobile.
+- Field widened and increased to 550px tall.
+- Side columns narrowed; Defense compressed further and horizontal overflow blocked.
+- Plays and Stats modals now own vertical touch scrolling while the background is locked.
+- Edit Play modal restyled to the same polished card/form language as the rest of the app.
+- v0.41.4 data migrates forward.

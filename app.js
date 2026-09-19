@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.41.5';
-const DBKEY='sidelineiq_v0415';
-const LEGACY_KEYS=['sidelineiq_v0414','sidelineiq_v0413','sidelineiq_v0412','sidelineiq_v0411','sidelineiq_v0410','sidelineiq_v0406','sidelineiq_v0405','sidelineiq_v0404','sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.42.0';
+const DBKEY='sidelineiq_v0420';
+const LEGACY_KEYS=['sidelineiq_v0415','sidelineiq_v0414','sidelineiq_v0413','sidelineiq_v0412','sidelineiq_v0411','sidelineiq_v0410','sidelineiq_v0406','sidelineiq_v0405','sidelineiq_v0404','sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 let mobilePaneOpen='off';
@@ -37,7 +37,7 @@ function fmtDrive(screenValue,dir=1){return fmtPos(relSpot(screenValue,dir))}
 function touchdownSpot(dir=1){return dir===1?100:0}
 function textColor(hex='#000'){let h=hex.replace('#','');if(h.length===3)h=h.split('').map(x=>x+x).join('');const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);return ((r*299+g*587+b*114)/1000)>150?'#071922':'#fff'}
 function toast(msg){const d=document.createElement('div');d.className='toast';d.textContent=msg;$('#toastHost')?.appendChild(d);setTimeout(()=>d.remove(),2200)}
-function shell(content,topActions=''){ $('#app').innerHTML=`<div class="app-shell"><header class="topbar"><img class="brand-image" src="./assets/sidelineiq-header-logo.png" alt="SidelineIQ — Find Your Edge"><div class="top-actions"><span class="build-badge">${BUILD}</span>${topActions}</div></header>${content}</div>`}
+function shell(content,topActions=''){ $('#app').innerHTML=`<div class="app-shell"><header class="topbar"><img class="brand-image" src="./assets/sidelineiq-header-logo.png" alt="SidelineIQ — Find Your Edge"><div class="top-actions"><span class="build-badge">${BUILD}</span>${topActions}</div></header>${content}<footer class="app-version-footer">SIDELINEIQ ${BUILD}</footer></div>`}
 function route(){
  try{
    const h=location.hash||'#teams';
@@ -613,9 +613,34 @@ function showGameValidation(g,t,onFinalize){
  $('#finalizeChecked').onclick=()=>{closeModal();onFinalize()}
 }
 
+
+function uiIcon(name){
+ const base=(body)=>`<svg class="play-action-icon" viewBox="0 0 64 64" aria-hidden="true" focusable="false">${body}</svg>`;
+ const s='fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"';
+ const icons={
+  run:`<g ${s}><circle cx="18" cy="16" r="5"/><path d="M15 22l-4 12 9 6 6-11 9 4"/><path d="M20 40l-7 14M24 40l10 11"/><circle cx="43" cy="25" r="4"/><path d="M39 30l-7 8 8 7 7-8"/><path d="M40 45l-4 10M45 44l8 8"/><ellipse cx="31" cy="29" rx="5" ry="3" transform="rotate(-18 31 29)"/></g>`,
+  pass:`<g ${s}><circle cx="25" cy="15" r="6"/><path d="M19 23l-3 18M20 25l13 7 8-4M17 41l-7 13M18 41l12 13"/><ellipse cx="44" cy="22" rx="6" ry="3.5" transform="rotate(-25 44 22)"/><path d="M39 24l-4 4"/></g>`,
+  badsnap:`<g ${s}><path d="M8 44c8-5 13-10 17-17M12 50l-5-5M21 53l-7-7"/><ellipse cx="37" cy="25" rx="10" ry="6" transform="rotate(-24 37 25)"/><path d="M31 28l12-6M34 22l6 7"/><path d="M47 14l5-5M51 22l7-1M45 8l1-6"/></g>`,
+  fumble:`<g ${s}><ellipse cx="32" cy="30" rx="12" ry="7" transform="rotate(-18 32 30)"/><path d="M24 33l16-6M29 26l6 8"/><path d="M12 18l7 5M9 29l8 1M14 42l7-4M51 17l-7 6M55 31l-9 1M50 45l-7-6"/></g>`,
+  normal:`<g ${s}><path d="M14 11v42M50 11v42"/><path d="M10 17h8M10 47h8M46 17h8M46 47h8"/><ellipse cx="32" cy="32" rx="8" ry="5"/><path d="M27 34l10-4M30 29l4 6"/></g>`,
+  td:`<g ${s}><circle cx="32" cy="18" r="6"/><path d="M32 24v21M22 55l10-10 10 10"/><path d="M28 31L17 18 11 8M36 31l11-13 6-10"/><path d="M8 8h7M49 8h7"/></g>`,
+  twopt:`<g ${s}><path d="M15 52V12M49 52V12M15 18h34"/><path d="M24 31c2-5 14-5 16 0 2 7-14 9-16 18h17"/></g>`,
+  tackle:`<g ${s}><circle cx="21" cy="17" r="5"/><circle cx="44" cy="20" r="5"/><path d="M18 23l-6 12 11 6 7-10M42 26l-8 9 9 7 8-11"/><path d="M23 41l-8 12M27 41l9 11M43 42l-3 12M48 41l8 9"/></g>`,
+  sack:`<g ${s}><circle cx="21" cy="18" r="5"/><circle cx="43" cy="17" r="5"/><path d="M18 24l-7 12 11 5 8-9M40 23l-4 13 10 6 7-11"/><path d="M22 41l-8 12M27 40l9 12M46 42l-4 12M49 40l8 10"/><ellipse cx="53" cy="16" rx="6" ry="3.5" transform="rotate(20 53 16)"/><path d="M34 29l9-4"/></g>`,
+  pbu:`<g ${s}><circle cx="20" cy="35" r="5"/><path d="M17 41l-6 12M22 41l9 10M15 29l-6-8M25 30l8-9"/><ellipse cx="40" cy="17" rx="9" ry="5" transform="rotate(-18 40 17)"/><path d="M34 20l12-6M37 14l5 7"/><path d="M47 8l4-5M51 15l7-1"/></g>`,
+  pressure:`<g ${s}><circle cx="34" cy="20" r="6"/><path d="M30 27l-5 15 10 5 8-13M31 47l-6 9M38 47l9 8"/><path d="M17 23h8M12 31h11M15 40h8"/></g>`,
+  safety:`<g ${s}><path d="M32 7l20 8v15c0 13-8 22-20 28C20 52 12 43 12 30V15z"/><path d="M25 31l5 5 10-12"/></g>`,
+  deftd:`<g ${s}><circle cx="32" cy="18" r="6"/><path d="M32 24v21M22 55l10-10 10 10"/><path d="M28 31L17 18 11 8M36 31l11-13 6-10"/><path d="M8 8h7M49 8h7"/></g>`
+ };
+ return base(icons[name]||'');
+}
+function iconButton(icon,label,attrs='',extra=''){
+ return `<button ${attrs} class="icon-action-btn ${extra}" aria-label="${esc(label)}" title="${esc(label)}">${uiIcon(icon)}<span class="action-text">${esc(label)}</span></button>`;
+}
+
 function badSnapFields(){
  const b=currentPlay.badSnap||{active:false,center:'',notCaught:false,recoveredBy:null};
- return `<div class="bad-snap-block"><div class="section-label">Snap</div><button type="button" class="btn btn-light bad-snap-toggle ${b.active?'active':''}" id="badSnapBtn">${b.active?'✓ Bad Snap':'Bad Snap'}</button>${b.active?`<div class="bad-snap-details"><div class="form-row"><label>Center #</label><input id="centerNum" inputmode="numeric" placeholder="#" value="${esc(b.center||'')}"></div><div class="section-label">Was the snap caught?</div><div class="seg" id="snapCaught"><button data-caught="true" class="${!b.notCaught?'active':''}">Caught</button><button data-caught="false" class="${b.notCaught?'active':''}">Not Caught</button></div>${b.notCaught?`<div class="section-label">Who Recovered?</div><div class="seg" id="snapRecovery"><button data-recovery="Offense" class="${b.recoveredBy==='Offense'?'active':''}">Offense</button><button data-recovery="Defense" class="${b.recoveredBy==='Defense'?'active':''}">Defense</button></div>`:''}</div>`:''}</div>`;
+ return `<div class="bad-snap-block"><div class="section-label">Snap</div><button type="button" class="btn btn-light bad-snap-toggle icon-action-btn ${b.active?'active':''}" id="badSnapBtn" aria-label="Bad Snap" title="Bad Snap">${uiIcon('badsnap')}<span class="action-text">Bad Snap</span></button>${b.active?`<div class="bad-snap-details"><div class="form-row"><label>Center #</label><input id="centerNum" inputmode="numeric" placeholder="#" value="${esc(b.center||'')}"></div><div class="section-label">Was the snap caught?</div><div class="seg" id="snapCaught"><button data-caught="true" class="${!b.notCaught?'active':''}">Caught</button><button data-caught="false" class="${b.notCaught?'active':''}">Not Caught</button></div>${b.notCaught?`<div class="section-label">Who Recovered?</div><div class="seg" id="snapRecovery"><button data-recovery="Offense" class="${b.recoveredBy==='Offense'?'active':''}">Offense</button><button data-recovery="Defense" class="${b.recoveredBy==='Defense'?'active':''}">Defense</button></div>`:''}</div>`:''}</div>`;
 }
 
 
@@ -974,9 +999,9 @@ function renderGame(id){
 function offensePane(g){
  if(g.kickoffPending)return `<div class="notice">Finish the kickoff in Special Teams before recording an offensive play.</div>`;
  if(g.awaitingTry&&g.tryType==='2PT'){
-   return `<div class="notice two-point-notice"><b>2-Point Conversion</b><br>Ball placed at OPP 5. Record the run/pass, then mark the try Successful or Failed.</div><div class="section-label">Play Type</div><div class="seg" id="playTypes"><button class="active" data-type="Run">Run</button><button data-type="Pass">Pass</button></div><div id="offDynamic">${runFields(g)}</div><div class="section-label">Try Result</div><div class="seg" id="tryResult"><button data-try="successful">Successful</button><button data-try="failed">Failed</button></div><div class="summary" id="offSummary">Drag the football to the end of the conversion attempt.</div>${offenseMemory(g)}`
+   return `<div class="notice two-point-notice"><b>2-Point Conversion</b><br>Ball placed at OPP 5. Record the run/pass, then mark the try Successful or Failed.</div><div class="section-label">Play Type</div><div class="seg icon-action-grid offense-play-icons" id="playTypes">${iconButton('run','Run','data-type="Run"','active')}${iconButton('pass','Pass','data-type="Pass"')}</div><div id="offDynamic">${runFields(g)}</div><div class="section-label">Try Result</div><div class="seg" id="tryResult"><button data-try="successful">Successful</button><button data-try="failed">Failed</button></div><div class="summary" id="offSummary">Drag the football to the end of the conversion attempt.</div>${offenseMemory(g)}`
  }
- return `<div class="section-label">Play Type</div><div class="seg" id="playTypes"><button class="active" data-type="Run">Run</button><button data-type="Pass">Pass</button></div><div id="offDynamic">${runFields(g)}</div><div class="section-label">Result</div><div class="seg" id="offScore"><button class="active" data-score="">Normal</button><button data-score="TD">Touchdown</button><button data-score="2PT">2-Point Try</button><button id="fumbleBtn">Fumble</button></div><div class="summary" id="offSummary">Drag the football to the end of the play.</div>${offenseMemory(g)}`
+ return `<div class="section-label">Play Type</div><div class="seg icon-action-grid offense-play-icons" id="playTypes">${iconButton('run','Run','data-type="Run"','active')}${iconButton('pass','Pass','data-type="Pass"')}</div><div id="offDynamic">${runFields(g)}</div><div class="section-label">Result</div><div class="seg icon-action-grid offense-result-icons" id="offScore">${iconButton('normal','Normal','data-score=""','active')}${iconButton('td','Touchdown','data-score="TD"')}${iconButton('twopt','2-Point Try','data-score="2PT"')}${iconButton('fumble','Fumble','id="fumbleBtn"')}</div><div class="summary" id="offSummary">Drag the football to the end of the play.</div>${offenseMemory(g)}`
 }
 function runFields(g){
  const m=rememberedPlayers(g,g.poss),last=m.rb[0]||'';
@@ -997,7 +1022,7 @@ function passFields(g){
 }
 
 function defensePane(g){
- return `<div class="form-row"><label>Player #</label><input id="defNum" inputmode="numeric"><div class="seg compact-credit" id="defCredit"><button class="active" data-credit="1">1.0</button><button data-credit="0.5">0.5</button></div></div><div class="section-label">Action</div><div class="action-grid"><button data-def="Tackle">Tackle</button><button data-def="TFL">TFL</button><button data-def="Sack">Sack</button><button class="alt" data-def="PBU">Pass Breakup</button><button class="alt" data-def="Forced Fumble">Forced Fumble</button><button class="alt" data-def="Fumble Recovery">Fumble Recovery</button><button class="alt" data-def="Missed">Missed</button><button class="alt" data-def="Pressure">Pressure</button><button class="alt" data-def="Hurry">Hurry</button><button class="score" data-dscore="Safety">Safety +2</button><button class="score" data-dscore="Def TD">Def. TD +6</button></div><div class="form-row"><label>TFL yards</label><input id="tflYards" type="number" min="0" value="0" style="max-width:70px"></div><div class="summary" id="defList">No defensive actions yet.</div>${defenseMemory(g)}`
+ return `<div class="form-row"><label>Player #</label><input id="defNum" inputmode="numeric"><div class="seg compact-credit" id="defCredit"><button class="active" data-credit="1">1.0</button><button data-credit="0.5">0.5</button></div></div><div class="section-label">Action</div><div class="action-grid defense-icon-grid">${iconButton('tackle','Tackle','data-def="Tackle"')}${iconButton('sack','Sack','data-def="Sack"')}${iconButton('pbu','Pass Breakup','data-def="PBU"','alt')}${iconButton('pressure','Pressure','data-def="Pressure"','alt')}${iconButton('safety','Safety +2','data-dscore="Safety"','score')}${iconButton('deftd','Defensive TD +6','data-dscore="Def TD"','score')}<button class="alt mobile-def-extra" data-def="TFL">TFL</button><button class="alt mobile-def-extra" data-def="Forced Fumble">Forced Fumble</button><button class="alt mobile-def-extra" data-def="Fumble Recovery">Fumble Recovery</button><button class="alt mobile-def-extra" data-def="Missed">Missed</button><button class="alt mobile-def-extra" data-def="Hurry">Hurry</button></div><div class="form-row"><label>TFL yards</label><input id="tflYards" type="number" min="0" value="0" style="max-width:70px"></div><div class="summary" id="defList">No defensive actions yet.</div>${defenseMemory(g)}`
 }
 
 function penaltyPane(){return `<div class="section-label">Side</div><div class="seg pen-toggle" id="penSideToggle"><button class="active" data-pen-side="Offense">Offense</button><button data-pen-side="Defense">Defense</button></div><div class="section-label">Apply To</div><div class="seg pen-toggle" id="penApplyToggle"><button class="active" data-apply="current">Current</button><button data-apply="former">Former</button></div><div class="section-label">Status</div><div class="seg pen-toggle" id="penStatusToggle"><button class="active" data-status="accepted">Accepted</button><button data-status="declined">Declined</button></div><div class="form-row"><select id="penType"><option>Holding</option><option>False Start</option><option>Delay of Game</option><option>Offside</option><option>Pass Interference</option><option>Personal Foul</option><option>Illegal Formation</option><option>Illegal Motion</option><option>Facemask</option><option>Unsportsmanlike Conduct</option><option>Other</option></select><input id="penYards" type="number" value="10" aria-label="Penalty yards" placeholder="Yards"></div><div class="form-row"><input id="penPlayer" inputmode="numeric" placeholder="Player #" aria-label="Player number"></div><div class="pen-checks"><label><input type="checkbox" id="spotFoul"> Enforce from spot of foul</label><div id="foulSpotFields" class="foul-spot-fields hidden"><span class="field-hint">Spot of foul</span><select id="foulSpotSide" aria-label="Spot of foul side"><option>OWN</option><option>OPP</option><option>50</option></select><input id="foulSpotYard" type="number" min="0" max="49" placeholder="Yard" aria-label="Spot of foul yard line"></div><label><input type="checkbox" id="negate"> Ignore play yardage; enforce from previous LOS</label><label><input type="checkbox" id="repeatDown"> Repeat down / no play</label><label><input type="checkbox" id="autoFirst"> Automatic first down</label></div><div class="form-row"><button class="btn btn-light" id="attachPenalty">Apply Penalty</button><button class="btn btn-light" id="clearPenalty">Clear Current</button></div><div class="summary penalty-list" id="penSummary">No penalties applied.</div>`}
@@ -1323,7 +1348,7 @@ function composeMobileGameLayout(){
  const nav=top.querySelector('.nav-strip');
  if(nav){
    [...nav.children].forEach(b=>{
-     if(!['gamePlays','mobileUndo','mobileSave','mobileNotes','gameAnalytics','gameControl'].includes(b.id))b.remove();
+     if(!['gamePlays','mobileUndo','mobileNotes','gameAnalytics','gameControl'].includes(b.id))b.remove();
    });
    const a=nav.querySelector('#gameAnalytics');
    if(a){
@@ -1351,7 +1376,12 @@ function composeMobileGameLayout(){
  const left=document.createElement('div');left.className='mobile-score-side mobile-score-left';
  const center=document.createElement('div');center.className='mobile-score-center';
  const right=document.createElement('div');right.className='mobile-score-side mobile-score-right';
- left.append(off,st);center.append(fieldPanel);right.append(def,pen);root.append(left,center,right);
+ left.append(off,st);
+ const fieldSave=document.createElement('button');
+ fieldSave.id='mobileFieldSave';fieldSave.type='button';fieldSave.className='mobile-field-save';
+ fieldSave.innerHTML='<span class="field-save-icon">✓</span><span>Save Play</span>';
+ center.append(fieldSave,fieldPanel);
+ right.append(def,pen);root.append(left,center,right);
  main.replaceWith(root);workbench.remove();recent?.remove();
 
  // Geometry is applied inline with !important so it cannot be defeated by
@@ -1442,7 +1472,7 @@ function composeMobileGameLayout(){
 
    important(nav,'grid-column','1 / -1');
    important(nav,'display','grid');
-   important(nav,'grid-template-columns','repeat(6,minmax(0,1fr))');
+   important(nav,'grid-template-columns','repeat(5,minmax(0,1fr))');
    important(nav,'gap','4px');
    important(nav,'overflow','hidden');
    important(nav,'height','42px');important(nav,'min-height','42px');important(nav,'padding','1px');
@@ -1563,6 +1593,7 @@ function bindGame(g,t){
  if($('#gamePlays'))$('#gamePlays').onclick=()=>showAllPlays(g,t);
  if($('#mobileUndo'))$('#mobileUndo').onclick=()=>undoPlay(g);
  if($('#mobileSave'))$('#mobileSave').onclick=()=>savePlay(g,t);
+ if($('#mobileFieldSave'))$('#mobileFieldSave').onclick=()=>savePlay(g,t);
  const openNotes=()=>showPlayNotes(g,t);
  if($('#mobileNotes'))$('#mobileNotes').onclick=openNotes;
  if($('#playNotes'))$('#playNotes').onclick=openNotes;
@@ -1662,7 +1693,7 @@ function bindOffense(g){
      currentPlay.fumbleDetail=detail;
      currentPlay.fumbleRecovery=detail.recoveryTeam;
      syncTurnoverState();
-     if($('#fumbleBtn'))$('#fumbleBtn').textContent=`Fumble · ${detail.recoveryTeam}${detail.recoverer?' #'+detail.recoverer:''}`;
+     if($('#fumbleBtn')){$('#fumbleBtn').classList.add('active');$('#fumbleBtn').title=`Fumble · ${detail.recoveryTeam}${detail.recoverer?' #'+detail.recoverer:''}`;}
    })
  };
  $$('[data-memory-role]').forEach(b=>b.onclick=()=>{

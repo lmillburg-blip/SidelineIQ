@@ -1354,3 +1354,165 @@ body.modal-open{overflow:hidden!important;touch-action:none}
  .retro-savebar{position:sticky!important;bottom:0!important;z-index:5!important}
  .allplays-modal,.analytics-modal{max-height:96dvh!important}
 }
+
+
+/* v0.42.0 — icon-first mobile scoring */
+.app-version-footer{
+  text-align:center;
+  padding:12px 8px 18px;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:1.6px;
+  color:#6f8792;
+}
+.mobile-game-active .app-version-footer{
+  padding:12px 4px 76px;
+  font-size:8px;
+  color:#55727d;
+}
+
+/* Save belongs directly above the draggable field. */
+.mobile-field-save{
+  width:100%;
+  min-width:0;
+  height:34px;
+  margin:0 0 4px;
+  border:1px solid #55e8ff;
+  border-radius:8px;
+  background:linear-gradient(180deg,#1e6bff,#1358dd);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  font-weight:950;
+  font-size:10px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,0 4px 10px rgba(0,0,0,.18);
+}
+.mobile-field-save .field-save-icon{
+  font-size:15px;
+  line-height:1;
+}
+
+/* Light white outline sketches, matching the SidelineIQ cyan/navy visual language. */
+.play-action-icon{
+  width:42px;
+  height:42px;
+  display:block;
+  color:#fff;
+  margin:auto;
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.25));
+}
+.icon-action-btn{
+  min-width:0!important;
+  aspect-ratio:1 / 1;
+  padding:5px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border:1px solid #416b79!important;
+  border-radius:10px!important;
+  background:#103946!important;
+  color:#fff!important;
+}
+.icon-action-btn.active{
+  background:linear-gradient(180deg,#6d2bd3,#5720b8)!important;
+  border-color:#d7baff!important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.2) inset;
+}
+.icon-action-btn.score{
+  background:#aa2f3d!important;
+  border-color:#d75664!important;
+}
+.icon-action-btn .action-text{display:none!important}
+
+.mobile-game-active .pane.off .icon-action-grid,
+.mobile-game-active .pane.def .defense-icon-grid{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:5px!important;
+  width:100%!important;
+}
+.mobile-game-active .pane.off .icon-action-btn,
+.mobile-game-active .pane.def .icon-action-btn{
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+}
+.mobile-game-active .pane.off .play-action-icon{
+  width:44px!important;height:44px!important;
+}
+.mobile-game-active .pane.def .play-action-icon{
+  width:37px!important;height:37px!important;
+}
+
+/* Keep Bad Snap and Fumble unmistakably present in Offense. */
+.mobile-game-active .bad-snap-block{
+  margin-top:6px!important;
+  padding-top:5px!important;
+  border-top:1px solid #d3dde2!important;
+}
+.mobile-game-active .bad-snap-toggle{
+  width:62px!important;
+  height:62px!important;
+  padding:6px!important;
+}
+.mobile-game-active #fumbleBtn{display:flex!important}
+
+/* Mobile defense intentionally shows only the requested six quick actions:
+   Tackle, Sack, PBU, Pressure, Safety, Defensive TD. Desktop retains all actions. */
+.mobile-game-active .pane.def .mobile-def-extra{display:none!important}
+.mobile-game-active .pane.def .defense-icon-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+.mobile-game-active .pane.def .defense-icon-grid + .form-row{
+  display:none!important; /* TFL yards belongs to the hidden TFL quick action on mobile */
+}
+
+/* Give the center field more room now that buttons are icon-only. */
+.mobile-game-active .mobile-score-workspace{
+  grid-template-columns:minmax(0,.76fr) 118px minmax(0,.84fr)!important;
+  gap:4px!important;
+}
+.mobile-game-active .mobile-score-center .field{
+  height:575px!important;
+  min-height:575px!important;
+}
+.mobile-game-active .pane.off .pane-body,
+.mobile-game-active .pane.def .pane-body{
+  padding:5px!important;
+}
+
+/* Player inputs stay compact beneath icon controls. */
+.mobile-game-active .pane.off .form-row,
+.mobile-game-active .pane.def .form-row{
+  gap:3px!important;
+}
+.mobile-game-active .pane.off input,
+.mobile-game-active .pane.def input{
+  min-width:0!important;
+  width:100%!important;
+  padding:5px 4px!important;
+  font-size:10px!important;
+}
+.mobile-game-active .pane.off .section-label,
+.mobile-game-active .pane.def .section-label{
+  font-size:7px!important;
+  margin:5px 0 3px!important;
+}
+
+/* Five top utility actions now that Save moved above the field. */
+.mobile-game-active .nav-strip{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+}
+
+@media(max-width:390px){
+  .mobile-game-active .mobile-score-workspace{
+    grid-template-columns:minmax(0,.73fr) 112px minmax(0,.81fr)!important;
+  }
+  .mobile-game-active .mobile-score-center .field{
+    height:560px!important;min-height:560px!important;
+  }
+  .mobile-game-active .pane.off .play-action-icon{width:39px!important;height:39px!important}
+  .mobile-game-active .pane.def .play-action-icon{width:34px!important;height:34px!important}
+}

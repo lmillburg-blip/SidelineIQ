@@ -1,7 +1,0 @@
-SIDELINEIQ v0.42.2
-- Replaces the hand-drawn v0.42.1 SVG action icons with artwork taken directly from the approved icon mockup.
-- Mockup-derived icons: Run, Pass, Bad Snap, Fumble, Normal, Touchdown, Tackle, Sack, Pass Breakup, Pressure, Safety, Defensive TD.
-- Mobile buttons remain icon-only.
-- TFL, Hurry, and Missed remain removed from live defensive entry.
-- Special Teams and Penalty workflows are unchanged.
-- Existing v0.42.1 data migrates forward.

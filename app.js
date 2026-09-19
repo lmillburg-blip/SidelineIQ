@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.41.1';
-const DBKEY='sidelineiq_v0411';
-const LEGACY_KEYS=['sidelineiq_v0410','sidelineiq_v0406','sidelineiq_v0405','sidelineiq_v0404','sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.41.2';
+const DBKEY='sidelineiq_v0412';
+const LEGACY_KEYS=['sidelineiq_v0411','sidelineiq_v0410','sidelineiq_v0406','sidelineiq_v0405','sidelineiq_v0404','sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 let mobilePaneOpen='off';
@@ -959,7 +959,7 @@ function renderGame(id){
  <div class="pane pen" data-pane="pen"><button type="button" class="pane-title" data-pane-toggle="pen"><span>PENALTY</span><span class="pane-chevron">⌄</span></button><div class="pane-body">${penaltyPane()}</div></div>
  </section>
  <section class="savebar"><input class="play-note" id="playNote" placeholder="Play notes (optional) — e.g. screen right, blitz, alignment..."><div class="save-actions"><button class="btn btn-primary" id="savePlay">✓ Save Play</button><button class="btn btn-light" id="clearPlay">Clear</button></div></section></main>`);
- composeMobileGameLayout();bindGame(g,t);drawField(g,t)
+ composeMobileGameLayout();bindGame(g,t);bindMobilePaneCollapse(g);drawField(g,t)
 }
 
 function offensePane(g){
@@ -1391,37 +1391,60 @@ function composeMobileGameLayout(){
  }
 
  // Never restore the user's prior desktop scroll position into a different mobile geometry.
- // Mobile pane headers collapse/expand their own functional body.
- [off,def,st,pen].forEach(p=>{
-   const title=p.querySelector('.pane-title');
-   const body=p.querySelector('.pane-body');
-   if(!title||!body)return;
-   title.setAttribute('role','button');
-   title.setAttribute('tabindex','0');
-   const setCollapsed=(collapsed)=>{
-     p.classList.toggle('mobile-collapsed',collapsed);
-     p.classList.toggle('mobile-open',!collapsed);
-     important(body,'display',collapsed?'none':'block');
-     const existing=title.querySelector('.mobile-collapse-glyph');
-     if(existing)existing.textContent=collapsed?'+':'−';
-     else{
-       const glyph=document.createElement('span');
-       glyph.className='mobile-collapse-glyph';
-       glyph.textContent=collapsed?'+':'−';
-       title.appendChild(glyph);
-     }
-   };
-   // Penalty starts collapsed. Special Teams is open during kick workflows.
-   const initiallyCollapsed=p===pen || (p===st && !['KO','PUNT'].includes((document.querySelector('.game-state .pos')?.textContent||'').trim()));
-   setCollapsed(initiallyCollapsed);
-   const toggle=()=>setCollapsed(!p.classList.contains('mobile-collapsed'));
-   title.onclick=(e)=>{e.preventDefault();toggle()};
-   title.onkeydown=(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle()}};
- });
 
  requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));
  return true;
 }
+
+function bindMobilePaneCollapse(g){
+ if(!document.querySelector('.mobile-score-workspace'))return;
+ const panes=[
+   document.querySelector('.pane.off'),
+   document.querySelector('.pane.def'),
+   document.querySelector('.pane.st'),
+   document.querySelector('.pane.pen')
+ ].filter(Boolean);
+
+ panes.forEach(p=>{
+   const title=p.querySelector('.pane-title');
+   const body=p.querySelector('.pane-body');
+   if(!title||!body)return;
+
+   title.setAttribute('role','button');
+   title.setAttribute('tabindex','0');
+
+   const glyph=()=>{
+     let x=title.querySelector('.mobile-collapse-glyph');
+     if(!x){x=document.createElement('span');x.className='mobile-collapse-glyph';title.appendChild(x)}
+     return x;
+   };
+   const setCollapsed=(collapsed)=>{
+     p.classList.toggle('mobile-collapsed',collapsed);
+     p.classList.toggle('mobile-open',!collapsed);
+     body.style.setProperty('display',collapsed?'none':'block','important');
+     glyph().textContent=collapsed?'+':'−';
+     title.setAttribute('aria-expanded',String(!collapsed));
+   };
+
+   // Penalty starts closed. Other panes remain open so no current workflow is hidden.
+   setCollapsed(p.classList.contains('pen'));
+
+   // bindGame has already run, so this cannot be overwritten afterward.
+   title.onclick=(e)=>{
+     e.preventDefault();
+     e.stopPropagation();
+     setCollapsed(!p.classList.contains('mobile-collapsed'));
+   };
+   title.onkeydown=(e)=>{
+     if(e.key==='Enter'||e.key===' '){
+       e.preventDefault();
+       e.stopPropagation();
+       setCollapsed(!p.classList.contains('mobile-collapsed'));
+     }
+   };
+ });
+}
+
 function bindGame(g,t){
  if(g.kickoffPending||g.puntPending)mobilePaneOpen='st';
  const syncMobilePanes=()=>{

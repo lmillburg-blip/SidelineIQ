@@ -1,13 +1,17 @@
-SIDELINEIQ v0.41.1
+SIDELINEIQ v0.41.2 — MOBILE COLLAPSE HOTFIX
 
-Changes from v0.41.0:
-- Offense, Defense, Special Teams, and Penalty headers now collapse/expand on mobile.
-- Penalty starts collapsed.
-- Special Teams remains open for kickoff/punt workflows.
-- Collapse glyph changes between + and minus.
-- Defense action controls are forced into a compact two-column grid.
-- Defense inputs/buttons/chips cannot widen the column.
-- Horizontal overflow is suppressed inside all mobile side panes.
-- Special Teams controls wrap inside the left column.
-- Desktop behavior remains unchanged.
-- Migrates v0.41.0 data.
+Root cause:
+v0.41.1 installed mobile pane collapse handlers inside composeMobileGameLayout(),
+but renderGame() then called bindGame(). bindGame() also assigns pane-title click
+handlers, so it overwrote the mobile collapse handlers before the user could tap them.
+
+Fix:
+- compose mobile DOM first
+- bind normal game controls second
+- bind mobile collapse handlers LAST
+- Penalty starts collapsed
+- Offense, Defense, and Special Teams start open
+- tapping any pane title toggles its body and +/- indicator
+- keyboard Enter/Space also toggles
+- retains v0.41.1 defense no-horizontal-scroll layout
+- migrates v0.41.1 data

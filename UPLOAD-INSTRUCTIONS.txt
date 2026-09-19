@@ -1,14 +1,18 @@
-SIDELINEIQ v0.40.3 — MOBILE CRASH HOTFIX
+SIDELINEIQ v0.40.4 — MOBILE LAYOUT ACTIVATION FIX
 
-Root cause fixed:
-v0.40.2 removes the desktop Recent Plays panel from the portrait-mobile DOM.
-bindGame still tried to bind #undoPlay and #editPlay from that removed panel,
-causing the live game screen to abort during initialization.
+The v0.40.3 screenshot showed the old accordion mobile layout was still active.
+Root issue: the deployed iPhone viewport was not satisfying the old <=760px
+mobile-layout test, so the three-column DOM transformation never ran.
 
-v0.40.3:
-- guards the desktop-only Recent Plays action bindings
-- keeps the dedicated mobile Undo button functional
-- keeps the dedicated mobile Edit button functional
-- preserves the v0.40.2 three-column / vertical-field mobile redesign
-- preserves desktop behavior
-- migrates v0.40.2 data
+v0.40.4:
+- activates the approved mobile layout through 900px viewport width
+- makes the vertical-field renderer follow the activated mobile-layout class
+- mobile header matches the prototype more closely
+- mobile nav is Plays / Undo / Edit / Stats / Control
+- removes Games and Drives from the mobile scoring header
+- actual Offense + Special Teams are placed left of the field
+- actual Defense + Penalty are placed right of the field
+- field remains permanently centered/vertical
+- retains v0.40.3 crash fix and all existing game workflows
+- desktop remains unchanged above the mobile breakpoint
+- migrates v0.40.3 data

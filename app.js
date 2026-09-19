@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.41.3';
-const DBKEY='sidelineiq_v0413';
-const LEGACY_KEYS=['sidelineiq_v0412','sidelineiq_v0411','sidelineiq_v0410','sidelineiq_v0406','sidelineiq_v0405','sidelineiq_v0404','sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.41.4';
+const DBKEY='sidelineiq_v0414';
+const LEGACY_KEYS=['sidelineiq_v0413','sidelineiq_v0412','sidelineiq_v0411','sidelineiq_v0410','sidelineiq_v0406','sidelineiq_v0405','sidelineiq_v0404','sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 let mobilePaneOpen='off';
@@ -1350,22 +1350,97 @@ function composeMobileGameLayout(){
  important(page,'padding','4px 4px 70px');
  important(page,'max-width','none');
  important(top,'display','grid');
- important(top,'grid-template-columns','minmax(0,1fr) 92px minmax(0,1fr)');
- important(top,'gap','3px');
- important(top,'padding','4px');
+ important(top,'grid-template-columns','minmax(0,1fr) 76px minmax(0,1fr)');
+ important(top,'grid-template-rows','52px 38px 42px');
+ important(top,'gap','2px');
+ important(top,'padding','3px');
  important(top,'position','sticky');
  important(top,'top','0');
  important(top,'z-index','50');
 
+ // v0.41.4: old <=760px rules were still forcing .game-state to grid-column:1/-1
+ // and order:-1. Explicitly place all three scoreboard cells in row 1.
+ const scoreCards=[...top.querySelectorAll('.score-card')];
+ const gameState=top.querySelector('.game-state');
+ if(scoreCards[0]){
+   important(scoreCards[0],'grid-column','1');
+   important(scoreCards[0],'grid-row','1');
+   important(scoreCards[0],'order','0');
+ }
+ if(gameState){
+   important(gameState,'grid-column','2');
+   important(gameState,'grid-row','1');
+   important(gameState,'order','0');
+ }
+ if(scoreCards[1]){
+   important(scoreCards[1],'grid-column','3');
+   important(scoreCards[1],'grid-row','1');
+   important(scoreCards[1],'order','0');
+ }
+ scoreCards.forEach(card=>{
+   important(card,'height','52px');important(card,'min-height','52px');
+   important(card,'padding','4px 6px');important(card,'border-radius','7px');
+   important(card,'display','flex');important(card,'align-items','center');
+   important(card,'justify-content','space-between');important(card,'overflow','hidden');
+   const label=card.querySelector('.team-label');
+   const value=card.querySelector('.score-value');
+   if(label){important(label,'font-size','9px');important(label,'line-height','1.05');important(label,'max-width','72%');important(label,'overflow','hidden')}
+   if(value){important(value,'font-size','24px');important(value,'line-height','1')}
+ });
+ if(gameState){
+   important(gameState,'height','52px');important(gameState,'min-height','52px');
+   important(gameState,'padding','2px');important(gameState,'border-radius','7px');
+   important(gameState,'display','flex');important(gameState,'flex-direction','column');
+   important(gameState,'align-items','center');important(gameState,'justify-content','center');
+   const period=gameState.querySelector('.period');
+   const next=gameState.querySelector('.period-next');
+   const down=gameState.querySelector('.downline');
+   const pos=gameState.querySelector('.pos');
+   if(period){important(period,'font-size','11px');important(period,'line-height','1')}
+   if(next){important(next,'width','20px');important(next,'height','20px');important(next,'font-size','13px');important(next,'padding','0')}
+   if(down){important(down,'display','block');important(down,'font-size','10px');important(down,'line-height','1');important(down,'white-space','nowrap')}
+   if(pos){important(pos,'display','block');important(pos,'font-size','7px');important(pos,'line-height','1');important(pos,'white-space','nowrap')}
+ }
+
+ if(mobileFieldControls){
+   important(mobileFieldControls,'grid-column','1 / -1');
+   important(mobileFieldControls,'grid-row','2');
+   important(mobileFieldControls,'order','0');
+   important(mobileFieldControls,'display','grid');
+   important(mobileFieldControls,'grid-template-columns','1.75fr .85fr .55fr .48fr .55fr');
+   important(mobileFieldControls,'gap','2px');important(mobileFieldControls,'margin','0');
+   important(mobileFieldControls,'padding','2px');important(mobileFieldControls,'height','38px');
+   important(mobileFieldControls,'overflow','hidden');
+   [...mobileFieldControls.querySelectorAll('.mini')].forEach(m=>{
+     important(m,'min-width','0');important(m,'width','auto');important(m,'height','34px');
+     important(m,'min-height','34px');important(m,'padding','2px 3px');important(m,'overflow','hidden');
+     const small=m.querySelector('small'); const bold=m.querySelector('b');
+     if(small){important(small,'font-size','5.5px');important(small,'line-height','1');important(small,'white-space','nowrap')}
+     if(bold){important(bold,'font-size','9px');important(bold,'line-height','1')}
+   });
+   const los=mobileFieldControls.querySelector('.los-control');
+   if(los){
+     important(los,'display','grid');important(los,'grid-template-columns','1fr .72fr .72fr');
+     important(los,'gap','1px');important(los,'align-items','center');
+     [...los.children].forEach(x=>{
+       important(x,'min-width','0');important(x,'width','100%');important(x,'height','21px');
+       important(x,'padding','0 1px');important(x,'font-size','7px');important(x,'margin','0');
+     });
+   }
+ }
  if(nav){
+   important(nav,'grid-row','3');
+
    important(nav,'grid-column','1 / -1');
    important(nav,'display','grid');
    important(nav,'grid-template-columns','repeat(5,minmax(0,1fr))');
    important(nav,'gap','4px');
    important(nav,'overflow','hidden');
+   important(nav,'height','42px');important(nav,'min-height','42px');important(nav,'padding','1px');
    [...nav.children].forEach(b=>{
      important(b,'display','flex');important(b,'width','auto');important(b,'min-width','0');
-     important(b,'min-height','54px');important(b,'font-size','10px');
+     important(b,'height','40px');important(b,'min-height','40px');
+     important(b,'padding','1px');important(b,'font-size','8px');important(b,'gap','1px');
    });
  }
 

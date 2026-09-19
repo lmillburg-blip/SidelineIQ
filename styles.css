@@ -1157,3 +1157,54 @@ button{cursor:pointer}
 
 /* The controls were moved to the header; center is field only. */
 .mobile-score-center .field-controls{display:none!important}
+
+
+/* v0.41.4 — mockup-accurate compact mobile header.
+   Critical placement is also applied inline in composeMobileGameLayout(). */
+.mobile-game-active .game-top{
+  grid-template-columns:minmax(0,1fr) 76px minmax(0,1fr)!important;
+  grid-template-rows:52px 38px 42px!important;
+  gap:2px!important;padding:3px!important;
+}
+.mobile-game-active .game-top > .score-card:nth-of-type(1){grid-column:1!important;grid-row:1!important;order:0!important}
+.mobile-game-active .game-top > .game-state{grid-column:2!important;grid-row:1!important;order:0!important}
+.mobile-game-active .game-top > .score-card:nth-of-type(2){grid-column:3!important;grid-row:1!important;order:0!important}
+.mobile-game-active .game-top > .mobile-status-strip{grid-column:1/-1!important;grid-row:2!important}
+.mobile-game-active .game-top > .nav-strip{grid-column:1/-1!important;grid-row:3!important}
+.mobile-game-active .game-top .score-card{
+  height:52px!important;min-height:52px!important;padding:4px 6px!important;border-radius:7px!important;
+}
+.mobile-game-active .game-top .team-label{
+  font-size:9px!important;line-height:1.05!important;max-width:72%!important;
+  display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;
+  overflow:hidden!important;white-space:normal!important;overflow-wrap:normal!important;
+}
+.mobile-game-active .game-top .score-value{font-size:24px!important}
+.mobile-game-active .game-state{
+  height:52px!important;min-height:52px!important;padding:2px!important;border-radius:7px!important;
+}
+.mobile-game-active .game-state .period{font-size:11px!important}
+.mobile-game-active .game-state .period-next{width:20px!important;height:20px!important;font-size:13px!important}
+.mobile-game-active .game-state .downline{display:block!important;font-size:10px!important}
+.mobile-game-active .game-state .pos{display:block!important;font-size:7px!important}
+.mobile-game-active .mobile-status-strip{
+  height:38px!important;min-height:38px!important;
+  grid-template-columns:minmax(0,1.75fr) minmax(0,.85fr) minmax(0,.55fr) minmax(0,.48fr) minmax(0,.55fr)!important;
+  gap:2px!important;padding:2px!important;
+}
+.mobile-game-active .mobile-status-strip .mini{
+  height:34px!important;min-height:34px!important;padding:2px 3px!important;
+}
+.mobile-game-active .mobile-status-strip .mini small{font-size:5.5px!important}
+.mobile-game-active .mobile-status-strip .mini b{font-size:9px!important}
+.mobile-game-active .mobile-status-strip .los-control{
+  grid-template-columns:minmax(0,1fr) minmax(0,.72fr) minmax(0,.72fr)!important;gap:1px!important;
+}
+.mobile-game-active .mobile-status-strip .los-control select,
+.mobile-game-active .mobile-status-strip .los-control input,
+.mobile-game-active .mobile-status-strip .los-control button{
+  height:21px!important;min-width:0!important;padding:0 1px!important;font-size:7px!important;
+}
+.mobile-game-active .nav-strip{height:42px!important;min-height:42px!important;padding:1px!important}
+.mobile-game-active .nav-strip .nav-button{height:40px!important;min-height:40px!important;font-size:8px!important;padding:1px!important}
+.mobile-game-active .nav-strip .ico{font-size:11px!important}

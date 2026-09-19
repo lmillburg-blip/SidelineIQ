@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.42.2';
-const DBKEY='sidelineiq_v0422';
-const LEGACY_KEYS=['sidelineiq_v0421','sidelineiq_v0420','sidelineiq_v0415','sidelineiq_v0414','sidelineiq_v0413','sidelineiq_v0412','sidelineiq_v0411','sidelineiq_v0410','sidelineiq_v0406','sidelineiq_v0405','sidelineiq_v0404','sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.42.3';
+const DBKEY='sidelineiq_v0423';
+const LEGACY_KEYS=['sidelineiq_v0422','sidelineiq_v0421','sidelineiq_v0420','sidelineiq_v0415','sidelineiq_v0414','sidelineiq_v0413','sidelineiq_v0412','sidelineiq_v0411','sidelineiq_v0410','sidelineiq_v0406','sidelineiq_v0405','sidelineiq_v0404','sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 let mobilePaneOpen='off';
@@ -503,7 +503,7 @@ function showAddGame(t){
 
 let currentPlay=null;
 function normalizeGame(g){
- g.teamScore??=0;g.oppScore??=0;g.period??=1;g.overtime??=0;g.gameOver??=false;g.down??=1;g.toGo??=10;g.los??=20;g.poss??='team';g.plays??=[];g.kickoffYard??=40;g.awaitingTry??=false;g.tryType??=null;g.puntPending??=false;g.punt??=null;
+ g.teamScore??=0;g.oppScore??=0;g.period??=1;g.overtime??=0;g.gameOver??=false;g.down??=1;g.toGo??=10;g.los??=20;g.poss??='team';g.plays??=[];g.kickoffYard??=40;g.awaitingTry??=false;g.tryType??=null;g.puntPending??=false;g.punt??=null;g.pendingPenalties??=[];
  if(g.driveDir==null){
    const lastKick=[...g.plays].reverse().find(p=>p.kind==='Kickoff');
    if(lastKick){
@@ -617,7 +617,7 @@ function showGameValidation(g,t,onFinalize){
 function uiIcon(name){
  const mockupIcons=new Set(['run','pass','badsnap','fumble','normal','td','tackle','sack','pbu','pressure','safety','deftd']);
  const ext=mockupIcons.has(name)?'png':'svg';
- return `<img class="play-action-icon" src="./icons/actions/${name}.${ext}?v=0422" alt="" aria-hidden="true">`;
+ return `<img class="play-action-icon" src="./icons/actions/${name}.${ext}?v=0423" alt="" aria-hidden="true">`;
 }
 function iconButton(icon,label,attrs='',extra=''){
  return `<button ${attrs} class="icon-action-btn ${extra}" aria-label="${esc(label)}" title="${esc(label)}">${uiIcon(icon)}<span class="action-text">${esc(label)}</span></button>`;
@@ -818,7 +818,12 @@ function computeTeamStats(g,side){
      for(const d of (p.defenders||[])){
        const pl=ensurePlayer(team.players,d.n);
        if(!pl)continue;
-       if(d.action==='Tackle')pl.def.tackle+=Number(d.credit??1);
+       if(d.action==='Tackle'){
+         const credit=Number(d.credit??1);
+         pl.def.tackle+=credit;
+         const loss=Math.max(0,-statYards(p));
+         if(loss>0){pl.def.tfl+=credit;pl.def.tflYds+=loss*credit}
+       }
        else if(d.action==='TFL'){pl.def.tackle+=Number(d.credit??1);pl.def.tfl+=Number(d.credit??1);pl.def.tflYds+=Number(d.yards||0)}
        else if(d.action==='Assist')pl.def.tackle+=0.5;
        else if(d.action==='Sack'){pl.def.sack+=Number(d.credit??1);pl.def.tfl+=Number(d.credit??1);pl.def.tflYds+=Math.max(0,-statYards(p))}
@@ -886,10 +891,10 @@ function safeDefStats(p){
 
 function defenseTable(stats){
  const players=Object.values(stats.players).map(safeDefStats)
-   .filter(p=>p.def.tackle||p.def.tfl||p.def.sack||p.def.int||p.def.pbu||p.def.ff||p.def.fr||p.def.pressure||p.def.hurry||p.def.missed)
+   .filter(p=>p.def.tackle||p.def.tfl||p.def.sack||p.def.int||p.def.pbu||p.def.ff||p.def.fr||p.def.pressure)
    .sort((a,b)=>((b.def.tackle+b.def.sack+b.def.int)-(a.def.tackle+a.def.sack+a.def.int)));
- const rows=players.length?players.map(p=>`<tr><td>${playerButton(stats.side,p.number)}</td><td>${p.def.tackle.toFixed(1)}</td><td>${p.def.tfl.toFixed(1)}</td><td>${p.def.tflYds}</td><td>${p.def.sack.toFixed(1)}</td><td>${p.def.int}</td><td>${p.def.intYds}</td><td>${p.def.pbu}</td><td>${p.def.ff}</td><td>${p.def.fr}</td><td>${p.def.pressure}</td><td>${p.def.hurry}</td><td>${p.def.missed}</td></tr>`).join(''):`<tr><td colspan="13" class="stat-empty">No defensive player stats recorded yet</td></tr>`;
- return `<div class="stat-section"><h4>Defense</h4><div class="stat-table-wrap"><table class="stat-table"><thead><tr><th>Player</th><th>Tkl</th><th>TFL</th><th>TFL Yds</th><th>Sk</th><th>INT</th><th>INT Yds</th><th>PBU</th><th>FF</th><th>FR</th><th>Prs</th><th>Hur</th><th>Miss</th></tr></thead><tbody>${rows}</tbody></table></div></div>`
+ const rows=players.length?players.map(p=>`<tr><td>${playerButton(stats.side,p.number)}</td><td>${p.def.tackle.toFixed(1)}</td><td>${p.def.tfl.toFixed(1)}</td><td>${Number(p.def.tflYds||0).toFixed(1).replace('.0','')}</td><td>${p.def.sack.toFixed(1)}</td><td>${p.def.int}</td><td>${p.def.intYds}</td><td>${p.def.pbu}</td><td>${p.def.ff}</td><td>${p.def.fr}</td><td>${p.def.pressure}</td></tr>`).join(''):`<tr><td colspan="11" class="stat-empty">No defensive player stats recorded yet</td></tr>`;
+ return `<div class="stat-section"><h4>Defense</h4><div class="stat-table-wrap"><table class="stat-table"><thead><tr><th>Player</th><th>Tkl</th><th>TFL</th><th>TFL Yds</th><th>Sk</th><th>INT</th><th>INT Yds</th><th>PBU</th><th>FF</th><th>FR</th><th>Prs</th></tr></thead><tbody>${rows}</tbody></table></div></div>`
 }
 
 function teamAnalyticsColumn(g,t,side,stats){
@@ -1010,7 +1015,7 @@ function defensePane(g){
  return `<div class="form-row"><label>Player #</label><input id="defNum" inputmode="numeric"><div class="seg compact-credit" id="defCredit"><button class="active" data-credit="1">1.0</button><button data-credit="0.5">0.5</button></div></div><div class="section-label">Action</div><div class="action-grid defense-icon-grid">${iconButton('tackle','Tackle','data-def="Tackle"')}${iconButton('sack','Sack','data-def="Sack"')}${iconButton('pbu','Pass Breakup','data-def="PBU"','alt')}${iconButton('pressure','Pressure','data-def="Pressure"','alt')}${iconButton('safety','Safety +2','data-dscore="Safety"','score')}${iconButton('deftd','Defensive TD +6','data-dscore="Def TD"','score')}<button class="alt mobile-def-extra" data-def="Forced Fumble">Forced Fumble</button><button class="alt mobile-def-extra" data-def="Fumble Recovery">Fumble Recovery</button></div><div class="summary" id="defList">No defensive actions yet.</div>${defenseMemory(g)}`
 }
 
-function penaltyPane(){return `<div class="section-label">Side</div><div class="seg pen-toggle" id="penSideToggle"><button class="active" data-pen-side="Offense">Offense</button><button data-pen-side="Defense">Defense</button></div><div class="section-label">Apply To</div><div class="seg pen-toggle" id="penApplyToggle"><button class="active" data-apply="current">Current</button><button data-apply="former">Former</button></div><div class="section-label">Status</div><div class="seg pen-toggle" id="penStatusToggle"><button class="active" data-status="accepted">Accepted</button><button data-status="declined">Declined</button></div><div class="form-row"><select id="penType"><option>Holding</option><option>False Start</option><option>Delay of Game</option><option>Offside</option><option>Pass Interference</option><option>Personal Foul</option><option>Illegal Formation</option><option>Illegal Motion</option><option>Facemask</option><option>Unsportsmanlike Conduct</option><option>Other</option></select><input id="penYards" type="number" value="10" aria-label="Penalty yards" placeholder="Yards"></div><div class="form-row"><input id="penPlayer" inputmode="numeric" placeholder="Player #" aria-label="Player number"></div><div class="pen-checks"><label><input type="checkbox" id="spotFoul"> Enforce from spot of foul</label><div id="foulSpotFields" class="foul-spot-fields hidden"><span class="field-hint">Spot of foul</span><select id="foulSpotSide" aria-label="Spot of foul side"><option>OWN</option><option>OPP</option><option>50</option></select><input id="foulSpotYard" type="number" min="0" max="49" placeholder="Yard" aria-label="Spot of foul yard line"></div><label><input type="checkbox" id="negate"> Ignore play yardage; enforce from previous LOS</label><label><input type="checkbox" id="repeatDown"> Repeat down / no play</label><label><input type="checkbox" id="autoFirst"> Automatic first down</label></div><div class="form-row"><button class="btn btn-light" id="attachPenalty">Apply Penalty</button><button class="btn btn-light" id="clearPenalty">Clear Current</button></div><div class="summary penalty-list" id="penSummary">No penalties applied.</div>`}
+function penaltyPane(){return `<div class="section-label">Side</div><div class="seg pen-toggle" id="penSideToggle"><button class="active" data-pen-side="Offense">Offense</button><button data-pen-side="Defense">Defense</button></div><div class="section-label">Apply To</div><div class="seg pen-toggle" id="penApplyToggle"><button class="active" data-apply="current">Current</button><button data-apply="former">Former</button><button data-apply="next">Next Play</button></div><div class="section-label">Status</div><div class="seg pen-toggle" id="penStatusToggle"><button class="active" data-status="accepted">Accepted</button><button data-status="declined">Declined</button></div><div class="form-row"><select id="penType"><option>Holding</option><option>False Start</option><option>Delay of Game</option><option>Offside</option><option>Pass Interference</option><option>Personal Foul</option><option>Illegal Formation</option><option>Illegal Motion</option><option>Facemask</option><option>Unsportsmanlike Conduct</option><option>Other</option></select><input id="penYards" type="number" value="10" aria-label="Penalty yards" placeholder="Yards"></div><div class="form-row"><input id="penPlayer" inputmode="numeric" placeholder="Player #" aria-label="Player number"></div><div class="pen-checks"><label><input type="checkbox" id="spotFoul"> Enforce from spot of foul</label><div id="foulSpotFields" class="foul-spot-fields hidden"><span class="field-hint">Spot of foul</span><select id="foulSpotSide" aria-label="Spot of foul side"><option>OWN</option><option>OPP</option><option>50</option></select><input id="foulSpotYard" type="number" min="0" max="49" placeholder="Yard" aria-label="Spot of foul yard line"></div><label><input type="checkbox" id="negate"> Ignore play yardage; enforce from previous LOS</label><label><input type="checkbox" id="repeatDown"> Repeat down / no play</label><label><input type="checkbox" id="autoFirst"> Automatic first down</label></div><div class="form-row"><button class="btn btn-light" id="attachPenalty">Apply Penalty</button><button class="btn btn-light" id="clearPenalty">Clear Current</button></div><div class="summary penalty-list" id="penSummary">No penalties applied.</div><div class="summary pending-penalty-list" id="pendingPenSummary"></div>`}
 function specialPane(g,t){
  if(g.kickoffPending)return kickoffPane(g,t);
  if(g.puntPending)return puntPane(g,t);
@@ -1621,11 +1626,11 @@ function bindGame(g,t){
      const secondHalfKicker=other(g.openingKick||'team'),secondHalfReceiver=g.openingKick||'team';
      const kickerName=teamSide(g,t,secondHalfKicker).name,receiverName=teamSide(g,t,secondHalfReceiver).name;
      if(!confirm(`Advance to ${g.format==='halves'?'2nd half':'Q3'} and begin the second-half kickoff?\n\n${kickerName} kicks to ${receiverName}.`))return;
-     g.period=toPeriod;beginHalftimeKickoff(g);save();toast(`${g.format==='halves'?'2nd half':'Q3'} · ${kickerName} kicks to ${receiverName}`);renderGame(g.id);return
+     g.period=toPeriod;beginHalftimeKickoff(g);applyPendingPenalties(g);save();toast(`${g.format==='halves'?'2nd half':'Q3'} · ${kickerName} kicks to ${receiverName}`);renderGame(g.id);return
    }
    const label=g.format==='halves'?`Half ${toPeriod}`:`Q${toPeriod}`;
    if(!confirm(`Advance to ${label}?`))return;
-   g.period=toPeriod;save();toast(`Advanced to ${label}`);renderGame(g.id)
+   g.period=toPeriod;applyPendingPenalties(g);save();toast(`Advanced to ${label}`);renderGame(g.id)
  };
  $$('.play-row').forEach(r=>r.onclick=()=>{selectedPlayId=r.dataset.play;$$('.play-row').forEach(x=>x.style.outline=x.dataset.play===selectedPlayId?'2px solid #00D4FF':'none')});
  if(!g.kickoffPending){bindOffense(g);bindDefense(g);bindPenalty(g);bindSpecial(g)}
@@ -1781,6 +1786,44 @@ function renderDefenders(){
    :'No defensive actions yet.'
 }
 
+
+function penaltyShiftForSide(g,p,dir){
+ // Penalty "side" is relative to the offense of the play on which it will be enforced.
+ return (p.side==='Offense'?-Number(p.yards||0):Number(p.yards||0))*(dir||1)
+}
+function pendingPenaltyText(g){
+ const list=g.pendingPenalties||[];
+ return list.length
+   ?`<b>Pending for next play:</b> `+list.map((p,i)=>`${i+1}. ${esc(p.side)} ${esc(p.type)}${p.player?` #${esc(p.player)}`:''} ${p.yards} yd ${String(p.status||'accepted').toUpperCase()}`).join(' · ')
+   :''
+}
+function applyPendingPenalties(g){
+ const list=(g.pendingPenalties||[]).filter(p=>p.status==='accepted');
+ if(!list.length){g.pendingPenalties=[];return false}
+ if(g.kickoffPending&&g.kickoff){
+   // Enforce on the kickoff itself. startYard is measured from the kicking team's goal line.
+   let from=Number(g.kickoff.startYard??g.kickoffYard??40);
+   for(const p of list){
+     from+=p.side==='Offense'?-Number(p.yards||0):Number(p.yards||0);
+   }
+   from=Math.max(1,Math.min(50,from));
+   g.kickoff.startYard=from;
+   g.kickoff.startSpot=screenSpot(from,g.kickoff.kickDir||1);
+   g.los=g.kickoff.startSpot;
+ }else{
+   // Scrimmage next play. Keep the down but move the ball and recompute distance to the existing line to gain.
+   const dir=g.driveDir||1;
+   const oldLos=g.los;
+   const target=clamp(oldLos+dir*(g.toGo||10));
+   let spot=oldLos;
+   for(const p of list)spot=clamp(spot+penaltyShiftForSide(g,p,dir));
+   g.los=spot;
+   g.toGo=Math.max(1,Math.abs(target-spot));
+ }
+ g.pendingPenalties=[];
+ return true
+}
+
 function bindPenalty(g){
  const activate=root=>{$$(root+' button').forEach(b=>b.onclick=()=>{$$(root+' button').forEach(x=>x.classList.remove('active'));b.classList.add('active')})};
  activate('#penSideToggle');activate('#penApplyToggle');activate('#penStatusToggle');
@@ -1816,6 +1859,7 @@ function bindPenalty(g){
    $('#penSummary').innerHTML=currentPlay.penalties.length
      ?currentPlay.penalties.map((p,i)=>`<div>${i+1}. ${p.side} ${p.type}${p.player?` #${esc(p.player)}`:''} ${p.yards} yd · ${p.status.toUpperCase()}${p.spotFoul&&p.foulSpot!=null?` · FOUL @ ${fmtDrive(p.foulSpot,g.driveDir||1)}`:''}${p.negate?' · PREVIOUS LOS':''}${p.repeatDown?' · REPEAT DOWN':''}</div>`).join('')
      :'No penalties applied.';
+   if($('#pendingPenSummary'))$('#pendingPenSummary').innerHTML=pendingPenaltyText(g);
  };
  $('#attachPenalty').onclick=()=>{
    const spotChecked=$('#spotFoul').checked;
@@ -1833,6 +1877,12 @@ function bindPenalty(g){
      repeatDown:$('#repeatDown').checked,
      autoFirst:$('#autoFirst').checked
    };
+   if(p.applyTo==='next'){
+     // Dead-ball / succeeding-spot foul. Keep it with the game state until the next play is established.
+     p.spotFoul=false;p.foulSpot=null;p.negate=false;p.repeatDown=false;p.autoFirst=false;
+     g.pendingPenalties??=[];g.pendingPenalties.push(structuredClone(p));
+     save();render();toast('Penalty will be enforced on the next play.');return;
+   }
    if(p.applyTo==='former'){
      const former=g.plays[g.plays.length-1];if(!former)return toast('There is no former play to apply the penalty to.');
      former.penalties??=[];former.penalties.push(structuredClone(p));
@@ -1998,6 +2048,7 @@ function savePlay(g,t){
    if(selectedSt==='PAT')beginKickoffAfterScore(g,g.poss);
    else if(currentPlay.kickGood)beginKickoffAfterScore(g,g.poss);
    else{if(!blocked||kickRecoveryTeam==='Defense'){g.poss=other(g.poss);g.driveDir=-(g.driveDir||1)}g.down=1;g.toGo=10;g.los=start}
+   applyPendingPenalties(g);
    save();renderGame(g.id);return
  }
 
@@ -2043,6 +2094,7 @@ function savePlay(g,t){
    g.plays.push({id:uid(),kind:'2PT',team:before.poss,period:before.period,start,end,yds:end-start,desc,before,player:currentPlay.player,qb:currentPlay.qb,receiver:currentPlay.receiver,passResult:currentPlay.passResult,tryResult:currentPlay.tryResult,fumble:currentPlay.fumble,fumbleRecovery:currentPlay.fumbleRecovery,fumbleDetail:currentPlay.fumbleDetail?structuredClone(currentPlay.fumbleDetail):null,badSnap:structuredClone(currentPlay.badSnap),penalties:structuredClone(currentPlay.penalties),defenders:structuredClone(currentPlay.defenders)});
    g.tryType=null;
    beginKickoffAfterScore(g,before.poss);
+   applyPendingPenalties(g);
    save();renderGame(g.id);return
  }
 
@@ -2067,6 +2119,7 @@ function savePlay(g,t){
  if(currentPlay.passResult==='Interception'&&currentPlay.interception?.returnTD)score(g,other(before.poss),6);
  if(!g.awaitingTry&&!g.kickoffPending)applyAfterPlay(g,currentPlay,start,end);
  if(currentPlay.passResult==='Interception'&&currentPlay.interception?.returnTD){g.awaitingTry=true;g.tryType=null}
+ if(!g.awaitingTry)applyPendingPenalties(g);
  save();renderGame(g.id)
 }
 function applyAfterPlay(g,p,start,end){

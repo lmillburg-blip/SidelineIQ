@@ -1,7 +1,22 @@
-SIDELINEIQ v0.42.2
-- Replaces the hand-drawn v0.42.1 SVG action icons with artwork taken directly from the approved icon mockup.
-- Mockup-derived icons: Run, Pass, Bad Snap, Fumble, Normal, Touchdown, Tackle, Sack, Pass Breakup, Pressure, Safety, Defensive TD.
-- Mobile buttons remain icon-only.
-- TFL, Hurry, and Missed remain removed from live defensive entry.
-- Special Teams and Penalty workflows are unchanged.
-- Existing v0.42.1 data migrates forward.
+SIDELINEIQ v0.42.3
+
+Mobile/UI
+- Significantly reduced offense and defense icon-button size.
+- Increased center-field emphasis.
+- Restored/refined polished Analytics and Player Stats presentation.
+- Analytics modal remains independently scrollable on mobile.
+
+Penalties
+- Added Apply To: Next Play.
+- Next-play penalties persist as game state rather than being tied to the current play.
+- Supports PAT/2PT fouls enforced on the ensuing kickoff.
+- Supports succeeding-spot penalties across quarter/half boundaries.
+- Halftime next-play penalties are enforced on the second-half kickoff.
+- Pending next-play penalties are visibly summarized in the Penalty pane.
+
+Stats
+- TFL remains removed as a manual live-entry action.
+- Negative-yardage plays now derive TFL/TFL yards for recorded tacklers.
+- Hurry and Missed remain removed from live entry and the main defensive analytics table.
+
+Existing v0.42.2 data migrates forward.

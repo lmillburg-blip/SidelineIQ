@@ -1,21 +1,13 @@
-SIDELINEIQ v0.41.0 — CLEAN MOBILE REBUILD
+SIDELINEIQ v0.41.1
 
-Deep-dive finding:
-v0.40.5/v0.40.6 WERE structurally re-parenting the panes. The screenshots prove
-that because their order changed to Offense -> Special Teams -> Field -> Defense.
-The failure was the styling/orientation layer: multiple generations of mobile CSS
-(v0.40.1 through v0.40.6) were competing with the original responsive rules, and
-the vertical field itself still depended on CSS rules from the original <=760px
-portrait media query.
-
-v0.41.0:
-- removes all experimental v0.40.x mobile CSS overrides
-- keeps desktop CSS intact
-- builds the mobile left | vertical field | right structure in JavaScript
-- applies the critical mobile geometry INLINE with !important
-- applies vertical field primitives INLINE with !important
-- no media query or body :has selector is required for the core geometry
-- removes both decorative brand areas from the live mobile scoring screen
-- keeps Plays / Undo / Edit / Stats / Control
-- resets scroll to top after composing the mobile screen
-- migrates v0.40.6 data
+Changes from v0.41.0:
+- Offense, Defense, Special Teams, and Penalty headers now collapse/expand on mobile.
+- Penalty starts collapsed.
+- Special Teams remains open for kickoff/punt workflows.
+- Collapse glyph changes between + and minus.
+- Defense action controls are forced into a compact two-column grid.
+- Defense inputs/buttons/chips cannot widen the column.
+- Horizontal overflow is suppressed inside all mobile side panes.
+- Special Teams controls wrap inside the left column.
+- Desktop behavior remains unchanged.
+- Migrates v0.41.0 data.

@@ -993,3 +993,93 @@ button{cursor:pointer}
 .mobile-score-workspace input,.mobile-score-workspace select{width:100%;min-width:0;max-width:none}
 .mobile-score-workspace .player-memory{display:none}
 .mobile-game-active .savebar{position:sticky;bottom:0;z-index:45;grid-template-columns:minmax(0,1fr) 104px}
+
+
+/* v0.41.1 — collapsible side panes + no horizontal scrolling */
+.mobile-score-workspace,
+.mobile-score-workspace .mobile-score-side,
+.mobile-score-workspace .pane,
+.mobile-score-workspace .pane-body{
+  min-width:0!important;
+  max-width:100%!important;
+  overflow-x:hidden!important;
+}
+.mobile-score-workspace .pane-title{
+  cursor:pointer;
+  user-select:none;
+}
+.mobile-score-workspace .mobile-collapse-glyph{
+  margin-left:auto;
+  padding-left:4px;
+  font-size:18px;
+  font-weight:900;
+  line-height:1;
+}
+.mobile-score-workspace .pane.mobile-collapsed .pane-body{display:none!important}
+
+/* Defense is intentionally dense: force every action into a true 2-column grid. */
+.mobile-score-workspace .pane.def .action-grid{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:3px!important;
+  width:100%!important;
+  min-width:0!important;
+  overflow:hidden!important;
+}
+.mobile-score-workspace .pane.def .action-grid > *{
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  margin:0!important;
+  padding:5px 2px!important;
+  font-size:7.5px!important;
+  line-height:1.08!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+}
+.mobile-score-workspace .pane.def .form-row{
+  width:100%!important;
+  min-width:0!important;
+}
+.mobile-score-workspace .pane.def input,
+.mobile-score-workspace .pane.def select,
+.mobile-score-workspace .pane.def button{
+  min-width:0!important;
+  max-width:100%!important;
+}
+.mobile-score-workspace .pane.def .seg{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  gap:3px!important;
+  width:100%!important;
+}
+.mobile-score-workspace .pane.def .seg > *{
+  min-width:0!important;
+  width:100%!important;
+}
+.mobile-score-workspace .pane.def .chips{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:3px!important;
+  width:100%!important;
+  min-width:0!important;
+}
+.mobile-score-workspace .pane.def .chips > *{
+  min-width:0!important;
+  max-width:100%!important;
+  font-size:7px!important;
+}
+
+/* Special Teams also wraps instead of widening the left column. */
+.mobile-score-workspace .pane.st .seg,
+.mobile-score-workspace .pane.st .action-grid{
+  width:100%!important;
+  min-width:0!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+.mobile-score-workspace .pane.st button{
+  min-width:0!important;
+  max-width:100%!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+}

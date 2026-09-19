@@ -1,16 +1,15 @@
-SIDELINEIQ v0.40.1 — MOBILE FIELD-CENTERED GAMEPLAY
+SIDELINEIQ v0.40.2 — MOBILE GUI CORRECTION
 
-- Desktop gameplay preserved from v0.30.1.
-- Portrait mobile uses a vertical field as the center spine.
-- Offense + Special Teams sit left of the field.
-- Defense + Penalty sit right of the field.
-- Offense/Defense panels can remain open while the field stays visible.
-- Pass workflow remains inside Offense with QB, receiver, result, sack and interception branches.
-- Mobile top actions now include first-class Plays, Undo, Edit, Analytics.
-- Edit defaults directly to the most recent play when no play has been selected.
-- All Plays rows are tap-to-edit on mobile in addition to their Edit buttons.
-- Field dragging is vertical in portrait mobile; desktop remains horizontal.
-- Mobile play log/editor reflow to phone width.
-- Existing v0.30.1 analytics reliability fix retained.
-- Existing v0.30 workflow-completeness features retained.
-- Migrates data from v0.30.1 and earlier.
+This corrects the v0.40.1 mobile implementation to match the approved prototype:
+- true three-column portrait workspace
+- vertical field permanently centered
+- Offense above Special Teams on the left
+- Defense above Penalty on the right
+- compact scoreboard/header
+- Undo and Edit remain first-class mobile actions
+- existing live controls are moved into the mobile workspace (not duplicated)
+- desktop DOM/workflow remains unchanged
+- viewport detection is applied in JS for reliability on iPhone Safari
+- migrates v0.40.1 data
+
+Upload all files/folders to the GitHub repository root.

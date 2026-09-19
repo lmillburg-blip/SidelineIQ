@@ -1056,3 +1056,149 @@ button{cursor:pointer}
   .retro-edit-modal{max-height:none;overflow:visible}
   .retro-grid,.retro-defender-row{grid-template-columns:1fr!important}
 }
+
+
+/* v0.40.2 — deterministic phone portrait workspace.
+   JS applies .siq-mobile-portrait from the actual rendered viewport. */
+body.siq-mobile-portrait .topbar{display:none!important}
+body.siq-mobile-portrait .game-page{padding:3px 3px 66px!important;max-width:none!important}
+body.siq-mobile-portrait .game-brand{display:none!important}
+
+body.siq-mobile-portrait .game-top{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 78px minmax(0,1fr)!important;
+  gap:3px!important;
+  position:sticky!important;top:0!important;z-index:50!important;
+  padding:3px!important;background:#061b24!important
+}
+body.siq-mobile-portrait .score-card{
+  min-width:0!important;min-height:48px!important;padding:5px 6px!important;
+  display:flex!important;align-items:center!important;justify-content:space-between!important
+}
+body.siq-mobile-portrait .score-card .team-label{
+  max-width:92px!important;font-size:10px!important;white-space:normal!important;
+  line-height:1.05!important;overflow:hidden!important
+}
+body.siq-mobile-portrait .score-card .score-value{font-size:25px!important}
+body.siq-mobile-portrait .game-state{
+  grid-column:auto!important;order:initial!important;min-width:0!important;
+  padding:3px!important;display:grid!important;place-content:center!important
+}
+body.siq-mobile-portrait .game-state .period{font-size:11px!important}
+body.siq-mobile-portrait .game-state .downline{
+  display:block!important;font-size:10px!important;line-height:1.05!important;margin-top:2px!important
+}
+body.siq-mobile-portrait .game-state .pos{display:none!important}
+
+body.siq-mobile-portrait .game-top .nav-strip{
+  grid-column:1/-1!important;display:grid!important;
+  grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:2px!important;
+  overflow:hidden!important;padding:2px!important
+}
+body.siq-mobile-portrait .game-top .nav-button{
+  display:flex!important;width:auto!important;min-width:0!important;min-height:42px!important;
+  padding:3px 1px!important;font-size:7px!important;line-height:1!important;
+  align-items:center!important;justify-content:center!important;border-radius:5px!important
+}
+body.siq-mobile-portrait .game-top .nav-button .ico{font-size:13px!important}
+body.siq-mobile-portrait .game-top .mobile-primary-action{display:flex!important}
+body.siq-mobile-portrait .game-top .secondary-mobile-nav{display:flex!important}
+body.siq-mobile-portrait .game-top .mobile-hide-action,
+body.siq-mobile-portrait .game-top .settings-nav,
+body.siq-mobile-portrait .game-top .danger-nav{display:none!important}
+
+/* This is the actual three-column mobile DOM, not absolute-positioned desktop panes. */
+body.siq-mobile-portrait .mobile-live-workspace{
+  display:grid;grid-template-columns:minmax(0,1fr) 112px minmax(0,1fr);
+  gap:4px;align-items:start;margin-top:4px;min-width:0
+}
+body.siq-mobile-portrait .mobile-live-side{
+  display:grid;grid-template-columns:minmax(0,1fr);gap:5px;align-content:start;min-width:0
+}
+body.siq-mobile-portrait .mobile-live-center{min-width:0}
+body.siq-mobile-portrait .mobile-live-workspace .pane{
+  position:static!important;left:auto!important;right:auto!important;top:auto!important;
+  width:auto!important;min-width:0!important;margin:0!important;border-radius:7px!important;
+  overflow:hidden!important
+}
+body.siq-mobile-portrait .mobile-live-workspace .pane-title{
+  min-height:40px!important;padding:5px 5px!important;font-size:9px!important;
+  line-height:1.05!important;justify-content:space-between!important
+}
+body.siq-mobile-portrait .mobile-live-workspace .pane-body{
+  padding:5px!important;max-height:none!important;overflow:visible!important
+}
+body.siq-mobile-portrait .mobile-live-workspace .pane.mobile-collapsed .pane-body{display:none!important}
+body.siq-mobile-portrait .mobile-live-workspace .pane.mobile-open .pane-body{display:block!important}
+body.siq-mobile-portrait .mobile-live-workspace .section-label{font-size:7px!important;margin:4px 0 2px!important}
+body.siq-mobile-portrait .mobile-live-workspace .seg{grid-template-columns:1fr 1fr!important;gap:2px!important}
+body.siq-mobile-portrait .mobile-live-workspace .seg button{
+  min-height:36px!important;padding:3px 2px!important;font-size:8px!important;white-space:normal!important
+}
+body.siq-mobile-portrait .mobile-live-workspace .form-row{
+  display:grid!important;grid-template-columns:1fr!important;gap:2px!important;margin-top:3px!important
+}
+body.siq-mobile-portrait .mobile-live-workspace .form-row label{font-size:7px!important}
+body.siq-mobile-portrait .mobile-live-workspace .form-row input,
+body.siq-mobile-portrait .mobile-live-workspace .form-row select{
+  width:100%!important;max-width:none!important;min-width:0!important;
+  padding:5px 3px!important;font-size:10px!important
+}
+body.siq-mobile-portrait .mobile-live-workspace .summary,
+body.siq-mobile-portrait .mobile-live-workspace .notice{font-size:8px!important;line-height:1.25!important;padding:4px!important}
+body.siq-mobile-portrait .mobile-live-workspace .player-memory{display:none!important}
+body.siq-mobile-portrait .mobile-live-workspace .action-grid{grid-template-columns:1fr 1fr!important;gap:2px!important}
+body.siq-mobile-portrait .mobile-live-workspace .action-grid button{
+  min-height:35px!important;font-size:7px!important;padding:3px 1px!important
+}
+body.siq-mobile-portrait .mobile-live-workspace .btn{font-size:8px!important;padding:5px 3px!important;min-width:0!important}
+
+/* Vertical field stays visible between the entry columns. */
+body.siq-mobile-portrait .mobile-live-center .field-panel{
+  padding:3px!important;border-radius:7px!important;background:#082630!important;min-width:0!important
+}
+body.siq-mobile-portrait .mobile-live-center .field{
+  width:100%!important;height:430px!important;min-height:430px!important;border-width:2px!important
+}
+body.siq-mobile-portrait .mobile-live-center .field-controls{
+  display:grid!important;grid-template-columns:1fr 1fr!important;gap:2px!important;margin-top:3px!important
+}
+body.siq-mobile-portrait .mobile-live-center .field-controls .mini{
+  min-width:0!important;padding:3px 2px!important
+}
+body.siq-mobile-portrait .mobile-live-center .field-controls .mini:first-child{grid-column:1/-1!important}
+body.siq-mobile-portrait .mobile-live-center .mini small{font-size:6px!important;white-space:normal!important}
+body.siq-mobile-portrait .mobile-live-center .mini b{font-size:9px!important}
+body.siq-mobile-portrait .mobile-live-center .los-control{
+  display:grid!important;grid-template-columns:1fr 1fr!important;gap:2px!important
+}
+body.siq-mobile-portrait .mobile-live-center .los-control .btn{grid-column:1/-1!important}
+body.siq-mobile-portrait .mobile-live-center .los-control select,
+body.siq-mobile-portrait .mobile-live-center .los-control input,
+body.siq-mobile-portrait .mobile-live-center .los-control .btn{
+  width:100%!important;min-width:0!important;height:27px!important;font-size:8px!important;padding:2px!important
+}
+
+body.siq-mobile-portrait .recent-panel{display:none!important}
+body.siq-mobile-portrait .savebar{
+  position:sticky!important;bottom:0!important;z-index:45!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr) 104px!important;
+  gap:4px!important;padding:4px!important;margin-top:4px!important
+}
+body.siq-mobile-portrait .play-note{font-size:10px!important;padding:7px!important;min-width:0!important}
+body.siq-mobile-portrait .save-actions{display:grid!important;grid-template-columns:1fr 38px!important;gap:3px!important}
+
+/* Make the mobile play editor genuinely touch-first. */
+body.siq-mobile-portrait .modal-wrap{padding:5px!important;align-items:start!important;overflow:auto!important}
+body.siq-mobile-portrait .modal{width:calc(100vw - 10px)!important;max-width:none!important;padding:10px!important;margin-top:5px!important}
+body.siq-mobile-portrait .allplay-row{
+  min-width:0!important;display:grid!important;
+  grid-template-columns:24px 28px 34px minmax(0,1fr)!important;
+  gap:4px!important;padding:8px 4px!important
+}
+body.siq-mobile-portrait .allplay-edit{grid-column:1/-1!important;min-height:40px!important}
+
+@media(max-width:380px){
+ body.siq-mobile-portrait .mobile-live-workspace{grid-template-columns:minmax(0,1fr) 96px minmax(0,1fr)}
+ body.siq-mobile-portrait .game-top .nav-strip{grid-template-columns:repeat(7,minmax(43px,1fr))!important;overflow-x:auto!important}
+}

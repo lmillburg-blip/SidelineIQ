@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.40.1';
-const DBKEY='sidelineiq_v0401';
-const LEGACY_KEYS=['sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.40.2';
+const DBKEY='sidelineiq_v0402';
+const LEGACY_KEYS=['sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 let mobilePaneOpen='off';
@@ -959,7 +959,7 @@ function renderGame(id){
  <div class="pane pen" data-pane="pen"><button type="button" class="pane-title" data-pane-toggle="pen"><span>PENALTY</span><span class="pane-chevron">⌄</span></button><div class="pane-body">${penaltyPane()}</div></div>
  </section>
  <section class="savebar"><input class="play-note" id="playNote" placeholder="Play notes (optional) — e.g. screen right, blitz, alignment..."><div class="save-actions"><button class="btn btn-primary" id="savePlay">✓ Save Play</button><button class="btn btn-light" id="clearPlay">Clear</button></div></section></main>`);
- bindGame(g,t);drawField(g,t)
+ applyMobileGameLayout();bindGame(g,t);drawField(g,t)
 }
 
 function offensePane(g){
@@ -1283,6 +1283,41 @@ function beginHalftimeKickoff(g){
  g.los=g.kickoff.startSpot;
  currentPlay=defaultPlay(g);
  selectedSt='Kickoff';
+}
+
+
+function applyMobileGameLayout(){
+ const page=document.querySelector('.game-page');
+ if(!page)return;
+ const portrait=window.innerWidth<=760&&window.innerHeight>window.innerWidth;
+ document.body.classList.toggle('siq-mobile-portrait',portrait);
+ if(!portrait)return;
+
+ const fieldPanel=page.querySelector('.field-panel');
+ const workbench=page.querySelector('.workbench');
+ if(!fieldPanel||!workbench||page.querySelector('.mobile-live-workspace'))return;
+
+ const off=workbench.querySelector('.pane.off');
+ const def=workbench.querySelector('.pane.def');
+ const st=workbench.querySelector('.pane.st');
+ const pen=workbench.querySelector('.pane.pen');
+ if(!off||!def||!st||!pen)return;
+
+ const wrap=document.createElement('section');
+ wrap.className='mobile-live-workspace';
+ const left=document.createElement('div'); left.className='mobile-live-side mobile-live-left';
+ const center=document.createElement('div'); center.className='mobile-live-center';
+ const right=document.createElement('div'); right.className='mobile-live-side mobile-live-right';
+
+ left.append(off,st);
+ center.append(fieldPanel);
+ right.append(def,pen);
+ wrap.append(left,center,right);
+
+ const main=page.querySelector('.main-grid');
+ main.parentNode.insertBefore(wrap,main);
+ main.remove();
+ workbench.remove();
 }
 
 function bindGame(g,t){

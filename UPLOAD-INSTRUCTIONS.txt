@@ -1,15 +1,14 @@
-SIDELINEIQ v0.40.2 — MOBILE GUI CORRECTION
+SIDELINEIQ v0.40.3 — MOBILE CRASH HOTFIX
 
-This corrects the v0.40.1 mobile implementation to match the approved prototype:
-- true three-column portrait workspace
-- vertical field permanently centered
-- Offense above Special Teams on the left
-- Defense above Penalty on the right
-- compact scoreboard/header
-- Undo and Edit remain first-class mobile actions
-- existing live controls are moved into the mobile workspace (not duplicated)
-- desktop DOM/workflow remains unchanged
-- viewport detection is applied in JS for reliability on iPhone Safari
-- migrates v0.40.1 data
+Root cause fixed:
+v0.40.2 removes the desktop Recent Plays panel from the portrait-mobile DOM.
+bindGame still tried to bind #undoPlay and #editPlay from that removed panel,
+causing the live game screen to abort during initialization.
 
-Upload all files/folders to the GitHub repository root.
+v0.40.3:
+- guards the desktop-only Recent Plays action bindings
+- keeps the dedicated mobile Undo button functional
+- keeps the dedicated mobile Edit button functional
+- preserves the v0.40.2 three-column / vertical-field mobile redesign
+- preserves desktop behavior
+- migrates v0.40.2 data

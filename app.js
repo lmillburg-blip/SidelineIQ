@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.40.2';
-const DBKEY='sidelineiq_v0402';
-const LEGACY_KEYS=['sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.40.3';
+const DBKEY='sidelineiq_v0403';
+const LEGACY_KEYS=['sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 let mobilePaneOpen='off';
@@ -1365,7 +1365,10 @@ function bindGame(g,t){
  };
  const sy=sideYard(relSpot(g.los,g.driveDir||1));$('#losSide').value=sy.side;$('#losYard').value=sy.yard;
  $('#setLos').onclick=()=>{if(g.kickoffPending)return toast('Finish the kickoff first.');if(g.puntPending)return toast('Finish the punt first.');const side=$('#losSide').value,y=+$('#losYard').value||0;const rel=side==='50'?50:side==='OWN'?y:100-y;g.los=screenSpot(rel,g.driveDir||1);g.los=clamp(g.los);currentPlay.end=g.los;save();renderGame(g.id)};
- $('#savePlay').onclick=()=>savePlay(g,t);$('#clearPlay').onclick=()=>renderGame(g.id);$('#undoPlay').onclick=()=>undoPlay(g);$('#editPlay').onclick=()=>editSelected(g);
+ if($('#savePlay'))$('#savePlay').onclick=()=>savePlay(g,t);
+ if($('#clearPlay'))$('#clearPlay').onclick=()=>renderGame(g.id);
+ if($('#undoPlay'))$('#undoPlay').onclick=()=>undoPlay(g);
+ if($('#editPlay'))$('#editPlay').onclick=()=>editSelected(g);
  if($('#nextPeriod'))$('#nextPeriod').onclick=()=>{
    const max=g.format==='halves'?2:4;
    if(g.period>=max){

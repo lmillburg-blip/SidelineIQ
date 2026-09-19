@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.40.6';
-const DBKEY='sidelineiq_v0406';
-const LEGACY_KEYS=['sidelineiq_v0405','sidelineiq_v0404','sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.41.0';
+const DBKEY='sidelineiq_v0410';
+const LEGACY_KEYS=['sidelineiq_v0406','sidelineiq_v0405','sidelineiq_v0404','sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 let mobilePaneOpen='off';
@@ -1289,14 +1289,18 @@ function beginHalftimeKickoff(g){
 function isMobileGameLayout(){
  return window.innerWidth<=900;
 }
+function important(el,prop,val){
+ if(el)el.style.setProperty(prop,val,'important');
+}
 function composeMobileGameLayout(){
  const page=document.querySelector('.game-page');
- if(!page)return;
- const mobile=isMobileGameLayout();
- document.body.classList.toggle('siq-mobile-portrait',mobile);
- if(!mobile)return;
+ if(!page||!isMobileGameLayout())return false;
 
- // Remove decorative live-game branding on the scoring screen.
+ page.classList.add('mobile-game-active');
+ document.body.classList.add('mobile-game-active');
+
+ // Remove both decorative brand areas from the live scoring screen.
+ document.querySelector('.topbar')?.remove();
  page.querySelector('.game-brand')?.remove();
 
  const top=page.querySelector('.game-top');
@@ -1304,18 +1308,18 @@ function composeMobileGameLayout(){
  const workbench=page.querySelector('.workbench');
  const fieldPanel=page.querySelector('.field-panel');
  const recent=page.querySelector('.recent-panel');
- if(!top||!main||!workbench||!fieldPanel)return;
+ if(!top||!main||!workbench||!fieldPanel)return false;
 
- // Mobile toolbar is intentionally only the five scoring actions from the approved prototype.
+ // Exactly five mobile game actions.
  const nav=top.querySelector('.nav-strip');
  if(nav){
    [...nav.children].forEach(b=>{
-     const keep=['gamePlays','mobileUndo','mobileEdit','gameAnalytics','gameControl'].includes(b.id);
-     if(!keep)b.remove();
+     if(!['gamePlays','mobileUndo','mobileEdit','gameAnalytics','gameControl'].includes(b.id))b.remove();
    });
-   const analytics=nav.querySelector('#gameAnalytics');
-   if(analytics){
-     analytics.childNodes.forEach(n=>{if(n.nodeType===Node.TEXT_NODE)n.textContent='Stats'});
+   const a=nav.querySelector('#gameAnalytics');
+   if(a){
+     const ico=a.querySelector('.ico')?.outerHTML||'<span class="ico">▥</span>';
+     a.innerHTML=ico+'Stats';
    }
  }
 
@@ -1323,35 +1327,72 @@ function composeMobileGameLayout(){
  const def=workbench.querySelector('.pane.def');
  const st=workbench.querySelector('.pane.st');
  const pen=workbench.querySelector('.pane.pen');
- if(!off||!def||!st||!pen)return;
+ if(!off||!def||!st||!pen)return false;
 
- // Dedicated structural composition: these are the original functional panes,
- // physically re-parented before binding. No absolute positioning / overlay trick.
- const mobileRoot=document.createElement('section');
- mobileRoot.className='mobile-score-workspace';
- const left=document.createElement('div');
- left.className='mobile-score-side mobile-score-left';
- const center=document.createElement('div');
- center.className='mobile-score-center';
- const right=document.createElement('div');
- right.className='mobile-score-side mobile-score-right';
+ const root=document.createElement('section');
+ root.className='mobile-score-workspace';
+ const left=document.createElement('div');left.className='mobile-score-side mobile-score-left';
+ const center=document.createElement('div');center.className='mobile-score-center';
+ const right=document.createElement('div');right.className='mobile-score-side mobile-score-right';
+ left.append(off,st);center.append(fieldPanel);right.append(def,pen);root.append(left,center,right);
+ main.replaceWith(root);workbench.remove();recent?.remove();
 
- left.append(off,st);
- center.append(fieldPanel);
- right.append(def,pen);
- mobileRoot.append(left,center,right);
+ // Geometry is applied inline with !important so it cannot be defeated by
+ // legacy desktop/mobile CSS or a stale stylesheet.
+ important(page,'padding','4px 4px 70px');
+ important(page,'max-width','none');
+ important(top,'display','grid');
+ important(top,'grid-template-columns','minmax(0,1fr) 82px minmax(0,1fr)');
+ important(top,'gap','4px');
+ important(top,'padding','5px');
+ important(top,'position','sticky');
+ important(top,'top','0');
+ important(top,'z-index','50');
 
- main.replaceWith(mobileRoot);
- workbench.remove();
- recent?.remove();
-
- // Opening kick/punt should surface Special Teams but should not expand the
- // entire page; the other panes remain present beside the field.
- if(document.querySelector('.pane.st')){
-   const special=document.querySelector('.pane.st');
-   special.classList.toggle('mobile-open',true);
-   special.classList.remove('mobile-collapsed');
+ if(nav){
+   important(nav,'grid-column','1 / -1');
+   important(nav,'display','grid');
+   important(nav,'grid-template-columns','repeat(5,minmax(0,1fr))');
+   important(nav,'gap','4px');
+   important(nav,'overflow','hidden');
+   [...nav.children].forEach(b=>{
+     important(b,'display','flex');important(b,'width','auto');important(b,'min-width','0');
+     important(b,'min-height','54px');important(b,'font-size','10px');
+   });
  }
+
+ important(root,'display','grid');
+ important(root,'grid-template-columns','minmax(0,1fr) 104px minmax(0,1fr)');
+ important(root,'gap','5px');
+ important(root,'align-items','start');
+ important(root,'width','100%');
+ important(root,'min-width','0');
+
+ [left,right].forEach(side=>{
+   important(side,'display','grid');important(side,'grid-template-columns','minmax(0,1fr)');
+   important(side,'gap','5px');important(side,'align-content','start');important(side,'min-width','0');
+ });
+ important(center,'min-width','0');
+
+ [off,def,st,pen].forEach(p=>{
+   important(p,'position','static');important(p,'inset','auto');important(p,'float','none');
+   important(p,'width','auto');important(p,'max-width','none');important(p,'min-width','0');
+   important(p,'min-height','0');important(p,'height','auto');important(p,'margin','0');
+   important(p,'overflow','hidden');
+   const body=p.querySelector('.pane-body');
+   if(body){important(body,'padding','6px');important(body,'max-height','470px');important(body,'overflow','auto')}
+ });
+
+ important(fieldPanel,'width','100%');important(fieldPanel,'min-width','0');important(fieldPanel,'margin','0');important(fieldPanel,'padding','3px');
+ const field=fieldPanel.querySelector('.field');
+ if(field){
+   important(field,'width','100%');important(field,'height','500px');important(field,'min-height','500px');
+   important(field,'margin','0');important(field,'border-width','3px');
+ }
+
+ // Never restore the user's prior desktop scroll position into a different mobile geometry.
+ requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));
+ return true;
 }
 function bindGame(g,t){
  if(g.kickoffPending||g.puntPending)mobilePaneOpen='st';
@@ -1898,17 +1939,35 @@ function drawField(g,t){
  const perspective=g.kickoffPending?(k.phase==='kick'?(k.kickDir||1)===1?k.kickingTeam:other(k.kickingTeam):(-(k.kickDir||1))===1?k.receivingTeam:other(k.receivingTeam)):g.puntPending?(p.phase==='kick'?(p.kickDir||1)===1?p.puntingTeam:other(p.puntingTeam):(-(p.kickDir||1))===1?p.receivingTeam:other(p.receivingTeam)):intRet?.phase==='return'?((-(driveDir||1))===1?other(g.poss):g.poss):(driveDir===1?g.poss:other(g.poss)),left=teamSide(g,t,perspective),right=teamSide(g,t,other(perspective));
  let ballAbs=g.kickoffPending?(k.phase==='kick'?(k.landing??k.startSpot??k.startYard):(k.returnEnd??k.landing)):g.puntPending?(p.phase==='kick'?(p.landing??p.startSpot):(p.returnEnd??p.landing)):intRet?(intRet.phase==='return'?(intRet.returnEnd??intRet.catchSpot):(intRet.catchSpot??currentPlay.end)):currentPlay.end;
  const portrait=()=>!!document.querySelector('.mobile-score-workspace');
- const place=(el,pct,kind='mark')=>{if(portrait()){el.style.setProperty('--mobile-yard-top',pct+'%');if(kind==='ball')el.style.setProperty('--mobile-ball-top',pct+'%')}else el.style.left=pct+'%'};
+ const place=(el,pct,kind='mark')=>{
+   if(portrait()){
+     if(kind==='ball'){
+       important(el,'left','50%');important(el,'top',pct+'%');important(el,'width','25px');important(el,'height','16px');important(el,'transform','translate(-50%,-50%) rotate(90deg)');
+     }else{
+       important(el,'left','0');important(el,'right','0');important(el,'top',pct+'%');important(el,'bottom','auto');
+       if(el.classList.contains('yard-line')){important(el,'width','auto');important(el,'height',el.classList.contains('major')?'2px':'1px')}
+       if(el.classList.contains('hash')){important(el,'left','50%');important(el,'right','auto');important(el,'width','7px');important(el,'height','1px');important(el,'transform','translate(-50%,-50%)')}
+       if(el.classList.contains('los-line')||el.classList.contains('fd-line')||el.classList.contains('kick-line')){important(el,'width','auto');important(el,'height','3px')}
+     }
+   }else important(el,'left',pct+'%')
+ };
  f.innerHTML=`<div class="endzone left" style="background:${left.color};color:${textColor(left.color)}">${esc(left.name.slice(0,12))}</div><div class="endzone right" style="background:${right.color};color:${textColor(right.color)}">${esc(right.name.slice(0,12))}</div><div class="field-inner" id="fieldInner"></div>`;
  const inner=$('#fieldInner');
+ if(portrait()){
+   important(f,'height','500px');important(f,'min-height','500px');important(f,'width','100%');
+   const ezL=f.querySelector('.endzone.left'),ezR=f.querySelector('.endzone.right');
+   [ezL,ezR].forEach(e=>{important(e,'left','0');important(e,'right','0');important(e,'width','auto');important(e,'height','7%');important(e,'writing-mode','horizontal-tb');important(e,'transform','none')});
+   important(ezL,'top','0');important(ezL,'bottom','auto');important(ezR,'top','auto');important(ezR,'bottom','0');
+   important(inner,'left','0');important(inner,'right','0');important(inner,'top','7%');important(inner,'bottom','7%');
+ }
  for(let y=0;y<=100;y+=5){const d=document.createElement('div');d.className='yard-line'+(y%10===0?' major':'');place(d,y);inner.appendChild(d)}
- for(let y=10;y<100;y+=10){const n=y<=50?y:100-y;['top','bottom'].forEach(pos=>{const d=document.createElement('div');d.className='yard-number '+pos;place(d,y);d.textContent=n;inner.appendChild(d)})}
+ for(let y=10;y<100;y+=10){const n=y<=50?y:100-y;['top','bottom'].forEach(pos=>{const d=document.createElement('div');d.className='yard-number '+pos;place(d,y);d.textContent=n;if(portrait()){important(d,'font-size','8px');important(d,'bottom','auto');if(pos==='top'){important(d,'left','7px');important(d,'right','auto');important(d,'transform','translateY(-50%) rotate(90deg)')}else{important(d,'left','auto');important(d,'right','7px');important(d,'transform','translateY(-50%) rotate(-90deg)')}}inner.appendChild(d)})}
  for(let y=1;y<100;y++){const d=document.createElement('div');d.className='hash';place(d,y);inner.appendChild(d)}
  if(!g.kickoffPending&&!g.puntPending){const los=document.createElement('div');los.className='los-line';place(los,g.los);inner.appendChild(los);const fd=document.createElement('div');fd.className='fd-line';place(fd,clamp(g.los+(g.driveDir||1)*g.toGo));inner.appendChild(fd)}
  else if(g.kickoffPending&&g.kickoff.phase==='kick'){const kl=document.createElement('div');kl.className='kick-line';place(kl,g.kickoff.startSpot??screenSpot(g.kickoff.startYard,g.kickoff.kickDir||1));inner.appendChild(kl)}
  else if(g.puntPending&&g.punt.phase==='kick'){const pl=document.createElement('div');pl.className='kick-line';place(pl,g.punt.startSpot);inner.appendChild(pl)}
  const ball=document.createElement('div');ball.className='football';place(ball,ballAbs,'ball');inner.appendChild(ball);
- const setBall=(clientX,clientY)=>{const r=inner.getBoundingClientRect();const pct=clamp(portrait()?((clientY-r.top)/r.height*100):((clientX-r.left)/r.width*100));if(portrait())ball.style.setProperty('--mobile-ball-top',pct+'%');else ball.style.left=pct+'%';if($('#ballText'))$('#ballText').textContent=fmtDrive(pct,g.driveDir||1);if(g.kickoffPending){if(g.kickoff.phase==='kick')g.kickoff.landing=pct;else g.kickoff.returnEnd=pct;save()}else if(g.puntPending){if(g.punt.phase==='kick')g.punt.landing=pct;else g.punt.returnEnd=pct;save()}else if(intRet){if(intRet.phase==='catch'){intRet.catchSpot=pct;currentPlay.end=pct}else{intRet.returnEnd=pct;currentPlay.end=pct}}else currentPlay.end=pct};
+ const setBall=(clientX,clientY)=>{const r=inner.getBoundingClientRect();const pct=clamp(portrait()?((clientY-r.top)/r.height*100):((clientX-r.left)/r.width*100));if(portrait())important(ball,'top',pct+'%');else ball.style.left=pct+'%';if($('#ballText'))$('#ballText').textContent=fmtDrive(pct,g.driveDir||1);if(g.kickoffPending){if(g.kickoff.phase==='kick')g.kickoff.landing=pct;else g.kickoff.returnEnd=pct;save()}else if(g.puntPending){if(g.punt.phase==='kick')g.punt.landing=pct;else g.punt.returnEnd=pct;save()}else if(intRet){if(intRet.phase==='catch'){intRet.catchSpot=pct;currentPlay.end=pct}else{intRet.returnEnd=pct;currentPlay.end=pct}}else currentPlay.end=pct};
  let drag=false;ball.addEventListener('pointerdown',e=>{drag=true;ball.setPointerCapture(e.pointerId);e.preventDefault()});ball.addEventListener('pointermove',e=>{if(drag)setBall(e.clientX,e.clientY)});ball.addEventListener('pointerup',e=>{drag=false;setBall(e.clientX,e.clientY);if(g.kickoffPending||g.puntPending)renderGame(g.id)});inner.addEventListener('click',e=>{if(e.target===ball)return;setBall(e.clientX,e.clientY);if(g.kickoffPending||g.puntPending)renderGame(g.id)})
 }
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(console.warn));

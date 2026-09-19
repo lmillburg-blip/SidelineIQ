@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.40.4';
-const DBKEY='sidelineiq_v0404';
-const LEGACY_KEYS=['sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.40.5';
+const DBKEY='sidelineiq_v0405';
+const LEGACY_KEYS=['sidelineiq_v0404','sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 let mobilePaneOpen='off';
@@ -959,7 +959,7 @@ function renderGame(id){
  <div class="pane pen" data-pane="pen"><button type="button" class="pane-title" data-pane-toggle="pen"><span>PENALTY</span><span class="pane-chevron">⌄</span></button><div class="pane-body">${penaltyPane()}</div></div>
  </section>
  <section class="savebar"><input class="play-note" id="playNote" placeholder="Play notes (optional) — e.g. screen right, blitz, alignment..."><div class="save-actions"><button class="btn btn-primary" id="savePlay">✓ Save Play</button><button class="btn btn-light" id="clearPlay">Clear</button></div></section></main>`);
- applyMobileGameLayout();bindGame(g,t);drawField(g,t)
+ composeMobileGameLayout();bindGame(g,t);drawField(g,t)
 }
 
 function offensePane(g){
@@ -1286,23 +1286,38 @@ function beginHalftimeKickoff(g){
 }
 
 
-function applyMobileGameLayout(){
+function isMobileGameLayout(){
+ return window.innerWidth<=900;
+}
+function composeMobileGameLayout(){
  const page=document.querySelector('.game-page');
  if(!page)return;
- const portrait=window.innerWidth<=900;
- document.body.classList.toggle('siq-mobile-portrait',portrait);
- if(!portrait)return;
- const analyticsLabel=document.querySelector('#gameAnalytics');
- if(analyticsLabel){
-   const ico=analyticsLabel.querySelector('.ico');
-   analyticsLabel.innerHTML='';
-   if(ico)analyticsLabel.appendChild(ico);
-   analyticsLabel.appendChild(document.createTextNode('Stats'));
- }
+ const mobile=isMobileGameLayout();
+ document.body.classList.toggle('siq-mobile-portrait',mobile);
+ if(!mobile)return;
 
- const fieldPanel=page.querySelector('.field-panel');
+ // Remove decorative live-game branding on the scoring screen.
+ page.querySelector('.game-brand')?.remove();
+
+ const top=page.querySelector('.game-top');
+ const main=page.querySelector('.main-grid');
  const workbench=page.querySelector('.workbench');
- if(!fieldPanel||!workbench||page.querySelector('.mobile-live-workspace'))return;
+ const fieldPanel=page.querySelector('.field-panel');
+ const recent=page.querySelector('.recent-panel');
+ if(!top||!main||!workbench||!fieldPanel)return;
+
+ // Mobile toolbar is intentionally only the five scoring actions from the approved prototype.
+ const nav=top.querySelector('.nav-strip');
+ if(nav){
+   [...nav.children].forEach(b=>{
+     const keep=['gamePlays','mobileUndo','mobileEdit','gameAnalytics','gameControl'].includes(b.id);
+     if(!keep)b.remove();
+   });
+   const analytics=nav.querySelector('#gameAnalytics');
+   if(analytics){
+     analytics.childNodes.forEach(n=>{if(n.nodeType===Node.TEXT_NODE)n.textContent='Stats'});
+   }
+ }
 
  const off=workbench.querySelector('.pane.off');
  const def=workbench.querySelector('.pane.def');
@@ -1310,23 +1325,34 @@ function applyMobileGameLayout(){
  const pen=workbench.querySelector('.pane.pen');
  if(!off||!def||!st||!pen)return;
 
- const wrap=document.createElement('section');
- wrap.className='mobile-live-workspace';
- const left=document.createElement('div'); left.className='mobile-live-side mobile-live-left';
- const center=document.createElement('div'); center.className='mobile-live-center';
- const right=document.createElement('div'); right.className='mobile-live-side mobile-live-right';
+ // Dedicated structural composition: these are the original functional panes,
+ // physically re-parented before binding. No absolute positioning / overlay trick.
+ const mobileRoot=document.createElement('section');
+ mobileRoot.className='mobile-score-workspace';
+ const left=document.createElement('div');
+ left.className='mobile-score-side mobile-score-left';
+ const center=document.createElement('div');
+ center.className='mobile-score-center';
+ const right=document.createElement('div');
+ right.className='mobile-score-side mobile-score-right';
 
  left.append(off,st);
  center.append(fieldPanel);
  right.append(def,pen);
- wrap.append(left,center,right);
+ mobileRoot.append(left,center,right);
 
- const main=page.querySelector('.main-grid');
- main.parentNode.insertBefore(wrap,main);
- main.remove();
+ main.replaceWith(mobileRoot);
  workbench.remove();
-}
+ recent?.remove();
 
+ // Opening kick/punt should surface Special Teams but should not expand the
+ // entire page; the other panes remain present beside the field.
+ if(document.querySelector('.pane.st')){
+   const special=document.querySelector('.pane.st');
+   special.classList.toggle('mobile-open',true);
+   special.classList.remove('mobile-collapsed');
+ }
+}
 function bindGame(g,t){
  if(g.kickoffPending||g.puntPending)mobilePaneOpen='st';
  const syncMobilePanes=()=>{
@@ -1354,7 +1380,7 @@ function bindGame(g,t){
  if($('#mobileUndo'))$('#mobileUndo').onclick=()=>undoPlay(g);
  if($('#mobileEdit'))$('#mobileEdit').onclick=()=>{const id=selectedPlayId||(g.plays.length?g.plays[g.plays.length-1].id:null);if(!id)return toast('No play to edit.');showPlayEditor(g,t,id)};
  if($('#allPlays'))$('#allPlays').onclick=()=>showAllPlays(g,t);
- $('#resetGame').onclick=()=>{
+ if($('#resetGame'))$('#resetGame').onclick=()=>{
    const ok=confirm(`Are you sure you want to reset this game against ${g.opponent}?\n\nThis will permanently clear all plays, scores, penalties, and game progress. The game itself will remain on the schedule.`);
    if(!ok)return;
    resetGameState(g);
@@ -1362,7 +1388,7 @@ function bindGame(g,t){
    toast('Game reset');
    renderGame(g.id);
  };
- $('#deleteGame').onclick=()=>{
+ if($('#deleteGame'))$('#deleteGame').onclick=()=>{
    const ok=confirm(`Are you sure you want to DELETE this game against ${g.opponent}?\n\nThis will permanently delete the game and all recorded plays and statistics. This cannot be undone.`);
    if(!ok)return;
    const teamId=g.teamId;

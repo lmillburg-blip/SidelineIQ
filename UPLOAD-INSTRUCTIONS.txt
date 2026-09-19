@@ -1,18 +1,17 @@
-SIDELINEIQ v0.40.4 — MOBILE LAYOUT ACTIVATION FIX
+SIDELINEIQ v0.40.5 — STRUCTURAL MOBILE REBUILD
 
-The v0.40.3 screenshot showed the old accordion mobile layout was still active.
-Root issue: the deployed iPhone viewport was not satisfying the old <=760px
-mobile-layout test, so the three-column DOM transformation never ran.
+This release stops trying to visually rearrange the desktop scoring page with CSS.
 
-v0.40.4:
-- activates the approved mobile layout through 900px viewport width
-- makes the vertical-field renderer follow the activated mobile-layout class
-- mobile header matches the prototype more closely
-- mobile nav is Plays / Undo / Edit / Stats / Control
-- removes Games and Drives from the mobile scoring header
-- actual Offense + Special Teams are placed left of the field
-- actual Defense + Penalty are placed right of the field
-- field remains permanently centered/vertical
-- retains v0.40.3 crash fix and all existing game workflows
-- desktop remains unchanged above the mobile breakpoint
-- migrates v0.40.3 data
+On mobile (<=900px), before event binding:
+- the decorative live-game logo is removed
+- the toolbar is reduced to Plays / Undo / Edit / Stats / Control
+- the actual Offense and Special Teams panes are physically placed left of the field
+- the actual Defense and Penalty panes are physically placed right of the field
+- the actual field panel is physically placed in the center
+- Recent Plays is removed from the mobile scoring workspace
+- the original functional controls are re-parented; they are not duplicated
+- kickoff automatically exposes Special Teams beside the field
+- desktop remains unchanged
+- migrates v0.40.4 data
+
+Upload all files/folders to the repository root.

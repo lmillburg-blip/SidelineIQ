@@ -140,7 +140,7 @@ button{cursor:pointer}
 
 
 /* v0.20.1 In-game analytics — high contrast / full-width */
-.modal:has(.modal:has(.analytics-modal){
+.modal.analytics-shell{
   width:min(1420px,97vw);
   max-width:none;
   max-height:94vh;
@@ -344,7 +344,7 @@ button{cursor:pointer}
  .analytics-hero-row{grid-template-columns:150px 1fr}
 }
 @media(max-width:900px){
- .modal:has(.modal:has(.analytics-modal){width:97vw;padding:12px}
+ .modal.analytics-shell{width:97vw;padding:12px}
  .analytics-compare{grid-template-columns:1fr}
  .analytics-hero-row{grid-template-columns:1fr}
  .analytics-kpis{grid-template-columns:repeat(3,1fr)}
@@ -353,7 +353,7 @@ button{cursor:pointer}
 
 /* v0.20.2 All Plays / halftime correction workspace */
 .all-plays-btn{padding:6px 10px;font-size:11px}
-.modal:has(.allplays-modal),.modal:has(.retro-edit-modal){
+.modal:has(.allplays-modal),.modal.retro-edit-shell{
   width:min(1260px,96vw);
   max-width:none;
   max-height:94vh;
@@ -967,7 +967,7 @@ button{cursor:pointer}
 }
 
 /* v0.30.1 analytics reliability */
-.modal:has(.analytics-modal){
+.modal.analytics-shell{
   width:min(1420px,97vw);
   max-width:none;
   max-height:94vh;
@@ -977,7 +977,7 @@ button{cursor:pointer}
 .analytics-error{color:#fff}
 .analytics-error p{color:#b7cdd6}
 @media(max-width:760px){
-  .modal:has(.analytics-modal){width:98vw;padding:8px;max-height:94vh}
+  .modal.analytics-shell{width:98vw;padding:8px;max-height:94vh}
   .analytics-compare{grid-template-columns:1fr}
 }
 
@@ -1245,7 +1245,7 @@ body.modal-open{overflow:hidden!important;touch-action:none}
 .play-notes-modal textarea{width:100%;resize:vertical;min-height:130px;border:1px solid #b9c8cf;border-radius:10px;background:#fff;color:#102635;padding:11px;font:inherit}
 
 /* Cleaner retro editor: same card/form language as the rest of SidelineIQ. */
-.modal:has(.retro-edit-modal){padding:0!important;border-radius:16px!important;background:#f4f8fa!important}
+.modal.retro-edit-shell{padding:0!important;border-radius:16px!important;background:#f4f8fa!important}
 .retro-edit-modal{background:#f4f8fa!important;color:#102635!important;padding:0!important}
 .retro-edit-head{
   margin:0!important;padding:16px 18px!important;
@@ -1335,7 +1335,7 @@ body.modal-open{overflow:hidden!important;touch-action:none}
  .modal-wrap{padding:7px!important;place-items:center!important}
  .modal:has(.retro-edit-modal),
  .modal:has(.allplays-modal),
- .modal:has(.analytics-modal){
+ .modal.analytics-shell{
    width:calc(100vw - 14px)!important;
    max-width:none!important;
    height:auto!important;
@@ -1569,7 +1569,7 @@ body.modal-open{overflow:hidden!important;touch-action:none}
 }
 
 /* v0.42.3 — polished game analytics */
-.modal:has(.analytics-modal){
+.modal.analytics-shell{
   width:min(1120px,96vw)!important;
   max-width:none!important;
   padding:0!important;
@@ -1617,7 +1617,7 @@ body.modal-open{overflow:hidden!important;touch-action:none}
 .stat-player-link{color:#007ea3!important}
 
 /* Player stats use the same polished card language. */
-.modal:has(.player-stat-modal){
+.modal.player-stat-shell{
   padding:0!important;background:#eef4f7!important;border-radius:18px!important;
 }
 .player-stat-modal{width:min(820px,94vw)!important;padding:14px!important}
@@ -1630,7 +1630,7 @@ body.modal-open{overflow:hidden!important;touch-action:none}
 .player-stat-numbers div{background:#edf4f7!important;border:1px solid #dce6ea!important}
 
 @media(max-width:900px){
-  .modal:has(.analytics-modal){width:97vw!important;max-height:96dvh!important}
+  .modal.analytics-shell{width:97vw!important;max-height:96dvh!important}
   .analytics-modal{padding:0 8px 10px!important}
   .analytics-modal-head{margin:0 -8px 9px!important;padding:10px 11px!important}
   .analytics-modal-head h2{font-size:17px!important}
@@ -1660,4 +1660,99 @@ body.modal-open{overflow:hidden!important;touch-action:none}
   .mobile-game-active .pane.off .play-action-icon{width:35px!important;height:35px!important}
   .mobile-game-active .pane.def .play-action-icon{width:31px!important;height:31px!important}
   .mobile-game-active .mobile-score-workspace{grid-template-columns:minmax(0,.69fr) 124px minmax(0,.74fr)!important}
+}
+
+/* v0.42.4 — authoritative polished stats/analytics shells, no :has() dependency */
+.modal.analytics-shell{
+  width:min(1080px,96vw)!important;
+  max-width:none!important;
+  max-height:94dvh!important;
+  overflow:hidden!important;
+  padding:0!important;
+  border:1px solid #2b6271!important;
+  border-radius:16px!important;
+  background:#edf4f7!important;
+  box-shadow:0 24px 70px rgba(0,0,0,.48)!important;
+}
+.modal.analytics-shell .analytics-modal{
+  width:100%!important;
+  max-height:94dvh!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  padding:0 12px 14px!important;
+  background:#edf4f7!important;
+  color:#102635!important;
+}
+.modal.analytics-shell .analytics-modal-head{
+  position:sticky!important;top:0!important;z-index:8!important;
+  margin:0 -12px 12px!important;padding:12px 14px!important;
+  background:linear-gradient(180deg,#0b3441,#072630)!important;
+  border-bottom:2px solid #00d4ff!important;
+}
+.modal.analytics-shell .analytics-compare{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important}
+.modal.analytics-shell .analytics-team-card{
+  padding:10px!important;border-radius:12px!important;background:#fff!important;
+  border:1px solid #cfdee4!important;border-top:5px solid var(--team-color)!important;
+  box-shadow:0 4px 14px rgba(15,38,53,.09)!important;
+}
+.modal.analytics-shell .analytics-team-head{margin-bottom:7px!important}
+.modal.analytics-shell .analytics-team-head h3{font-size:17px!important}
+.modal.analytics-shell .analytics-hero-row{grid-template-columns:105px 1fr!important;gap:6px!important;margin-bottom:7px!important}
+.modal.analytics-shell .analytics-total,
+.modal.analytics-shell .analytics-split>div{min-height:70px!important;padding:7px!important}
+.modal.analytics-shell .analytics-total b{font-size:27px!important}
+.modal.analytics-shell .analytics-split b{font-size:20px!important}
+.modal.analytics-shell .analytics-kpis{grid-template-columns:repeat(3,1fr)!important;gap:4px!important;margin-bottom:7px!important}
+.modal.analytics-shell .analytics-kpi{padding:5px!important;border-radius:8px!important}
+.modal.analytics-shell .analytics-kpi b{font-size:15px!important}
+.modal.analytics-shell .stat-section{margin-top:8px!important}
+.modal.analytics-shell .stat-table{font-size:10px!important}
+.modal.analytics-shell .stat-table th,
+.modal.analytics-shell .stat-table td{padding:5px 4px!important}
+
+.modal.player-stat-shell{
+  width:min(760px,95vw)!important;max-height:94dvh!important;overflow:hidden!important;
+  padding:0!important;border-radius:16px!important;background:#edf4f7!important;
+}
+.modal.player-stat-shell .player-stat-modal{
+  max-height:94dvh!important;overflow-y:auto!important;padding:12px!important;
+  background:#edf4f7!important;color:#102635!important;
+}
+.modal.player-stat-shell .player-stat-hero{
+  border-radius:12px!important;background:#fff!important;
+  border:1px solid #d0dfe5!important;border-left:6px solid var(--team-color)!important;
+  box-shadow:0 4px 12px rgba(15,38,53,.08)!important;
+}
+.modal.player-stat-shell .player-stat-card{
+  background:#fff!important;border:1px solid #d6e2e7!important;border-radius:11px!important;
+  box-shadow:0 3px 10px rgba(15,38,53,.06)!important;
+}
+.modal.player-stat-shell .player-stat-numbers div{
+  background:#f0f6f8!important;border:1px solid #dbe6ea!important;border-radius:8px!important;
+}
+
+/* Hard visual fallback. JS also applies these dimensions inline. */
+.mobile-game-active .pane.off .icon-action-btn{width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important}
+.mobile-game-active .pane.def .icon-action-btn{width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important}
+.mobile-game-active .pane.off .play-action-icon{width:30px!important;height:30px!important}
+.mobile-game-active .pane.def .play-action-icon{width:28px!important;height:28px!important}
+
+@media(max-width:760px){
+  .modal.analytics-shell{width:calc(100vw - 10px)!important;max-height:97dvh!important}
+  .modal.analytics-shell .analytics-modal{max-height:97dvh!important;padding:0 7px 9px!important}
+  .modal.analytics-shell .analytics-modal-head{margin:0 -7px 7px!important;padding:9px 10px!important}
+  .modal.analytics-shell .analytics-modal-head h2{font-size:16px!important}
+  .modal.analytics-shell .analytics-modal-head p{display:none!important}
+  .modal.analytics-shell .analytics-compare{grid-template-columns:1fr!important;gap:7px!important}
+  .modal.analytics-shell .analytics-team-card{padding:7px!important}
+  .modal.analytics-shell .analytics-team-head h3{font-size:15px!important}
+  .modal.analytics-shell .analytics-hero-row{grid-template-columns:82px 1fr!important;gap:4px!important}
+  .modal.analytics-shell .analytics-total,
+  .modal.analytics-shell .analytics-split>div{min-height:58px!important;padding:5px!important}
+  .modal.analytics-shell .analytics-total b{font-size:22px!important}
+  .modal.analytics-shell .analytics-split b{font-size:17px!important}
+  .modal.analytics-shell .analytics-kpi b{font-size:13px!important}
+  .modal.analytics-shell .stat-table{font-size:8.5px!important}
+  .modal.analytics-shell .stat-table th,
+  .modal.analytics-shell .stat-table td{padding:4px 3px!important}
 }

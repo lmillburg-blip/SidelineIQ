@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.42.3';
-const DBKEY='sidelineiq_v0423';
-const LEGACY_KEYS=['sidelineiq_v0422','sidelineiq_v0421','sidelineiq_v0420','sidelineiq_v0415','sidelineiq_v0414','sidelineiq_v0413','sidelineiq_v0412','sidelineiq_v0411','sidelineiq_v0410','sidelineiq_v0406','sidelineiq_v0405','sidelineiq_v0404','sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.42.4';
+const DBKEY='sidelineiq_v0424';
+const LEGACY_KEYS=['sidelineiq_v0423','sidelineiq_v0422','sidelineiq_v0421','sidelineiq_v0420','sidelineiq_v0415','sidelineiq_v0414','sidelineiq_v0413','sidelineiq_v0412','sidelineiq_v0411','sidelineiq_v0410','sidelineiq_v0406','sidelineiq_v0405','sidelineiq_v0404','sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 let mobilePaneOpen='off';
@@ -70,7 +70,9 @@ function removeModal(w=document.querySelector('.modal-wrap')){
  if(!document.querySelector('.modal-wrap'))document.body.classList.remove('modal-open')
 }
 function showModal(html){
- const w=document.createElement('div');w.className='modal-wrap';w.innerHTML=`<div class="modal">${html}</div>`;
+ const w=document.createElement('div');w.className='modal-wrap';
+ const shellClass=html.includes('analytics-modal')?' analytics-shell':html.includes('player-stat-modal')?' player-stat-shell':html.includes('allplays-modal')?' allplays-shell':html.includes('retro-edit-modal')?' retro-edit-shell':'';
+ w.innerHTML=`<div class="modal${shellClass}">${html}</div>`;
  document.body.appendChild(w);document.body.classList.add('modal-open');
  $$('[data-close]',w).forEach(b=>b.onclick=()=>removeModal(w));
  w.onclick=e=>{if(e.target===w)removeModal(w)}
@@ -617,7 +619,7 @@ function showGameValidation(g,t,onFinalize){
 function uiIcon(name){
  const mockupIcons=new Set(['run','pass','badsnap','fumble','normal','td','tackle','sack','pbu','pressure','safety','deftd']);
  const ext=mockupIcons.has(name)?'png':'svg';
- return `<img class="play-action-icon" src="./icons/actions/${name}.${ext}?v=0423" alt="" aria-hidden="true">`;
+ return `<img class="play-action-icon" src="./icons/actions/${name}.${ext}?v=0424" alt="" aria-hidden="true">`;
 }
 function iconButton(icon,label,attrs='',extra=''){
  return `<button ${attrs} class="icon-action-btn ${extra}" aria-label="${esc(label)}" title="${esc(label)}">${uiIcon(icon)}<span class="action-text">${esc(label)}</span></button>`;
@@ -1474,7 +1476,7 @@ function composeMobileGameLayout(){
  }
 
  important(root,'display','grid');
- important(root,'grid-template-columns','minmax(0,.95fr) 88px minmax(0,1.15fr)');
+ important(root,'grid-template-columns','minmax(0,.82fr) 112px minmax(0,.94fr)');
  important(root,'gap','4px');
  important(root,'align-items','start');
  important(root,'width','100%');
@@ -1495,10 +1497,34 @@ function composeMobileGameLayout(){
    if(body){important(body,'padding','5px');important(body,'max-height','none');important(body,'overflow','hidden')}
  });
 
+ // v0.42.4: icon geometry is controlled here because legacy CSS from earlier mobile
+ // iterations was still winning on some iPhones. These are deliberately compact.
+ [...off.querySelectorAll('.icon-action-btn')].forEach(b=>{
+   important(b,'width','38px');important(b,'height','38px');important(b,'min-width','38px');
+   important(b,'min-height','38px');important(b,'flex','0 0 38px');important(b,'padding','3px');
+   important(b,'aspect-ratio','auto');
+   const img=b.querySelector('.play-action-icon');
+   if(img){important(img,'width','30px');important(img,'height','30px')}
+ });
+ [...def.querySelectorAll('.icon-action-btn')].forEach(b=>{
+   important(b,'width','34px');important(b,'height','34px');important(b,'min-width','34px');
+   important(b,'min-height','34px');important(b,'flex','0 0 34px');important(b,'padding','2px');
+   important(b,'aspect-ratio','auto');
+   const img=b.querySelector('.play-action-icon');
+   if(img){important(img,'width','28px');important(img,'height','28px')}
+ });
+ [off.querySelector('.icon-action-grid'),def.querySelector('.defense-icon-grid')].filter(Boolean).forEach(grid=>{
+   important(grid,'display','flex');important(grid,'flex-wrap','wrap');
+   important(grid,'grid-template-columns','none');important(grid,'gap','3px');
+   important(grid,'justify-content','flex-start');important(grid,'width','100%');
+ });
+ const badSnap=off.querySelector('.bad-snap-toggle');
+ if(badSnap){important(badSnap,'width','38px');important(badSnap,'height','38px');important(badSnap,'min-width','38px')}
+
  important(fieldPanel,'width','100%');important(fieldPanel,'min-width','0');important(fieldPanel,'margin','0');important(fieldPanel,'padding','3px');
  const field=fieldPanel.querySelector('.field');
  if(field){
-   important(field,'width','100%');important(field,'height','500px');important(field,'min-height','500px');
+   important(field,'width','100%');important(field,'height','535px');important(field,'min-height','535px');
    important(field,'margin','0');important(field,'border-width','3px');
  }
 

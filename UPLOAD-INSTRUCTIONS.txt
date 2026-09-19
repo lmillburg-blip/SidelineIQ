@@ -1,22 +1,17 @@
-SIDELINEIQ v0.42.3
+SIDELINEIQ v0.42.4
 
-Mobile/UI
-- Significantly reduced offense and defense icon-button size.
-- Increased center-field emphasis.
-- Restored/refined polished Analytics and Player Stats presentation.
-- Analytics modal remains independently scrollable on mobile.
+This is a corrective build for changes that were not visibly landing in v0.42.3.
 
-Penalties
-- Added Apply To: Next Play.
-- Next-play penalties persist as game state rather than being tied to the current play.
-- Supports PAT/2PT fouls enforced on the ensuing kickoff.
-- Supports succeeding-spot penalties across quarter/half boundaries.
-- Halftime next-play penalties are enforced on the second-half kickoff.
-- Pending next-play penalties are visibly summarized in the Penalty pane.
+ROOT CAUSE / FIXES
+- Mobile scoring layout is assembled by JavaScript and uses inline !important geometry.
+  v0.42.3 tried to resize several controls primarily in CSS, so legacy rules could still win.
+- v0.42.4 applies icon dimensions directly in composeMobileGameLayout():
+  offense 38x38, defense 34x34, with smaller artwork inside.
+- Center field widened from 88px to 112px and increased to 535px tall.
+- Analytics styling no longer depends on CSS :has(). showModal() now assigns explicit
+  analytics-shell / player-stat-shell classes, so iPhone Safari receives the intended design.
+- Corrected malformed historical analytics selectors left by an older CSS patch.
+- Next Play penalty support from v0.42.3 is preserved, including PAT/2PT and cross-period enforcement.
+- TFL remains derived from negative yardage; Hurry/Missed remain removed.
 
-Stats
-- TFL remains removed as a manual live-entry action.
-- Negative-yardage plays now derive TFL/TFL yards for recorded tacklers.
-- Hurry and Missed remain removed from live entry and the main defensive analytics table.
-
-Existing v0.42.2 data migrates forward.
+Existing v0.42.3 data migrates forward.

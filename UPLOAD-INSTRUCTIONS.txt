@@ -1,17 +1,14 @@
-SIDELINEIQ v0.40.5 — STRUCTURAL MOBILE REBUILD
+SIDELINEIQ v0.40.6 — MOBILE STRUCTURAL STYLE FIX
 
-This release stops trying to visually rearrange the desktop scoring page with CSS.
+The v0.40.5 screenshot proved the structural re-parenting occurred, but the
+mobile workspace CSS was not being applied. The evidence: the live-game duplicate
+logo was gone, but Offense / Special Teams / Field / Defense were still stacked
+full-width and the field remained horizontal.
 
-On mobile (<=900px), before event binding:
-- the decorative live-game logo is removed
-- the toolbar is reduced to Plays / Undo / Edit / Stats / Control
-- the actual Offense and Special Teams panes are physically placed left of the field
-- the actual Defense and Penalty panes are physically placed right of the field
-- the actual field panel is physically placed in the center
-- Recent Plays is removed from the mobile scoring workspace
-- the original functional controls are re-parented; they are not duplicated
-- kickoff automatically exposes Special Teams beside the field
-- desktop remains unchanged
-- migrates v0.40.4 data
-
-Upload all files/folders to the repository root.
+v0.40.6 fixes the actual cause:
+- mobile workspace CSS keys directly from .mobile-score-workspace
+- no dependency on the body mobile class or a media query for workspace geometry
+- field orientation keys directly from .mobile-score-workspace
+- topbar hiding keys from the existence of the structural workspace
+- preserves structural left | field | right DOM from v0.40.5
+- migrates v0.40.5 data

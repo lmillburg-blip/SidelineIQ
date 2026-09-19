@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.40.5';
-const DBKEY='sidelineiq_v0405';
-const LEGACY_KEYS=['sidelineiq_v0404','sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.40.6';
+const DBKEY='sidelineiq_v0406';
+const LEGACY_KEYS=['sidelineiq_v0405','sidelineiq_v0404','sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 let mobilePaneOpen='off';
@@ -1897,7 +1897,7 @@ function drawField(g,t){
  const f=$('#field');if(!f)return;const driveDir=g.driveDir||1,k=g.kickoff,p=g.punt,intRet=currentPlay?.type==='Pass'&&currentPlay?.passResult==='Interception'?currentPlay.interception:null;
  const perspective=g.kickoffPending?(k.phase==='kick'?(k.kickDir||1)===1?k.kickingTeam:other(k.kickingTeam):(-(k.kickDir||1))===1?k.receivingTeam:other(k.receivingTeam)):g.puntPending?(p.phase==='kick'?(p.kickDir||1)===1?p.puntingTeam:other(p.puntingTeam):(-(p.kickDir||1))===1?p.receivingTeam:other(p.receivingTeam)):intRet?.phase==='return'?((-(driveDir||1))===1?other(g.poss):g.poss):(driveDir===1?g.poss:other(g.poss)),left=teamSide(g,t,perspective),right=teamSide(g,t,other(perspective));
  let ballAbs=g.kickoffPending?(k.phase==='kick'?(k.landing??k.startSpot??k.startYard):(k.returnEnd??k.landing)):g.puntPending?(p.phase==='kick'?(p.landing??p.startSpot):(p.returnEnd??p.landing)):intRet?(intRet.phase==='return'?(intRet.returnEnd??intRet.catchSpot):(intRet.catchSpot??currentPlay.end)):currentPlay.end;
- const portrait=()=>document.body.classList.contains('siq-mobile-portrait');
+ const portrait=()=>!!document.querySelector('.mobile-score-workspace');
  const place=(el,pct,kind='mark')=>{if(portrait()){el.style.setProperty('--mobile-yard-top',pct+'%');if(kind==='ball')el.style.setProperty('--mobile-ball-top',pct+'%')}else el.style.left=pct+'%'};
  f.innerHTML=`<div class="endzone left" style="background:${left.color};color:${textColor(left.color)}">${esc(left.name.slice(0,12))}</div><div class="endzone right" style="background:${right.color};color:${textColor(right.color)}">${esc(right.name.slice(0,12))}</div><div class="field-inner" id="fieldInner"></div>`;
  const inner=$('#fieldInner');

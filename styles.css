@@ -1468,3 +1468,121 @@ body.siq-mobile-portrait .allplay-edit{grid-column:1/-1!important;min-height:40p
  }
  body.siq-mobile-portrait .mobile-score-center .field{height:455px!important;min-height:455px!important}
 }
+
+
+/* v0.40.6 — mobile workspace styles key directly from the structural DOM.
+   No dependency on body classes or viewport/media-query matching. */
+body:has(.mobile-score-workspace) .topbar{display:none!important}
+body:has(.mobile-score-workspace) .game-page{
+  padding:4px 4px 70px!important;max-width:none!important;margin:0!important;background:#071f29!important
+}
+body:has(.mobile-score-workspace) .game-brand{display:none!important}
+body:has(.mobile-score-workspace) .game-top{
+  position:sticky!important;top:0!important;z-index:50!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr) 82px minmax(0,1fr)!important;
+  gap:4px!important;padding:5px!important;background:#071f29!important;border-bottom:1px solid #31525d!important
+}
+body:has(.mobile-score-workspace) .game-top .score-card{
+  min-width:0!important;min-height:64px!important;padding:7px 8px!important;border-radius:11px!important;
+  display:flex!important;align-items:center!important;justify-content:space-between!important
+}
+body:has(.mobile-score-workspace) .game-top .team-label{
+  max-width:100px!important;font-size:10px!important;line-height:1.05!important;white-space:normal!important
+}
+body:has(.mobile-score-workspace) .game-top .score-value{font-size:30px!important}
+body:has(.mobile-score-workspace) .game-state{
+  grid-column:auto!important;order:initial!important;padding:2px!important;display:grid!important;place-content:center!important
+}
+body:has(.mobile-score-workspace) .game-state .period{font-size:15px!important;color:#00d4ff!important}
+body:has(.mobile-score-workspace) .game-state .period-next{width:25px!important;height:25px!important}
+body:has(.mobile-score-workspace) .game-state .downline{display:block!important;font-size:12px!important;line-height:1!important}
+body:has(.mobile-score-workspace) .game-state .pos{display:none!important}
+body:has(.mobile-score-workspace) .nav-strip{
+  grid-column:1/-1!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:4px!important;padding:4px!important;background:#0b2e3a!important;overflow:hidden!important
+}
+body:has(.mobile-score-workspace) .nav-strip .nav-button{
+  display:flex!important;width:auto!important;min-width:0!important;min-height:54px!important;
+  padding:4px 2px!important;border-radius:8px!important;font-size:10px!important;align-items:center!important;justify-content:center!important
+}
+body:has(.mobile-score-workspace) .nav-strip .ico{font-size:14px!important}
+
+/* Exact approved geometry: left stack | vertical field | right stack */
+.mobile-score-workspace{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 104px minmax(0,1fr)!important;
+  gap:5px!important;align-items:start!important;margin-top:5px!important;min-width:0!important
+}
+.mobile-score-side{
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+  gap:5px!important;align-content:start!important;min-width:0!important
+}
+.mobile-score-center{min-width:0!important}
+.mobile-score-workspace .pane{
+  position:static!important;inset:auto!important;float:none!important;
+  width:auto!important;max-width:none!important;min-width:0!important;height:auto!important;
+  margin:0!important;border-radius:10px!important;overflow:hidden!important;background:#102a34!important
+}
+.mobile-score-workspace .pane-title{
+  width:100%!important;min-height:47px!important;padding:7px!important;font-size:11px!important;
+  line-height:1!important;display:flex!important;align-items:center!important;justify-content:space-between!important
+}
+.mobile-score-workspace .pane.off .pane-title{background:#167796!important}
+.mobile-score-workspace .pane.def .pane-title{background:#9b4029!important}
+.mobile-score-workspace .pane.st .pane-title{background:#6c57ad!important}
+.mobile-score-workspace .pane.pen .pane-title{background:#a97914!important}
+.mobile-score-workspace .pane-body{
+  display:block!important;padding:6px!important;max-height:none!important;overflow:visible!important
+}
+.mobile-score-workspace .pane.mobile-collapsed .pane-body{display:none!important}
+.mobile-score-workspace .pane.mobile-open .pane-body{display:block!important}
+.mobile-score-workspace .seg{display:grid!important;grid-template-columns:1fr 1fr!important;gap:3px!important}
+.mobile-score-workspace .seg button,
+.mobile-score-workspace .action-grid button{
+  min-height:39px!important;padding:4px 2px!important;font-size:8px!important;white-space:normal!important
+}
+.mobile-score-workspace .action-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:3px!important}
+.mobile-score-workspace .form-row{
+  display:grid!important;grid-template-columns:1fr!important;gap:2px!important;margin-top:3px!important
+}
+.mobile-score-workspace .form-row label,.mobile-score-workspace .section-label{font-size:7px!important}
+.mobile-score-workspace input,.mobile-score-workspace select{
+  width:100%!important;min-width:0!important;max-width:none!important;padding:5px 3px!important;font-size:10px!important
+}
+.mobile-score-workspace .player-memory{display:none!important}
+.mobile-score-workspace .notice,.mobile-score-workspace .summary{
+  padding:4px!important;font-size:8px!important;line-height:1.22!important;overflow-wrap:anywhere!important
+}
+.mobile-score-workspace .btn{
+  min-width:0!important;max-width:100%!important;padding:5px 3px!important;font-size:8px!important;white-space:normal!important
+}
+.mobile-score-center .field-panel{
+  width:100%!important;min-width:0!important;padding:3px!important;margin:0!important;
+  border-radius:9px!important;background:#082630!important
+}
+.mobile-score-center .field{
+  width:100%!important;height:500px!important;min-height:500px!important;margin:0!important;
+  border:3px solid #f4f7f8!important;border-radius:7px!important
+}
+.mobile-score-center .field-controls{
+  display:grid!important;grid-template-columns:1fr!important;gap:3px!important;margin-top:3px!important
+}
+.mobile-score-center .field-controls .mini{
+  width:100%!important;min-width:0!important;padding:3px 2px!important
+}
+.mobile-score-center .mini small{font-size:6px!important;white-space:normal!important}
+.mobile-score-center .mini b{font-size:9px!important}
+.mobile-score-center .los-control{display:grid!important;grid-template-columns:1fr 1fr!important;gap:2px!important}
+.mobile-score-center .los-control .btn{grid-column:1/-1!important}
+.mobile-score-center .los-control select,
+.mobile-score-center .los-control input,
+.mobile-score-center .los-control .btn{
+  height:28px!important;width:100%!important;min-width:0!important;padding:2px!important;font-size:8px!important
+}
+body:has(.mobile-score-workspace) .savebar{
+  position:sticky!important;bottom:0!important;z-index:45!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr) 104px!important;gap:4px!important;
+  margin-top:5px!important;padding:4px!important;background:#071820!important
+}
+body:has(.mobile-score-workspace) .play-note{min-width:0!important;padding:7px!important;font-size:9px!important}
+body:has(.mobile-score-workspace) .save-actions{display:grid!important;grid-template-columns:1fr 34px!important;gap:3px!important}

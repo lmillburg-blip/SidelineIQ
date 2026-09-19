@@ -1,17 +1,11 @@
-SIDELINEIQ v0.41.2 — MOBILE COLLAPSE HOTFIX
+SIDELINEIQ v0.41.3 — COMPACT MOBILE HEADER
 
-Root cause:
-v0.41.1 installed mobile pane collapse handlers inside composeMobileGameLayout(),
-but renderGame() then called bindGame(). bindGame() also assigns pane-title click
-handlers, so it overwrote the mobile collapse handlers before the user could tap them.
-
-Fix:
-- compose mobile DOM first
-- bind normal game controls second
-- bind mobile collapse handlers LAST
-- Penalty starts collapsed
-- Offense, Defense, and Special Teams start open
-- tapping any pane title toggles its body and +/- indicator
-- keyboard Enter/Space also toggles
-- retains v0.41.1 defense no-horizontal-scroll layout
-- migrates v0.41.1 data
+Changes:
+- Moves the existing functional LOS / Ball At / Distance / Down / State controls into the top scoreboard area on mobile.
+- Removes the duplicated field-control block from below the field by physically moving it, not cloning it.
+- Compresses score/game-state/nav height.
+- Narrows the center field from 104px to 88px and gives Defense proportionally more width.
+- Defense action buttons remain a true 2-column grid and are further tightened to avoid horizontal scrolling.
+- Pane collapse behavior from v0.41.2 is retained.
+- Desktop layout is unchanged.
+- Migrates v0.41.2 data.

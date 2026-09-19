@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.41.2';
-const DBKEY='sidelineiq_v0412';
-const LEGACY_KEYS=['sidelineiq_v0411','sidelineiq_v0410','sidelineiq_v0406','sidelineiq_v0405','sidelineiq_v0404','sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.41.3';
+const DBKEY='sidelineiq_v0413';
+const LEGACY_KEYS=['sidelineiq_v0412','sidelineiq_v0411','sidelineiq_v0410','sidelineiq_v0406','sidelineiq_v0405','sidelineiq_v0404','sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 let mobilePaneOpen='off';
@@ -1323,6 +1323,14 @@ function composeMobileGameLayout(){
    }
  }
 
+ // Move live field state/LOS controls into the compact mobile scoreboard.
+ // This preserves the existing functional controls/IDs while removing the large block below the field.
+ const mobileFieldControls=fieldPanel.querySelector('.field-controls');
+ if(mobileFieldControls){
+   mobileFieldControls.classList.add('mobile-status-strip');
+   top.insertBefore(mobileFieldControls,nav||null);
+ }
+
  const off=workbench.querySelector('.pane.off');
  const def=workbench.querySelector('.pane.def');
  const st=workbench.querySelector('.pane.st');
@@ -1342,9 +1350,9 @@ function composeMobileGameLayout(){
  important(page,'padding','4px 4px 70px');
  important(page,'max-width','none');
  important(top,'display','grid');
- important(top,'grid-template-columns','minmax(0,1fr) 82px minmax(0,1fr)');
- important(top,'gap','4px');
- important(top,'padding','5px');
+ important(top,'grid-template-columns','minmax(0,1fr) 92px minmax(0,1fr)');
+ important(top,'gap','3px');
+ important(top,'padding','4px');
  important(top,'position','sticky');
  important(top,'top','0');
  important(top,'z-index','50');
@@ -1362,8 +1370,8 @@ function composeMobileGameLayout(){
  }
 
  important(root,'display','grid');
- important(root,'grid-template-columns','minmax(0,1fr) 104px minmax(0,1fr)');
- important(root,'gap','5px');
+ important(root,'grid-template-columns','minmax(0,.95fr) 88px minmax(0,1.15fr)');
+ important(root,'gap','4px');
  important(root,'align-items','start');
  important(root,'width','100%');
  important(root,'min-width','0');
@@ -1380,7 +1388,7 @@ function composeMobileGameLayout(){
    important(p,'min-height','0');important(p,'height','auto');important(p,'margin','0');
    important(p,'overflow','hidden');
    const body=p.querySelector('.pane-body');
-   if(body){important(body,'padding','6px');important(body,'max-height','470px');important(body,'overflow','auto')}
+   if(body){important(body,'padding','5px');important(body,'max-height','none');important(body,'overflow','hidden')}
  });
 
  important(fieldPanel,'width','100%');important(fieldPanel,'min-width','0');important(fieldPanel,'margin','0');important(fieldPanel,'padding','3px');

@@ -1516,3 +1516,19 @@ body.modal-open{overflow:hidden!important;touch-action:none}
   .mobile-game-active .pane.off .play-action-icon{width:39px!important;height:39px!important}
   .mobile-game-active .pane.def .play-action-icon{width:34px!important;height:34px!important}
 }
+
+/* v0.42.1 — real SVG action assets and icon-only mobile controls */
+.mobile-game-active .icon-action-btn .action-text{display:none!important}
+.mobile-game-active .icon-action-btn{aspect-ratio:1/1!important;padding:4px!important}
+.mobile-game-active .play-action-icon{width:86%!important;height:86%!important;object-fit:contain!important;display:block!important}
+.mobile-game-active .pane.def .defense-icon-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:4px!important}
+.mobile-game-active .pane.def .icon-action-btn{min-height:0!important}
+.mobile-game-active .pane.def .mobile-def-extra{display:none!important}
+
+/* v0.42.2 — approved mockup artwork */
+.mobile-game-active .play-action-icon{
+  width:88%!important;
+  height:88%!important;
+  object-fit:contain!important;
+  image-rendering:auto;
+}

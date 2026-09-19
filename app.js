@@ -1,9 +1,9 @@
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const BUILD='v0.42.0';
-const DBKEY='sidelineiq_v0420';
-const LEGACY_KEYS=['sidelineiq_v0415','sidelineiq_v0414','sidelineiq_v0413','sidelineiq_v0412','sidelineiq_v0411','sidelineiq_v0410','sidelineiq_v0406','sidelineiq_v0405','sidelineiq_v0404','sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
+const BUILD='v0.42.2';
+const DBKEY='sidelineiq_v0422';
+const LEGACY_KEYS=['sidelineiq_v0421','sidelineiq_v0420','sidelineiq_v0415','sidelineiq_v0414','sidelineiq_v0413','sidelineiq_v0412','sidelineiq_v0411','sidelineiq_v0410','sidelineiq_v0406','sidelineiq_v0405','sidelineiq_v0404','sidelineiq_v0403','sidelineiq_v0402','sidelineiq_v0401','sidelineiq_v0301','sidelineiq_v0300','sidelineiq_v0230','sidelineiq_v0222','sidelineiq_v0221','sidelineiq_v0220','sidelineiq_v0210','sidelineiq_v0204','sidelineiq_v0203','sidelineiq_v0202','sidelineiq_v0201','sidelineiq_v0200','sidelineiq_v020','sidelineiq_v01515','sidelineiq_v01514','sidelineiq_v01513','sidelineiq_v01512','sidelineiq_v01511','sidelineiq_v01510','sidelineiq_v0159','sidelineiq_v0158','sidelineiq_v0157','sidelineiq_v0156','sidelineiq_v0155','sidelineiq_v0154','sidelineiq_v0153','sidelineiq_v0152','sidelineiq_v0151','sidelineiq_v015','sidelineiq_v014','sidelineiq_v013_corrected','sidelineiq_v013','sidelineiq_v012'];
 const defaultState={teams:[],games:[]};
 let selectedPlayId=null;
 let mobilePaneOpen='off';
@@ -615,24 +615,9 @@ function showGameValidation(g,t,onFinalize){
 
 
 function uiIcon(name){
- const base=(body)=>`<svg class="play-action-icon" viewBox="0 0 64 64" aria-hidden="true" focusable="false">${body}</svg>`;
- const s='fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"';
- const icons={
-  run:`<g ${s}><circle cx="18" cy="16" r="5"/><path d="M15 22l-4 12 9 6 6-11 9 4"/><path d="M20 40l-7 14M24 40l10 11"/><circle cx="43" cy="25" r="4"/><path d="M39 30l-7 8 8 7 7-8"/><path d="M40 45l-4 10M45 44l8 8"/><ellipse cx="31" cy="29" rx="5" ry="3" transform="rotate(-18 31 29)"/></g>`,
-  pass:`<g ${s}><circle cx="25" cy="15" r="6"/><path d="M19 23l-3 18M20 25l13 7 8-4M17 41l-7 13M18 41l12 13"/><ellipse cx="44" cy="22" rx="6" ry="3.5" transform="rotate(-25 44 22)"/><path d="M39 24l-4 4"/></g>`,
-  badsnap:`<g ${s}><path d="M8 44c8-5 13-10 17-17M12 50l-5-5M21 53l-7-7"/><ellipse cx="37" cy="25" rx="10" ry="6" transform="rotate(-24 37 25)"/><path d="M31 28l12-6M34 22l6 7"/><path d="M47 14l5-5M51 22l7-1M45 8l1-6"/></g>`,
-  fumble:`<g ${s}><ellipse cx="32" cy="30" rx="12" ry="7" transform="rotate(-18 32 30)"/><path d="M24 33l16-6M29 26l6 8"/><path d="M12 18l7 5M9 29l8 1M14 42l7-4M51 17l-7 6M55 31l-9 1M50 45l-7-6"/></g>`,
-  normal:`<g ${s}><path d="M14 11v42M50 11v42"/><path d="M10 17h8M10 47h8M46 17h8M46 47h8"/><ellipse cx="32" cy="32" rx="8" ry="5"/><path d="M27 34l10-4M30 29l4 6"/></g>`,
-  td:`<g ${s}><circle cx="32" cy="18" r="6"/><path d="M32 24v21M22 55l10-10 10 10"/><path d="M28 31L17 18 11 8M36 31l11-13 6-10"/><path d="M8 8h7M49 8h7"/></g>`,
-  twopt:`<g ${s}><path d="M15 52V12M49 52V12M15 18h34"/><path d="M24 31c2-5 14-5 16 0 2 7-14 9-16 18h17"/></g>`,
-  tackle:`<g ${s}><circle cx="21" cy="17" r="5"/><circle cx="44" cy="20" r="5"/><path d="M18 23l-6 12 11 6 7-10M42 26l-8 9 9 7 8-11"/><path d="M23 41l-8 12M27 41l9 11M43 42l-3 12M48 41l8 9"/></g>`,
-  sack:`<g ${s}><circle cx="21" cy="18" r="5"/><circle cx="43" cy="17" r="5"/><path d="M18 24l-7 12 11 5 8-9M40 23l-4 13 10 6 7-11"/><path d="M22 41l-8 12M27 40l9 12M46 42l-4 12M49 40l8 10"/><ellipse cx="53" cy="16" rx="6" ry="3.5" transform="rotate(20 53 16)"/><path d="M34 29l9-4"/></g>`,
-  pbu:`<g ${s}><circle cx="20" cy="35" r="5"/><path d="M17 41l-6 12M22 41l9 10M15 29l-6-8M25 30l8-9"/><ellipse cx="40" cy="17" rx="9" ry="5" transform="rotate(-18 40 17)"/><path d="M34 20l12-6M37 14l5 7"/><path d="M47 8l4-5M51 15l7-1"/></g>`,
-  pressure:`<g ${s}><circle cx="34" cy="20" r="6"/><path d="M30 27l-5 15 10 5 8-13M31 47l-6 9M38 47l9 8"/><path d="M17 23h8M12 31h11M15 40h8"/></g>`,
-  safety:`<g ${s}><path d="M32 7l20 8v15c0 13-8 22-20 28C20 52 12 43 12 30V15z"/><path d="M25 31l5 5 10-12"/></g>`,
-  deftd:`<g ${s}><circle cx="32" cy="18" r="6"/><path d="M32 24v21M22 55l10-10 10 10"/><path d="M28 31L17 18 11 8M36 31l11-13 6-10"/><path d="M8 8h7M49 8h7"/></g>`
- };
- return base(icons[name]||'');
+ const mockupIcons=new Set(['run','pass','badsnap','fumble','normal','td','tackle','sack','pbu','pressure','safety','deftd']);
+ const ext=mockupIcons.has(name)?'png':'svg';
+ return `<img class="play-action-icon" src="./icons/actions/${name}.${ext}?v=0422" alt="" aria-hidden="true">`;
 }
 function iconButton(icon,label,attrs='',extra=''){
  return `<button ${attrs} class="icon-action-btn ${extra}" aria-label="${esc(label)}" title="${esc(label)}">${uiIcon(icon)}<span class="action-text">${esc(label)}</span></button>`;
@@ -1022,7 +1007,7 @@ function passFields(g){
 }
 
 function defensePane(g){
- return `<div class="form-row"><label>Player #</label><input id="defNum" inputmode="numeric"><div class="seg compact-credit" id="defCredit"><button class="active" data-credit="1">1.0</button><button data-credit="0.5">0.5</button></div></div><div class="section-label">Action</div><div class="action-grid defense-icon-grid">${iconButton('tackle','Tackle','data-def="Tackle"')}${iconButton('sack','Sack','data-def="Sack"')}${iconButton('pbu','Pass Breakup','data-def="PBU"','alt')}${iconButton('pressure','Pressure','data-def="Pressure"','alt')}${iconButton('safety','Safety +2','data-dscore="Safety"','score')}${iconButton('deftd','Defensive TD +6','data-dscore="Def TD"','score')}<button class="alt mobile-def-extra" data-def="TFL">TFL</button><button class="alt mobile-def-extra" data-def="Forced Fumble">Forced Fumble</button><button class="alt mobile-def-extra" data-def="Fumble Recovery">Fumble Recovery</button><button class="alt mobile-def-extra" data-def="Missed">Missed</button><button class="alt mobile-def-extra" data-def="Hurry">Hurry</button></div><div class="form-row"><label>TFL yards</label><input id="tflYards" type="number" min="0" value="0" style="max-width:70px"></div><div class="summary" id="defList">No defensive actions yet.</div>${defenseMemory(g)}`
+ return `<div class="form-row"><label>Player #</label><input id="defNum" inputmode="numeric"><div class="seg compact-credit" id="defCredit"><button class="active" data-credit="1">1.0</button><button data-credit="0.5">0.5</button></div></div><div class="section-label">Action</div><div class="action-grid defense-icon-grid">${iconButton('tackle','Tackle','data-def="Tackle"')}${iconButton('sack','Sack','data-def="Sack"')}${iconButton('pbu','Pass Breakup','data-def="PBU"','alt')}${iconButton('pressure','Pressure','data-def="Pressure"','alt')}${iconButton('safety','Safety +2','data-dscore="Safety"','score')}${iconButton('deftd','Defensive TD +6','data-dscore="Def TD"','score')}<button class="alt mobile-def-extra" data-def="Forced Fumble">Forced Fumble</button><button class="alt mobile-def-extra" data-def="Fumble Recovery">Fumble Recovery</button></div><div class="summary" id="defList">No defensive actions yet.</div>${defenseMemory(g)}`
 }
 
 function penaltyPane(){return `<div class="section-label">Side</div><div class="seg pen-toggle" id="penSideToggle"><button class="active" data-pen-side="Offense">Offense</button><button data-pen-side="Defense">Defense</button></div><div class="section-label">Apply To</div><div class="seg pen-toggle" id="penApplyToggle"><button class="active" data-apply="current">Current</button><button data-apply="former">Former</button></div><div class="section-label">Status</div><div class="seg pen-toggle" id="penStatusToggle"><button class="active" data-status="accepted">Accepted</button><button data-status="declined">Declined</button></div><div class="form-row"><select id="penType"><option>Holding</option><option>False Start</option><option>Delay of Game</option><option>Offside</option><option>Pass Interference</option><option>Personal Foul</option><option>Illegal Formation</option><option>Illegal Motion</option><option>Facemask</option><option>Unsportsmanlike Conduct</option><option>Other</option></select><input id="penYards" type="number" value="10" aria-label="Penalty yards" placeholder="Yards"></div><div class="form-row"><input id="penPlayer" inputmode="numeric" placeholder="Player #" aria-label="Player number"></div><div class="pen-checks"><label><input type="checkbox" id="spotFoul"> Enforce from spot of foul</label><div id="foulSpotFields" class="foul-spot-fields hidden"><span class="field-hint">Spot of foul</span><select id="foulSpotSide" aria-label="Spot of foul side"><option>OWN</option><option>OPP</option><option>50</option></select><input id="foulSpotYard" type="number" min="0" max="49" placeholder="Yard" aria-label="Spot of foul yard line"></div><label><input type="checkbox" id="negate"> Ignore play yardage; enforce from previous LOS</label><label><input type="checkbox" id="repeatDown"> Repeat down / no play</label><label><input type="checkbox" id="autoFirst"> Automatic first down</label></div><div class="form-row"><button class="btn btn-light" id="attachPenalty">Apply Penalty</button><button class="btn btn-light" id="clearPenalty">Clear Current</button></div><div class="summary penalty-list" id="penSummary">No penalties applied.</div>`}
@@ -1782,7 +1767,7 @@ function bindDefense(g){
  $$('[data-def]').forEach(b=>b.onclick=()=>{
    const n=$('#defNum').value.trim();if(!n)return toast('Enter defender number.');
    const action=b.dataset.def,credit=(action==='Tackle'||action==='TFL'||action==='Sack')?Number($('#defCredit .active')?.dataset.credit||1):1;
-   const yards=action==='TFL'?Math.max(0,Number($('#tflYards')?.value||0)):0;
+   const yards=0;
    currentPlay.defenders.push({n,action,credit,yards});$('#defNum').value='';renderDefenders()
  });
  $$('[data-dscore]').forEach(b=>b.onclick=()=>{currentPlay.score=b.dataset.dscore;toast(`${b.textContent} selected`)});

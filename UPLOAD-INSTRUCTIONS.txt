@@ -1,29 +1,7 @@
-SIDELINEIQ v0.42.0 — ICON-FIRST MOBILE SCORING
-
-Mobile offense:
-- Run: white outline handoff icon
-- Pass: white outline quarterback icon
-- Bad Snap: white outline loose-snap icon
-- Normal: chains + ball marker icon
-- Touchdown: official signaling TD
-- 2-point try: goal-line/2 icon
-- Fumble: loose-football icon
-- Button words hidden on mobile; accessible labels/titles retained
-
-Mobile defense quick actions:
-- Tackle
-- Sack (tackler reaching QB/thrower)
-- Pass Breakup
-- Pressure
-- Safety
-- Defensive TD
-Legacy TFL / FF / FR / Missed / Hurry remain available on desktop but are hidden from the mobile quick panel.
-
-Workflow:
-- Save Play removed from top utility bar
-- Save Play is now directly above the field between Offense and Defense
-- Special Teams unchanged
-- Penalty unchanged
-- Field widened and slightly lengthened
-- Version displayed at bottom of app
-- v0.41.5 data migrates forward
+SIDELINEIQ v0.42.2
+- Replaces the hand-drawn v0.42.1 SVG action icons with artwork taken directly from the approved icon mockup.
+- Mockup-derived icons: Run, Pass, Bad Snap, Fumble, Normal, Touchdown, Tackle, Sack, Pass Breakup, Pressure, Safety, Defensive TD.
+- Mobile buttons remain icon-only.
+- TFL, Hurry, and Missed remain removed from live defensive entry.
+- Special Teams and Penalty workflows are unchanged.
+- Existing v0.42.1 data migrates forward.
